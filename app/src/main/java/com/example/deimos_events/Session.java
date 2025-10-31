@@ -17,6 +17,9 @@ public class Session {
         return result;
     }
 
+    public void setResult() {
+        this.result = null;
+    }
     public void setResult(Result result) {
         this.result = result;
     }
@@ -27,5 +30,11 @@ public class Session {
 
     public Actor getSelectedActor() {
         return selectedActor;
+    }
+    public void setCurrentActor() {
+        this.currentActor = null;
+    }
+    public void setCurrentActor(Actor actor) {
+        this.currentActor = actor;
     }
 }
