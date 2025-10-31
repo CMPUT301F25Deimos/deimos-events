@@ -3,7 +3,7 @@ package com.example.deimos_events;
 /**
  * An abstract class for all types of actors to inherit properties and methods from.
  */
-public abstract class Actor {
+public class Actor {
     String deviceIdentifier;
     String name;
     String email;
@@ -15,7 +15,16 @@ public abstract class Actor {
         this.phoneNumber = phoneNumber;
     }
 
-    public void updateProfile(String name, String email, String phoneNumber) {
-        // TODO: update in database
+    public String getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public String getName() {
+        return name;
     }
 }
