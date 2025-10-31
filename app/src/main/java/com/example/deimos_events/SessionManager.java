@@ -41,7 +41,20 @@ public class SessionManager {
         return session;
     }
 
-    public void updateSession(Result r){
+    public void setResult(){
+        this.session.setResult();
+    }
+
+    public void setResult(Result result){
+        this.session.setResult(result);
+    }
+
+    public void setCurrentActor(){
+        this.session.setCurrentActor();
+    }
+
+    public void setCurrentActor(Actor actor){
+        this.session.setCurrentActor(actor);
     }
 
     public EventManager getEventManager() {
