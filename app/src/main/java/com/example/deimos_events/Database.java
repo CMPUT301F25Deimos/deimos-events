@@ -6,13 +6,11 @@ import java.util.function.Consumer;
 
 public class Database {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private Result r;
-
     public void deleteActor(Actor actor, Consumer<Boolean> callback){
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
                 .delete()
-                .addOnSuccessListener(e ->{
+                .addOnSuccessListener(tempVoid ->{
                     callback.accept(Boolean.TRUE);
                 })
                 .addOnFailureListener(e -> {
@@ -24,7 +22,7 @@ public class Database {
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
                 .set(actor)
-                .addOnSuccessListener(e ->{
+                .addOnSuccessListener(tempVoid ->{
                     callback.accept(Boolean.TRUE);
                 })
                 .addOnFailureListener(e -> {

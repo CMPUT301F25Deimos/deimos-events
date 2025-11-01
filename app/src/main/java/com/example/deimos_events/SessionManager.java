@@ -41,12 +41,8 @@ public class SessionManager {
         return session;
     }
 
-    public void setResult(){
-        this.session.setResult();
-    }
-
-    public void setResult(Result result){
-        this.session.setResult(result);
+    public void updateResult(Boolean condition, String message){
+       session.updateResult(condition, message);
     }
 
     public void setCurrentActor(){

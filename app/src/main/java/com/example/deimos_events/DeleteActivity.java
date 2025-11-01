@@ -11,6 +11,23 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class DeleteActivity extends AppCompatActivity {
 
+    private Button deleteButton;
+
+    private SessionManager SM;
+    private ActorManager AM;
+    private UserInterfaceManager UIM;
+    private NavigationManager NM;
+    private Result result;
+
+    // Stores the listener manually, didn't really want to use LiveData
+    private final ResultListener resultListener = r ->{
+        if (result.isSuccess()) {
+            NM.goTo(HomePage);
+        }else{
+            UIM.showFragment(result.getMessage());
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,22 +38,30 @@ public class DeleteActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        deleteButton = findViewById(R.id.activity_delete);
+        SM = ((EventsApp) getApplicationContext()).getSessionManager(); // get session manager
+        AM = SM.getActorManager();
+        UIM = SM.getUserInterfaceManager();
+        NM = UIM.getNavigationManager();
+        result = UIM.getResult();
 
-        Button deleteButton;
-        SessionManager SM = ((EventsApp) getApplicationContext()).getSessionManager(); // get session manager
-        ActorManager AM = SM.getActorManager();
-        UserInterfaceManager UIM = SM.getUserInterfaceManager();
-        NavigationManager NM = UIM.getNavigationManager();
-
-
-        // setup an observer for the result
-
-        // hmm
-        deleteButton.setOnClickListener(v ->{
-            if (su)
-            AM.deleteActor(); // delete first
-            NM.goTo(LoadingScreen); // wait for async
+        deleteButton.setOnClickListener(v -> {
+            AM.deleteActor();
         });
+    }
+    @Override
+    protected void onStart(){
+        super.onStart();
+        if (result != null){
+            result.addListener(resultListener);
+        }
+    }
 
+    @Override
+    protected void onStop(){
+        super.onStop();
+        if (result != null) {
+            result.removeListener(resultListener);
+        }
     }
 }

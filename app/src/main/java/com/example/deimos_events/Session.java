@@ -2,7 +2,7 @@ package com.example.deimos_events;
 
 public class Session {
     private Database database;
-    private Result result;
+    private final Result result = new Result(false, "");
     private Actor currentActor;
     private Actor selectedActor;
     public Session(Database database){
@@ -17,11 +17,8 @@ public class Session {
         return result;
     }
 
-    public void setResult() {
-        this.result = null;
-    }
-    public void setResult(Result result) {
-        this.result = result;
+    public void updateResult(Boolean cond, String message){
+        result.set(cond, message); // updates current result
     }
 
     public Actor getCurrentActor() {

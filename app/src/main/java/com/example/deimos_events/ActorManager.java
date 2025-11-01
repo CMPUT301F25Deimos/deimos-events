@@ -18,14 +18,11 @@ public class ActorManager {
         Database db = session.getDatabase();
         Actor actor = session.getCurrentActor();
         db.deleteActor(actor, success -> {
-            Result r;
             if (success) {
-                r = new Result(Boolean.TRUE, "Succeeded on Deleting User");
-                sessionManager.setCurrentActor();
+                sessionManager.updateResult(Boolean.TRUE, "Successfully deleted user");
             } else {
-                r = new Result(Boolean.FALSE, "Failed to delete user");
+                sessionManager.updateResult(Boolean.FALSE, "Failed to delete user");
             }
-            sessionManager.setResult(r);
         });
     }
 
@@ -38,14 +35,11 @@ public class ActorManager {
         Database db = session.getDatabase();
         Actor actor = new Actor(androidId, name, email, phoneNo);
         db.createActor(actor, success -> {
-            Result r;
             if (success) {
-                r = new Result(Boolean.TRUE, "Succeeded on creating User");
-                sessionManager.setCurrentActor(actor);
+                sessionManager.updateResult(Boolean.TRUE, "Successfully created a user");
             } else {
-                r = new Result(Boolean.FALSE, "Failed to create user");
+                sessionManager.updateResult(Boolean.FALSE, "Failed To Create User");
             }
-            sessionManager.setResult(r);
         });
     }
 }
