@@ -10,6 +10,11 @@ public class UserInterfaceManager {
         this.sessionManager = sessionManager;
     }
 
+
+    public Actor  getActorFromSessionManager(){
+        return sessionManager.getSession().getCurrentActor();
+    }
+
     public NavigationManager getNavigationManager() {
         return navigationManager;
     }

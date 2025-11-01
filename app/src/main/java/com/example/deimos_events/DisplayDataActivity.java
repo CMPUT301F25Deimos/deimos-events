@@ -1,8 +1,8 @@
 package com.example.deimos_events;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,10 +10,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class DisplayDataActivity extends AppCompatActivity {
 
     // grab Android stuff that you need
     private Button navigateButton;
+
+    private TextView titleText;
 
     // grab the our system stuff
     private SessionManager SM;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
         // instantiate Android stuff
         navigateButton = findViewById(R.id.navigate_button);
+        titleText = findViewById(R.id.title_text);
 
 
 
@@ -45,12 +48,17 @@ public class MainActivity extends AppCompatActivity {
 
         // If you need user interface information, ask the UIM
         // Call UIM to grab the things from the session
-        // Example username = UIM.getUsername();
+         Actor currentActor = UIM.getActorFromSessionManager();
+         String title = "Hello User: " + currentActor.getName();
+         titleText.setText(title);
+
+
+
 
 
         // setup interactive elements
         navigateButton.setOnClickListener(v -> {
-            NM.goTo(CreateActivity.class);
+            NM.goTo(DeleteActivity.class);
         });
 
     }
