@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- added weightsum so it is equally divided into two (put in middle) -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:weightSum="3">
 
@@ -22,15 +22,22 @@
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:textSize="10sp"
-        android:text="Event Text"
-        android:layout_weight="1.5"/>
-    <Button
+        android:text="Event Information"
+        android:maxLines="4"
+        android:ellipsize="end"
+        android:layout_weight="1.25"/>
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/interact_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
+        android:paddingHorizontal="30dp"
         android:textSize="12sp"
         android:text="Button"
+        app:icon="@drawable/baseline_edit_24"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
         android:background="@drawable/round_button"
-        android:layout_weight="1"/>
+        android:layout_weight="1.25"/>
+
 </LinearLayout>
