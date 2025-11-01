@@ -11,23 +11,23 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class DeleteActivity extends AppCompatActivity {
 
+    // grab Android stuff that you need
     private Button deleteButton;
 
+    // grab the our system stuff
     private SessionManager SM;
     private ActorManager AM;
     private UserInterfaceManager UIM;
     private NavigationManager NM;
-    private Result result;
 
-    // Stores the listener manually, didn't really want to use LiveData
+    // Implement listener to decide what to do.
     private final ResultListener resultListener = r ->{
         if (result.isSuccess()) {
             NM.goTo(HomePage);
         }else{
-            UIM.showFragment(result.getMessage());
+            UIM.showFragment(result.getMessage()); // show notification
         }
     };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,30 +38,35 @@ public class DeleteActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // instantiate Android stuff
         deleteButton = findViewById(R.id.activity_delete);
+
+
+
+        // instantiate Our system stuff, grab managers that you need
         SM = ((EventsApp) getApplicationContext()).getSessionManager(); // get session manager
         AM = SM.getActorManager();
         UIM = SM.getUserInterfaceManager();
         NM = UIM.getNavigationManager();
-        result = UIM.getResult();
 
+
+        // If you need user interface information, ask the UIM
+            // Call UIM to grab the things from the session
+            // Example username = UIM.getUsername();
+
+
+        // setup interactive elements
         deleteButton.setOnClickListener(v -> {
-            AM.deleteActor();
+            AM.deleteActor(); // no longer grabs result, instead asks manager to modify
         });
-    }
-    @Override
-    protected void onStart(){
-        super.onStart();
-        if (result != null){
-            result.addListener(resultListener);
-        }
-    }
 
-    @Override
-    protected void onStop(){
-        super.onStop();
-        if (result != null) {
-            result.removeListener(resultListener);
-        }
+        // Attach listener
+        UIM.attachListener(ResultListener);
+
+
+
+
+
     }
 }

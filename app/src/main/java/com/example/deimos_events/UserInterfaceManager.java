@@ -13,8 +13,17 @@ public class UserInterfaceManager {
     }
 
     public Result getResult(){
-
         return sessionManager.getSession().getResult();
+    }
+
+    public void attachResultListener(ResultListener resultListener){
+        Result result = sessionManager.getSession().getResult();
+        result.addListener(resultListener);
+    }
+
+    public void clearResultListener(){
+        Result result = sessionManager.getSession().getResult();
+        result.
 
     }
 }

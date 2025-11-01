@@ -27,6 +27,9 @@ public class Result {
         notifyListeners();
     }
 
+    public void deconstruct
+
+
     public void notifyListeners() {
         for (ResultListener rl : listeners) {
             rl.onResultChanged(this);

@@ -12,11 +12,18 @@ public class ActorManager {
         this.sessionManager = sessionManager;
 
     }
-
     public void deleteActor() {
+
+
+        // Validate what you are trying to do, before querying the database
+
+
+
+        // grab session, database, and what you need, in this case the actor
         Session session = sessionManager.getSession();
         Database db = session.getDatabase();
         Actor actor = session.getCurrentActor();
+
         db.deleteActor(actor, success -> {
             if (success) {
                 sessionManager.updateResult(Boolean.TRUE, "Successfully deleted user");
