@@ -1,5 +1,7 @@
 package com.example.deimos_events;
 
+import android.app.Activity;
+
 public class UserInterfaceManager {
     private final SessionManager sessionManager;
     private final NavigationManager navigationManager = new NavigationManager(this);
@@ -12,18 +14,22 @@ public class UserInterfaceManager {
         return navigationManager;
     }
 
+    public Activity getActivity(){
+        return sessionManager.getSession().getActivity();
+    }
+
     public Result getResult(){
         return sessionManager.getSession().getResult();
     }
 
     public void attachResultListener(ResultListener resultListener){
-        Result result = sessionManager.getSession().getResult();
-        result.addListener(resultListener);
+        sessionManager.getSession().getResult().addResultListener(resultListener);
     }
 
+    public void clearResult(){
+        sessionManager.getSession().getResult().clear();
+    }
     public void clearResultListener(){
-        Result result = sessionManager.getSession().getResult();
-        result.
-
+        sessionManager.getSession().getResult().removeResultListener();
     }
 }

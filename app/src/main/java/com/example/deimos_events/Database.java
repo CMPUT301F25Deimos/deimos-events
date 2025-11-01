@@ -19,6 +19,10 @@ public class Database {
     }
 
     public void createActor(Actor actor, Consumer<Boolean> callback){
+
+
+        // temp for testing
+
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
                 .set(actor)
@@ -27,6 +31,22 @@ public class Database {
                 })
                 .addOnFailureListener(e -> {
                     callback.accept(Boolean.FALSE);
+                });
+    }
+
+    public void actorExists(Actor actor, Consumer<Boolean> callback){
+        db.collection("actors")
+                .document(actor.getDeviceIdentifier())
+                .get()
+                .addOnSuccessListener(doc ->{
+                    if (doc.exists()){
+                       callback.accept(Boolean.TRUE);
+                    }else{
+                        callback.accept(Boolean.FALSE);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    callback.accept(null);
                 });
     }
 }

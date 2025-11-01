@@ -1,10 +1,14 @@
 package com.example.deimos_events;
 
+import android.app.Activity;
+
 public class Session {
     private Database database;
-    private final Result result = new Result(false, "");
+    private Result result = new Result();
     private Actor currentActor;
     private Actor selectedActor;
+
+    private Activity activity;
     public Session(Database database){
         this.database = database;
     }
@@ -17,8 +21,8 @@ public class Session {
         return result;
     }
 
-    public void updateResult(Boolean cond, String message){
-        result.set(cond, message); // updates current result
+    public void updateResult(Boolean cond, String operation, String message){
+        result.set(cond, operation, message); // updates current result
     }
 
     public Actor getCurrentActor() {
@@ -33,5 +37,12 @@ public class Session {
     }
     public void setCurrentActor(Actor actor) {
         this.currentActor = actor;
+    }
+
+    public Activity getActivity() {
+        return activity;
+    }
+    public void setActivity(Activity activity){
+        this.activity = activity;
     }
 }

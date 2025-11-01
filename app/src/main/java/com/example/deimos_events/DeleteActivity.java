@@ -1,7 +1,9 @@
 package com.example.deimos_events;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,12 +23,15 @@ public class DeleteActivity extends AppCompatActivity {
     private NavigationManager NM;
 
     // Implement listener to decide what to do.
-    private final ResultListener resultListener = r ->{
+    private final ResultListener resultListener = result ->{
         if (result.isSuccess()) {
-            NM.goTo(HomePage);
+            NM.goTo(MainActivity.class);
         }else{
-            UIM.showFragment(result.getMessage()); // show notification
+            Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show(); // show notification
+            NM.goTo(CreateActivity.class);
         }
+        deleteButton.setEnabled(Boolean.TRUE);
+        UIM.clearResult();
     };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +45,12 @@ public class DeleteActivity extends AppCompatActivity {
         });
 
         // instantiate Android stuff
-        deleteButton = findViewById(R.id.activity_delete);
-
-
-
+        deleteButton = findViewById(R.id.delete_button);
         // instantiate Our system stuff, grab managers that you need
         SM = ((EventsApp) getApplicationContext()).getSessionManager(); // get session manager
         AM = SM.getActorManager();
         UIM = SM.getUserInterfaceManager();
         NM = UIM.getNavigationManager();
-
 
         // If you need user interface information, ask the UIM
             // Call UIM to grab the things from the session
@@ -59,14 +60,22 @@ public class DeleteActivity extends AppCompatActivity {
         // setup interactive elements
         deleteButton.setOnClickListener(v -> {
             AM.deleteActor(); // no longer grabs result, instead asks manager to modify
+            deleteButton.setEnabled(Boolean.FALSE);
+            System.out.println("Hello");
         });
 
-        // Attach listener
-        UIM.attachListener(ResultListener);
-
-
-
-
-
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SM.getSession().setActivity(this);
+        UIM.attachResultListener(resultListener);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        UIM.clearResultListener();
+    }
+
 }
