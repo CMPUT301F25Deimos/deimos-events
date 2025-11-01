@@ -25,7 +25,7 @@ public class CreateActivity extends AppCompatActivity {
     // Implement listener to decide what to do.
     private final ResultListener resultListener = result ->{
         if (result.isSuccess()) {
-            NM.goTo(DeleteActivity.class);
+            NM.goTo(DisplayDataActivity.class);
         }else{
             Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show(); // show notification
             System.out.println("Fail");

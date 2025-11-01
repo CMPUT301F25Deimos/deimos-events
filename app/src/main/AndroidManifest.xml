@@ -23,6 +23,7 @@
         </activity>
         <activity android:name=".DeleteActivity"/>
         <activity android:name=".CreateActivity"/>
+        <activity android:name=".DisplayDataActivity"/>
     </application>
 
 </manifest>

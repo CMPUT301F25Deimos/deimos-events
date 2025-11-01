@@ -8,7 +8,7 @@
     tools:context=".DeleteActivity">
 
     <TextView
-        android:id="@+id/hello_text"
+        android:id="@+id/title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!"
@@ -26,6 +26,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/hello_text" />
+        app:layout_constraintTop_toBottomOf="@+id/title_text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

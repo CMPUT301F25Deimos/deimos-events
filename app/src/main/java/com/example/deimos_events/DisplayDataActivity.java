@@ -1,9 +1,8 @@
 package com.example.deimos_events;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,15 +10,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class DisplayDataActivity extends AppCompatActivity {
 
     // grab Android stuff that you need
-    private Button signInButton;
+    private Button navigateButton;
 
-    private EditText nameBox;
-    private EditText emailBox;
-    private EditText phoneBox;
-    private EditText IDBox;
+    private TextView titleText;
 
     // grab the our system stuff
     private SessionManager SM;
@@ -31,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_display_data);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -39,11 +35,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // instantiate Android stuff
-        signInButton = findViewById(R.id.sign_in);
-        nameBox = findViewById(R.id.input_name);
-        emailBox = findViewById(R.id.input_email);
-        IDBox = findViewById(R.id.input_ID);
-        phoneBox = findViewById(R.id.input_phone);
+        navigateButton = findViewById(R.id.navigate_button);
+        titleText = findViewById(R.id.title_text);
 
 
 
@@ -55,18 +48,17 @@ public class MainActivity extends AppCompatActivity {
 
         // If you need user interface information, ask the UIM
         // Call UIM to grab the things from the session
-        // Example username = UIM.getUsername();
+         Actor currentActor = UIM.getActorFromSessionManager();
+         String title = "Hello User: " + currentActor.getName();
+         titleText.setText(title);
+
+
+
 
 
         // setup interactive elements
-        signInButton.setOnClickListener(v -> {
-            String name = nameBox.getText().toString();
-            String email = emailBox.getText().toString();
-            String phone = phoneBox.getText().toString();
-            String ID = IDBox.getText().toString();
-            Actor newActor = new Actor(ID, name, email, phone);
-            SM.getSession().setCurrentActor(newActor);
-            NM.goTo(CreateActivity.class);
+        navigateButton.setOnClickListener(v -> {
+            NM.goTo(DeleteActivity.class);
         });
 
     }
