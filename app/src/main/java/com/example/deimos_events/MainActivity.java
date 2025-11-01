@@ -3,6 +3,7 @@ package com.example.deimos_events;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,7 +14,12 @@ import androidx.core.view.WindowInsetsCompat;
 public class MainActivity extends AppCompatActivity {
 
     // grab Android stuff that you need
-    private Button navigateButton;
+    private Button signInButton;
+
+    private EditText nameBox;
+    private EditText emailBox;
+    private EditText phoneBox;
+    private EditText IDBox;
 
     // grab the our system stuff
     private SessionManager SM;
@@ -33,7 +39,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // instantiate Android stuff
-        navigateButton = findViewById(R.id.navigate_button);
+        signInButton = findViewById(R.id.sign_in);
+        nameBox = findViewById(R.id.input_name);
+        emailBox = findViewById(R.id.input_email);
+        IDBox = findViewById(R.id.input_ID);
+        phoneBox = findViewById(R.id.input_phone);
 
 
 
@@ -49,7 +59,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         // setup interactive elements
-        navigateButton.setOnClickListener(v -> {
+        signInButton.setOnClickListener(v -> {
+            String name = nameBox.getText().toString();
+            String email = emailBox.getText().toString();
+            String phone = phoneBox.getText().toString();
+            String ID = IDBox.getText().toString();
+            Actor newActor = new Actor(ID, name, email, phone);
+            SM.getSession().setCurrentActor(newActor);
             NM.goTo(CreateActivity.class);
         });
 
