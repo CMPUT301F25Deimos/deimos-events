@@ -1,7 +1,6 @@
 package com.example.deimos_events;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -11,10 +10,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FoundationActivity {
 
     // grab Android stuff that you need
-    private Button signInButton;
+    private Button navigateButton;
 
     private EditText nameBox;
     private EditText emailBox;
@@ -39,11 +38,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // instantiate Android stuff
-        signInButton = findViewById(R.id.sign_in);
-        nameBox = findViewById(R.id.input_name);
-        emailBox = findViewById(R.id.input_email);
-        IDBox = findViewById(R.id.input_ID);
-        phoneBox = findViewById(R.id.input_phone);
+        navigateButton = findViewById(R.id.navigate_button);
 
 
 
@@ -59,28 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         // setup interactive elements
-        signInButton.setOnClickListener(v -> {
-            String name = nameBox.getText().toString();
-            String email = emailBox.getText().toString();
-            String phone = phoneBox.getText().toString();
-            String ID = IDBox.getText().toString();
-            Actor newActor = new Actor(ID, name, email, phone);
-            SM.getSession().setCurrentActor(newActor);
-            NM.goTo(CreateActivity.class);
+        navigateButton.setOnClickListener(v -> {
+            NM.goTo(SignInActivity.class);
         });
 
     }
-    @Override
-    protected void onStart() {
-        super.onStart();
-        SM.getSession().setActivity(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-
 
 }

@@ -67,12 +67,4 @@ public class DisplayDataActivity extends AppCompatActivity {
         super.onStart();
         SM.getSession().setActivity(this);
     }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-
-
 }

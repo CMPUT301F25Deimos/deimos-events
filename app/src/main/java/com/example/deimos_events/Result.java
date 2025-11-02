@@ -6,22 +6,20 @@ public class Result {
     private String message;
 
 
-    private  ResultListener resultListener;
 
-    public void addResultListener(ResultListener resultListener){
-        this.resultListener = resultListener;
+
+    public Result(Boolean cond, String operation, String message){
+        this.cond = cond;
+        this.operation = operation;
+        this.message = message;
     }
-    public void removeResultListener(){
-        this.resultListener = null;
-    }
+
+
 
     public void set(Boolean cond, String operation, String message){
         this.cond = cond;
         this.operation = operation;
         this.message = message;
-        if (resultListener != null){
-            resultListener.onResultChanged(this);
-        }
     }
 
     public void clear(){

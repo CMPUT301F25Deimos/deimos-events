@@ -23,18 +23,5 @@ public class UserInterfaceManager {
         return sessionManager.getSession().getActivity();
     }
 
-    public Result getResult(){
-        return sessionManager.getSession().getResult();
-    }
 
-    public void attachResultListener(ResultListener resultListener){
-        sessionManager.getSession().getResult().addResultListener(resultListener);
-    }
-
-    public void clearResult(){
-        sessionManager.getSession().getResult().clear();
-    }
-    public void clearResultListener(){
-        sessionManager.getSession().getResult().removeResultListener();
-    }
 }

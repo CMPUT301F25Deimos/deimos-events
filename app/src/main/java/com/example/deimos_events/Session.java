@@ -4,7 +4,6 @@ import android.app.Activity;
 
 public class Session {
     private Database database;
-    private Result result = new Result();
     private Actor currentActor;
     private Actor selectedActor;
 
@@ -17,13 +16,10 @@ public class Session {
         return database;
     }
 
-    public Result getResult() {
-        return result;
-    }
 
-    public void updateResult(Boolean cond, String operation, String message){
-        result.set(cond, operation, message); // updates current result
-    }
+    //public void updateResult(Boolean cond, String operation, String message){
+     //   result.set(cond, operation, message); // updates current result
+    //}
 
     public Actor getCurrentActor() {
         return currentActor;

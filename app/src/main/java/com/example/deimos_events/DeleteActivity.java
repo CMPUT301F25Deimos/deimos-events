@@ -1,17 +1,17 @@
 package com.example.deimos_events;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class DeleteActivity extends AppCompatActivity {
+import java.util.function.Consumer;
+
+public class DeleteActivity extends FoundationActivity {
 
     // grab Android stuff that you need
     private Button deleteButton;
@@ -22,8 +22,7 @@ public class DeleteActivity extends AppCompatActivity {
     private UserInterfaceManager UIM;
     private NavigationManager NM;
 
-    // Implement listener to decide what to do.
-    private final ResultListener resultListener = result ->{
+    private Consumer<Result> deleteCallBack = result ->{
         if (result.isSuccess()) {
             NM.goTo(MainActivity.class);
         }else{
@@ -31,8 +30,9 @@ public class DeleteActivity extends AppCompatActivity {
             NM.goTo(CreateActivity.class);
         }
         deleteButton.setEnabled(Boolean.TRUE);
-        UIM.clearResult();
     };
+
+    // Implement listener to decide what to do.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,23 +59,10 @@ public class DeleteActivity extends AppCompatActivity {
 
         // setup interactive elements
         deleteButton.setOnClickListener(v -> {
-            AM.deleteActor(); // no longer grabs result, instead asks manager to modify
+            AM.deleteActor(deleteCallBack);
             deleteButton.setEnabled(Boolean.FALSE);
             System.out.println("Hello");
         });
 
     }
-    @Override
-    protected void onStart() {
-        super.onStart();
-        SM.getSession().setActivity(this);
-        UIM.attachResultListener(resultListener);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        UIM.clearResultListener();
-    }
-
 }
