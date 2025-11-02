@@ -48,7 +48,7 @@ public class DisplayDataActivity extends AppCompatActivity {
 
         // If you need user interface information, ask the UIM
         // Call UIM to grab the things from the session
-         Actor currentActor = UIM.getActorFromSessionManager();
+         Actor currentActor = UIM.getCurrentActor();
          String title = "Hello User: " + currentActor.getName();
          titleText.setText(title);
 

@@ -25,7 +25,6 @@ public class MainActivity extends FoundationActivity {
     private UserInterfaceManager UIM;
     private NavigationManager NM;
 
-    // Implement listener to decide what to do.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

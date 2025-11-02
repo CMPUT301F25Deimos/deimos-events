@@ -11,8 +11,11 @@ public class UserInterfaceManager {
     }
 
 
-    public Actor  getActorFromSessionManager(){
+    public Actor getCurrentActor(){
         return sessionManager.getSession().getCurrentActor();
+    }
+    public void setCurrentActor(Actor actor){
+        sessionManager.getSession().setCurrentActor(actor);
     }
 
     public NavigationManager getNavigationManager() {

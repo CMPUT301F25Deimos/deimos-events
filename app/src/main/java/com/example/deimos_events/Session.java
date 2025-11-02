@@ -16,20 +16,12 @@ public class Session {
         return database;
     }
 
-
-    //public void updateResult(Boolean cond, String operation, String message){
-     //   result.set(cond, operation, message); // updates current result
-    //}
-
     public Actor getCurrentActor() {
         return currentActor;
     }
 
     public Actor getSelectedActor() {
         return selectedActor;
-    }
-    public void setCurrentActor() {
-        this.currentActor = null;
     }
     public void setCurrentActor(Actor actor) {
         this.currentActor = actor;

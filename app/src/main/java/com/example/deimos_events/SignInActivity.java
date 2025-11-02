@@ -63,7 +63,7 @@ public class SignInActivity extends FoundationActivity {
             String phone = phoneBox.getText().toString();
             String ID = IDBox.getText().toString();
             Actor newActor = new Actor(ID, name, email, phone);
-            SM.getSession().setCurrentActor(newActor);
+            UIM.setCurrentActor(newActor);
             NM.goTo(CreateActivity.class);
         });
 
