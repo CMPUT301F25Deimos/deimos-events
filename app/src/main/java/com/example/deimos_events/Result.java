@@ -44,4 +44,8 @@ public class Result {
     public String getMessage() {
         return message;
     }
+
+    public boolean isSuccess() {
+        return cond;
+    }
 }
