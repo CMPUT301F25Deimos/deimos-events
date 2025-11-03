@@ -152,7 +152,7 @@
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/EventWaitlisted"
+        app:layout_constraintTop_toBottomOf="@id/EventWaitlisted"/>
     <TextView
         android:id="@+id/Criteria"
         android:layout_width="0dp"
@@ -165,7 +165,7 @@
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ParticipationCriteria"
+        app:layout_constraintTop_toBottomOf="@id/ParticipationCriteria"/>
     <TextView
         android:id="@+id/Guidelines"
         android:layout_width="0dp"
@@ -178,7 +178,7 @@
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/Criteria"
+        app:layout_constraintTop_toBottomOf="@id/Criteria"/>
     <TextView
         android:id="@+id/GuidelinesDescription"
         android:layout_width="0dp"
