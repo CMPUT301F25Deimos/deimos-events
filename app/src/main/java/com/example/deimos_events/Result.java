@@ -45,7 +45,4 @@ public class Result {
         return message;
     }
 
-    public boolean isSuccess() {
-        return cond;
-    }
 }

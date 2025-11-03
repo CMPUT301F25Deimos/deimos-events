@@ -6,7 +6,13 @@ import android.widget.EditText;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -28,11 +34,8 @@ public class MainActivity extends FoundationActivity {
     private UserInterfaceManager UIM;
     private NavigationManager NM;
 
-
-public class MainActivity extends AppCompatActivity {
-    
     private ActivityMainBinding binding;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,19 +61,14 @@ public class MainActivity extends AppCompatActivity {
         // If you need user interface information, ask the UIM
         // Call UIM to grab the things from the session
         // Example username = UIM.getUsername();
-
-
         // setup interactive elements
         navigateButton.setOnClickListener(v -> {
             NM.goTo(SignInActivity.class);
         });
 
-    }
-
-        
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        
+
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -80,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+    }
+
     }
     
-}
