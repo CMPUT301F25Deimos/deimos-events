@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <!-- Header -->
     <TextView
         android:id="@+id/Header"
         android:layout_width="0dp"
@@ -37,7 +36,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Header" />
 
-    <!-- Event Image -->
+  
     <ImageView
         android:id="@+id/imgEvent"
         android:layout_width="150dp"
@@ -49,7 +48,7 @@
         app:layout_constraintTop_toBottomOf="@+id/EventTitle"
         tools:srcCompat="@drawable/square_image" />
 
-    <!-- Section Title -->
+
     <TextView
         android:id="@+id/DescriptionTitle"
         android:layout_width="wrap_content"
@@ -61,7 +60,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Body Text -->
+ 
     <TextView
         android:id="@+id/DescriptionBody"
         android:layout_width="0dp"
@@ -74,7 +73,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Placeholder for details -->
+ 
     <TextView
         android:id="@+id/EventDate"
         android:layout_width="0dp"
@@ -194,7 +193,6 @@
         app:layout_constraintTop_toBottomOf="@id/Guidelines" />
 
 
-    <!-- Buttons -->
     <LinearLayout
         android:id="@+id/buttonLayout"
         android:layout_width="wrap_content"
@@ -226,7 +224,7 @@
             android:textColor="#FFFFFF" />
     </LinearLayout>
 
-    <!-- Bottom Navigation -->
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"
         android:layout_width="0dp"
