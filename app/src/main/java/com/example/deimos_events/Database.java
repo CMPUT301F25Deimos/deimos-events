@@ -31,4 +31,12 @@ public class Database {
                     callback.accept(Boolean.FALSE);
                 });
     }
+    public void updateEvent(Event event, Consumer<Boolean> callback) {
+        db.collection("events")
+                .document(event.id)
+                .set(event) // Overwrites the event with updated data
+                .addOnSuccessListener(e -> callback.accept(true))
+                .addOnFailureListener(e -> callback.accept(false));
+    }
+
 }
