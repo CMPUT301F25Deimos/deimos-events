@@ -37,4 +37,8 @@ public class Event {
     public Number getNumberOfEntrants() {
         return waitingListParticipantIds.length;
     }
+
+
 }
+
+
