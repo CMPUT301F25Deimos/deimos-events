@@ -2,42 +2,32 @@ package com.example.deimos_events;
 
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.function.Consumer;
-
-public class DeleteActivity extends FoundationActivity {
+public class DisplayDataActivity extends AppCompatActivity {
 
     // grab Android stuff that you need
-    private Button deleteButton;
+    private Button navigateButton;
+
+    private TextView titleText;
 
     // grab the our system stuff
     private SessionManager SM;
-    private ActorManager AM;
     private UserInterfaceManager UIM;
     private NavigationManager NM;
-
-    private Consumer<Result> deleteCallBack = result ->{
-        if (result.isSuccess()) {
-            NM.goTo(MainActivity.class);
-        }else{
-            Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show(); // show notification
-            NM.goTo(CreateActivity.class);
-        }
-        deleteButton.setEnabled(Boolean.TRUE);
-    };
 
     // Implement listener to decide what to do.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_delete);
+        setContentView(R.layout.activity_display_data);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -45,24 +35,36 @@ public class DeleteActivity extends FoundationActivity {
         });
 
         // instantiate Android stuff
-        deleteButton = findViewById(R.id.delete_button);
+        navigateButton = findViewById(R.id.navigate_button);
+        titleText = findViewById(R.id.title_text);
+
+
+
         // instantiate Our system stuff, grab managers that you need
         SM = ((EventsApp) getApplicationContext()).getSessionManager(); // get session manager
-        AM = SM.getActorManager();
         UIM = SM.getUserInterfaceManager();
         NM = UIM.getNavigationManager();
 
+
         // If you need user interface information, ask the UIM
-            // Call UIM to grab the things from the session
-            // Example username = UIM.getUsername();
+        // Call UIM to grab the things from the session
+         Actor currentActor = UIM.getCurrentActor();
+         String title = "Hello User: " + currentActor.getName();
+         titleText.setText(title);
+
+
+
 
 
         // setup interactive elements
-        deleteButton.setOnClickListener(v -> {
-            AM.deleteActor(deleteCallBack);
-            deleteButton.setEnabled(Boolean.FALSE);
-            System.out.println("Hello");
+        navigateButton.setOnClickListener(v -> {
+            NM.goTo(DeleteActivity.class);
         });
 
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SM.getSession().setActivity(this);
     }
 }

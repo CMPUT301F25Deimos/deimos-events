@@ -9,12 +9,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.function.Consumer;
-
-public class DeleteActivity extends FoundationActivity {
+public class CreateActivity extends FoundationActivity {
 
     // grab Android stuff that you need
-    private Button deleteButton;
+    private Button createButton;
 
     // grab the our system stuff
     private SessionManager SM;
@@ -22,22 +20,12 @@ public class DeleteActivity extends FoundationActivity {
     private UserInterfaceManager UIM;
     private NavigationManager NM;
 
-    private Consumer<Result> deleteCallBack = result ->{
-        if (result.isSuccess()) {
-            NM.goTo(MainActivity.class);
-        }else{
-            Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show(); // show notification
-            NM.goTo(CreateActivity.class);
-        }
-        deleteButton.setEnabled(Boolean.TRUE);
-    };
-
     // Implement listener to decide what to do.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_delete);
+        setContentView(R.layout.activity_create);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -45,7 +33,7 @@ public class DeleteActivity extends FoundationActivity {
         });
 
         // instantiate Android stuff
-        deleteButton = findViewById(R.id.delete_button);
+        createButton = findViewById(R.id.navigate_button);
         // instantiate Our system stuff, grab managers that you need
         SM = ((EventsApp) getApplicationContext()).getSessionManager(); // get session manager
         AM = SM.getActorManager();
@@ -53,15 +41,23 @@ public class DeleteActivity extends FoundationActivity {
         NM = UIM.getNavigationManager();
 
         // If you need user interface information, ask the UIM
-            // Call UIM to grab the things from the session
-            // Example username = UIM.getUsername();
+        // Call UIM to grab the things from the session
+        // Example username = UIM.getUsername();
 
 
         // setup interactive elements
-        deleteButton.setOnClickListener(v -> {
-            AM.deleteActor(deleteCallBack);
-            deleteButton.setEnabled(Boolean.FALSE);
-            System.out.println("Hello");
+        createButton.setOnClickListener(v -> {
+            AM.createActor(result ->{
+                if (result.isSuccess()) {
+                    NM.goTo(DisplayDataActivity.class);
+                }else{
+                    Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show(); // show notification
+                    System.out.println("Fail");
+                    NM.goTo(SignInActivity.class);
+                }
+                createButton.setEnabled(Boolean.TRUE);
+            }); // no longer grabs result, instead asks manager to modify
+            createButton.setEnabled(Boolean.FALSE);
         });
 
     }
