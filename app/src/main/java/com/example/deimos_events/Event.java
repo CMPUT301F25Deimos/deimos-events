@@ -27,6 +27,12 @@ public class Event {
         this.recordLocation = recordLocation;
         this.qrCodeId = qrCodeId;
     }
+    public String getTitle() {
+        return title;
+    }
+    public String getId() {
+        return id;
+    }
 
     public Number getNumberOfEntrants() {
         return waitingListParticipantIds.length;
