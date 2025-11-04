@@ -34,6 +34,9 @@ public class Event {
         return id;
     }
 
+    public String getDescription(){return description;}
+    
+
     public Number getNumberOfEntrants() {
         return waitingListParticipantIds.length;
     }
