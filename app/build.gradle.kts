@@ -51,4 +51,5 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation("com.google.android.material:material:1.12.0")
 }

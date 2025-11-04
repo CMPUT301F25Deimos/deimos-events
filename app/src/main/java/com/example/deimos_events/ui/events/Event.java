@@ -1,4 +1,4 @@
-package com.example.deimos_events;
+package com.example.deimos_events.ui.events;
 
 import java.util.Date;
 
@@ -15,8 +15,11 @@ public class Event {
     Number participantCap;
     Boolean recordLocation;
     String qrCodeId;
+    Boolean notification;
+    
+    
 
-    public Event(String id, String[] waitingListParticipantIds, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation) {
+    public Event(String id, String[] waitingListParticipantIds, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, Boolean notification) {
         this.id = id;
         this.waitingListParticipantIds = waitingListParticipantIds;
         this.title = title;
@@ -26,8 +29,16 @@ public class Event {
         this.participantCap = participantCap;
         this.recordLocation = recordLocation;
         this.qrCodeId = qrCodeId;
+        this.notification = notification;
     }
-
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public String getDescription() {
+        return description;
+    }
+    
     public Number getNumberOfEntrants() {
         return waitingListParticipantIds.length;
     }
