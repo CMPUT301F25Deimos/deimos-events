@@ -39,14 +39,11 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // Keep teammate's header text working
         final TextView textView = binding.textProfile;
         profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
-        // Observe real profile data and bind to views
         profileViewModel.getProfile().observe(getViewLifecycleOwner(), this::bindProfileCard);
 
-        // Receive notifications toggle (local only for now)
         SharedPreferences sp = requireContext().getSharedPreferences(SP, Context.MODE_PRIVATE);
         boolean initial = sp.getBoolean(KEY_NOTIFY, true);
         if (binding.notifySwitch != null) {
@@ -81,7 +78,6 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    // Inline dialog built in code (no XML file)
     private void showInlineEditDialog() {
         Profile cur = profileViewModel.getProfile().getValue();
 
