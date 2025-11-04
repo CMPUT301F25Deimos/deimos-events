@@ -1,22 +1,27 @@
 package com.example.deimos_events;
 
+import android.graphics.Bitmap;
+
+import com.google.zxing.common.BitMatrix;
+
 import java.util.Date;
+import java.util.List;
 
 /**
  * A class for events
  */
 public class Event {
     String id;
-    String[] waitingListParticipantIds;
+    List<String>  waitingListParticipantIds;
     String title;
-    String posterId;
+    Bitmap posterId;
     String description;
     Date registrationDeadline;
     Number participantCap;
     Boolean recordLocation;
-    String qrCodeId;
+    BitMatrix qrCodeId;
 
-    public Event(String id, String[] waitingListParticipantIds, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation) {
+    public Event(String id, List<String> waitingListParticipantIds, String title, Bitmap posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, BitMatrix qrCodeId) {
         this.id = id;
         this.waitingListParticipantIds = waitingListParticipantIds;
         this.title = title;
@@ -27,8 +32,8 @@ public class Event {
         this.recordLocation = recordLocation;
         this.qrCodeId = qrCodeId;
     }
-
+    public String getId(){return id;}
     public Number getNumberOfEntrants() {
-        return waitingListParticipantIds.length;
+        return waitingListParticipantIds.size();
     }
 }
