@@ -1,6 +1,8 @@
 package com.example.deimos_events.ui.profile;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,11 +15,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.deimos_events.R;
 import com.example.deimos_events.databinding.FragmentProfileBinding;
 
 import java.text.DateFormat;
@@ -30,6 +35,16 @@ public class ProfileFragment extends Fragment {
 
     private static final String SP = "entrant_prefs";
     private static final String KEY_NOTIFY = "receive_notifications";
+
+    private final ActivityResultLauncher<Intent> deleteLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Toast.makeText(requireContext(),
+                            "Profile deleted successfully.", Toast.LENGTH_SHORT).show();
+
+                    // e.g., profileViewModel.deleteProfile();
+                }
+            });
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -52,16 +67,19 @@ public class ProfileFragment extends Fragment {
                     sp.edit().putBoolean(KEY_NOTIFY, checked).apply());
         }
 
-        // Actions
+        // Update button logic
         if (binding.updateButton != null) {
             binding.updateButton.setOnClickListener(v -> showInlineEditDialog());
         }
+
+        // Delete button opens popup
         if (binding.deleteButton != null) {
-            binding.deleteButton.setOnClickListener(v ->
-                    Toast.makeText(requireContext(), "Delete feature coming soon", Toast.LENGTH_SHORT).show());
+            binding.deleteButton.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), RemoveProfileActivity.class);
+                deleteLauncher.launch(intent);
+            });
         }
 
-        // Static labels
         if (binding.roleText != null) binding.roleText.setText("Role: Entrant");
         if (binding.joinedText != null) {
             binding.joinedText.setText("Joined: " + DateFormat.getDateInstance().format(new Date()));
