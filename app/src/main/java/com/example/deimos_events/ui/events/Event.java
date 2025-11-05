@@ -15,11 +15,8 @@ public class Event {
     Number participantCap;
     Boolean recordLocation;
     String qrCodeId;
-    Boolean notification;
     
-    
-
-    public Event(String id, String[] waitingListParticipantIds, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, Boolean notification) {
+    public Event(String id, String[] waitingListParticipantIds, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation) {
         this.id = id;
         this.waitingListParticipantIds = waitingListParticipantIds;
         this.title = title;
@@ -29,17 +26,21 @@ public class Event {
         this.participantCap = participantCap;
         this.recordLocation = recordLocation;
         this.qrCodeId = qrCodeId;
-        this.notification = notification;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public String getId() {
+        return id;
     }
     
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    public String getDescription() {
-        return description;
-    }
+    public String getDescription(){return description;}
+    
     
     public Number getNumberOfEntrants() {
         return waitingListParticipantIds.length;
     }
+    
+    
 }
+
