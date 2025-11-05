@@ -1,5 +1,8 @@
 package com.example.deimos_events;
 
+/**
+ * Class for entrants. This also contains methods for getting data related to registrations and events.
+ */
 public class Entrant extends Actor {
     Boolean receiveNotifications;
 
@@ -8,9 +11,7 @@ public class Entrant extends Actor {
         this.receiveNotifications = receiveNotifications;
     }
 
-
-    public boolean receivesNotifications() {
+    public boolean getReceiveNotifications() {
         return this.receiveNotifications;
     }
-
 }

@@ -18,11 +18,8 @@ public class Database {
                 });
     }
 
-    public void createActor(Actor actor, Consumer<Boolean> callback){
-
-
+    public void upsertActor(Actor actor, Consumer<Boolean> callback){
         // temp for testing
-
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
                 .set(actor)
@@ -49,12 +46,12 @@ public class Database {
                     callback.accept(null);
                 });
     }
-    public void updateEvent(Event event, Consumer<Boolean> callback) {
+
+    public void upsertEvent(Event event, Consumer<Boolean> callback) {
         db.collection("events")
                 .document(event.id)
-                .set(event) // Overwrites the event with updated data
+                .set(event)
                 .addOnSuccessListener(e -> callback.accept(true))
                 .addOnFailureListener(e -> callback.accept(false));
     }
-
 }

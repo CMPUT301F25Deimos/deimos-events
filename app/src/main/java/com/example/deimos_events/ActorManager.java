@@ -43,10 +43,7 @@ public class ActorManager {
         });
     }
 
-
-
-
-    public void createActor(Consumer<Result> callback) {
+    public void upsertActor(Consumer<Result> callback) {
         // grab session, database, and what you need, in this case the actor
         Session session = sessionManager.getSession();
         Database db = session.getDatabase();
@@ -61,7 +58,7 @@ public class ActorManager {
             }else if (exists){
                 callback.accept(new Result(Boolean.FALSE, "CREATE_ACTOR", "Actor already exists"));
             }else{
-                db.createActor(actor, createResult -> {
+                db.upsertActor(actor, createResult -> {
                     if (createResult) {
                          callback.accept(new Result(Boolean.TRUE, "CREATE_ACTOR",  "Successfully created user"));
                     } else {
