@@ -20,8 +20,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (!getSharedPreferences("app", MODE_PRIVATE).getBoolean("signed_up", false)) {
-            startActivity(new Intent(this, com.example.deimos_events.ui.auth.SignupActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
+            startActivity(new Intent(
+                    this,
+                    com.example.deimos_events.ui.auth.SignupActivity.class
+            ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
             finish();
             return;
         }
@@ -33,13 +35,18 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.nav_view);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_events, R.id.navigation_notifications, R.id.navigation_qr_code, R.id.navigation_profile)
-                .build();
+                R.id.navigation_events,
+                R.id.navigation_notifications,
+                R.id.navigation_qr_code,
+                R.id.navigation_profile
+        ).build();
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
     }
 }
+
 
 
 
