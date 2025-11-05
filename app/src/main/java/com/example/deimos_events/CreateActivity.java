@@ -47,7 +47,7 @@ public class CreateActivity extends FoundationActivity {
 
         // setup interactive elements
         createButton.setOnClickListener(v -> {
-            AM.upsertActor(result -> {
+            AM.insertActor(result -> {
                 if (result.isSuccess()) {
                     NM.goTo(DisplayDataActivity.class);
                 } else {
