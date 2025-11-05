@@ -133,7 +133,7 @@ public class createFragment extends Fragment {
             NavController navController = NavHostFragment.findNavController(this);
 
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events,true).build();
-            navController.navigate(R.id.navigation_edit, null , navOptions);
+            navController.navigate(R.id.navigation_events, null , navOptions);
 
         });
 
