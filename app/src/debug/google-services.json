@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "850565889061",
+    "project_id": "deimos-events",
+    "storage_bucket": "deimos-events.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:850565889061:android:a119a9d0fd746b4ab793cc",
+        "android_client_info": {
+          "package_name": "com.example.deimos_events"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTN0-QsYuJWwI8ug88rerU7slvwZNc2Yg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
