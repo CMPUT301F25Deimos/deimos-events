@@ -3,6 +3,8 @@ package com.example.deimos_events;
 import android.content.Context;
 import android.provider.Settings;
 import android.util.Log;
+
+import java.util.List;
 import java.util.function.Consumer;
 public class ActorManager {
 
@@ -69,7 +71,7 @@ public class ActorManager {
         });
     }
 
-    /*
+    /* Temporarily commented out.
     public void createActor(Context context, String name, String email, String phoneNo) {
         String androidId = Settings.Secure.getString(
                 context.getContentResolver(),
@@ -87,4 +89,11 @@ public class ActorManager {
         });
     }
     */
+
+    public void getAvailableEvents(Consumer<List<Event>> callback) {
+        Session session = sessionManager.getSession();
+        Database db = session.getDatabase();
+        Actor actor = session.getCurrentActor();
+        db.getAvailableEvents(actor, callback);
+    }
 }

@@ -1,7 +1,14 @@
 package com.example.deimos_events;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.auth.User;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class Database {
@@ -53,5 +60,30 @@ public class Database {
                 .set(event)
                 .addOnSuccessListener(e -> callback.accept(true))
                 .addOnFailureListener(e -> callback.accept(false));
+    }
+
+    public void getAvailableEvents(Actor actor, Consumer<List<Event>> callback) {
+        db.collection("registrations")
+                .whereEqualTo("entrantId", actor.getDeviceIdentifier())
+                .get()
+                .addOnSuccessListener(registrationSnapshot -> {
+                    Set<String> registeredEventIds = new HashSet<>();
+                    for (DocumentSnapshot doc : registrationSnapshot.getDocuments()) {
+                        registeredEventIds.add(doc.getString("eventId"));
+                    }
+                    db.collection("events")
+                            .get()
+                            .addOnSuccessListener(eventSnapshot -> {
+                                List<Event> availableEvents = new ArrayList<>();
+                                for (DocumentSnapshot doc : eventSnapshot.getDocuments()) {
+                                    if (!registeredEventIds.contains(doc.getId())) {
+                                        availableEvents.add(doc.toObject(Event.class));
+                                    }
+                                }
+                                callback.accept(availableEvents);
+                            })
+                            .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
+                })
+                .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
     }
 }
