@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="#F6EDF8">
 
-    <!-- Centered rounded card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/signup_card"
         android:layout_width="0dp"
@@ -44,7 +43,6 @@
                 android:layout_marginBottom="20dp" />
 
 
-            <!-- Device ID -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_device_id"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -61,8 +59,12 @@
                     android:id="@+id/et_device_id"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:singleLine="true"/>
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="false"
+                    android:longClickable="false"
+                    android:textIsSelectable="false"/>
+
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Name -->
@@ -109,7 +111,6 @@
                     android:singleLine="true"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Phone + "Optional" helper -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_phone"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -131,8 +132,24 @@
                     android:inputType="phone"
                     android:singleLine="true"/>
             </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_role"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:hint="Role"
+                app:endIconMode="dropdown_menu">
 
-            <!-- Bottom buttons row -->
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/et_role"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

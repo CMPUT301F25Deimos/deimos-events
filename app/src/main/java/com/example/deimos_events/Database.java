@@ -3,6 +3,8 @@ package com.example.deimos_events;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.auth.User;
+import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,6 +62,54 @@ public class Database {
                 .set(event)
                 .addOnSuccessListener(e -> callback.accept(true))
                 .addOnFailureListener(e -> callback.accept(false));
+    }
+    public void actorExistsByEmail(String email, Consumer<Boolean> callback) {
+        db.collection("actors")
+                .whereEqualTo("email", email)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(q -> callback.accept(!q.isEmpty()))
+                .addOnFailureListener(e -> callback.accept(null)); // null = error path
+    }
+    public void upsertActorWithRole(Actor actor, String role, java.util.function.Consumer<Boolean> callback) {
+        java.util.Map<String, Object> data = new java.util.HashMap<>();
+        data.put("deviceIdentifier", actor.getDeviceIdentifier());
+        data.put("name", actor.getName());
+        data.put("email", actor.getEmail());
+        data.put("phoneNumber", actor.getPhoneNumber());
+        data.put("role", role);
+
+        db.collection("actors")
+                .document(actor.getDeviceIdentifier())
+                .set(data) // write a flat map so Firestore always has "role"
+                .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+    }
+
+    public void deleteEntrantCascade(String entrantId, Consumer<Boolean> callback) {
+        db.collection("registrations").whereEqualTo("entrantId", entrantId).get()
+                .addOnSuccessListener(regSnap -> {
+                    db.collection("waiting_lists").whereEqualTo("entrantId", entrantId).get()
+                            .addOnSuccessListener(waitSnap -> {
+                                WriteBatch batch = db.batch();
+
+                                batch.delete(db.collection("actors").document(entrantId));
+
+                                for (DocumentSnapshot d : regSnap.getDocuments()) {
+                                    batch.delete(d.getReference());
+                                }
+
+                                for (DocumentSnapshot d : waitSnap.getDocuments()) {
+                                    batch.delete(d.getReference());
+                                }
+
+                                batch.commit()
+                                        .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                                        .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                            })
+                            .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                })
+                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
     }
 
     public void getAvailableEvents(Actor actor, Consumer<List<Event>> callback) {

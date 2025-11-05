@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel;
 public class ProfileViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText = new MutableLiveData<>();
-
     private final MutableLiveData<Profile> profile = new MutableLiveData<>();
 
     public ProfileViewModel() {
@@ -17,6 +16,8 @@ public class ProfileViewModel extends ViewModel {
 
     public LiveData<String> getText() { return mText; }
     public LiveData<Profile> getProfile() { return profile; }
+
+    public void setProfile(Profile p) { profile.setValue(p); }
 
     public void updateProfile(String name, String email, String phone) {
         Profile cur = profile.getValue();
