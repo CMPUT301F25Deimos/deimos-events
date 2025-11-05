@@ -8,8 +8,22 @@
     android:background="@color/background_colour">
 
     <ListView
-        android:id="@+id/listView"
+        android:id="@+id/events_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addEvent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="85dp"
+        android:clickable="true"
+        app:backgroundTint="@color/chosen_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:shapeAppearanceOverlay="@style/fab_shape"
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:tint="@color/text_colour" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
