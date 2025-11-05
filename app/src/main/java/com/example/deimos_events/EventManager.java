@@ -11,16 +11,25 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.function.Consumer;
 
+/**
+ * Handles persistent operations connected to the {@link Event} instances
+ * such as deleting, posting, or retrieving data from the database.
+ * <p>
+ * activities may instantiate {@link Event} objects temporarily, but all persistent operations
+ * must be performed via the {@code EventManager}.
+ *<p>
+ * data retrieved from the database is stored in the {@link Session} for use by other classes.
+ */
 public class EventManager {
     private final SessionManager sessionManager;
 
     public EventManager(SessionManager sessionManager){
         this.sessionManager = sessionManager;
     }
-    public void createEvent(String id, ArrayList<String> waitingListParticipantIds, String title, Bitmap posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, BitMatrix qrCodeId) {
-        Event event = new Event(id,waitingListParticipantIds,title,posterId,description,registrationDeadline,participantCap,recordLocation,qrCodeId);
+    public void createEvent(String id, String title, Bitmap posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, BitMatrix qrCodeId) {
+        Event event = new Event(id,title,posterId,description,registrationDeadline,participantCap,recordLocation,qrCodeId);
         Session session = sessionManager.getSession();
-        Database db = session.getDatabase();
+        Database db = (Database) session.getDatabase();
         db.createEvent(event, success ->{
             Result r;
             if (success) {
@@ -33,7 +42,7 @@ public class EventManager {
 
     public void getEventById(String eventId, Consumer<Event> callback) {
         Session session = sessionManager.getSession();
-        Database db = session.getDatabase();
+        Database db = (Database) session.getDatabase();
         DocumentReference docref = db.getEvent(eventId , success ->{
             Result r;
             if (success) {

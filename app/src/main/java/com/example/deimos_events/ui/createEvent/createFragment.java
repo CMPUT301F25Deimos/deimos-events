@@ -128,8 +128,8 @@ public class createFragment extends Fragment {
             }
             SessionManager SM = ((EventsApp) requireActivity().getApplication()).getSessionManager();
             EventManager EM = new EventManager(SM);
-            ArrayList<String> test = new ArrayList<>();
-            EM.createEvent(uniqueId,test,name,imageBit,decs,date,capacity,loc,qr);
+
+            EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
             NavController navController = NavHostFragment.findNavController(this);
 
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events,true).build();

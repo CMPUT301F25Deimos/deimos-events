@@ -47,10 +47,10 @@ public class CreateActivity extends FoundationActivity {
 
         // setup interactive elements
         createButton.setOnClickListener(v -> {
-            AM.createActor(result ->{
+            AM.insertActor(result -> {
                 if (result.isSuccess()) {
                     NM.goTo(DisplayDataActivity.class);
-                }else{
+                } else {
                     Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show(); // show notification
                     System.out.println("Fail");
                     NM.goTo(SignInActivity.class);

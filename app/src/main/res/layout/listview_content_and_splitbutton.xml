@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- added weightsum so it is equally divided into two (put in middle) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:weightSum="3">
+
+    <ImageView
+        android:id="@+id/event_image"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.53"
+        android:layout_margin="10dp"
+        android:background="@drawable/square_image"
+        android:clipToOutline="true"
+        android:scaleType="centerCrop"/>
+    <TextView
+        android:id="@+id/event_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:textSize="10sp"
+        android:text="Event Information"
+        android:maxLines="4"
+        android:ellipsize="end"
+        android:layout_weight="1.6"
+        android:layout_marginTop="12dp"/>
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/splitButtonLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="18dp"
+        android:layout_weight="0.9"
+        android:spacing="3dp"
+        app:singleSelection="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/accept_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/baseline_check_24"
+            app:backgroundTint="@color/black"
+            app:iconPadding="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingHorizontal="12dp"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/decline_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/outline_close_24"
+            app:backgroundTint="@color/black"
+            app:iconPadding="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingHorizontal="12dp"
+            app:cornerRadius="10dp"/>
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+</LinearLayout>

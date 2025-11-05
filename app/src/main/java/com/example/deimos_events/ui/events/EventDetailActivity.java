@@ -1,3 +1,4 @@
+/*
 package com.example.deimos_events.ui.events;
 
 import android.os.Bundle;
@@ -13,8 +14,6 @@ import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.Result;
 import com.example.deimos_events.R;
 import com.example.deimos_events.SessionManager;
-
-import java.util.function.Consumer;
 
 public class EventDetailActivity extends AppCompatActivity {
 
@@ -33,19 +32,14 @@ public class EventDetailActivity extends AppCompatActivity {
 
         // Get eventId from intent
         String eventId = getIntent().getStringExtra("eventId");
+        Event selectedEvent = sessionManager.getEventManager().getEventById(eventId);
 
-        Event selectedEvent;
-        sessionManager.getEventManager().getEventById(eventId, callback->{
-            if (callback != null) {
-                eventTitle.setText(callback.getTitle());
-            }
-        });
+        if (selectedEvent != null) {
+            eventTitle.setText(selectedEvent.getTitle());
+        }
 
-
-    }}
-
- //       joinButton.setOnClickListener(v -> {
-           /* if (selectedEvent != null) {
+        joinButton.setOnClickListener(v -> {
+            if (selectedEvent != null) {
                 eventManager.joinWaitingList(selectedEvent);
                 Result result = sessionManager.getSession().getResult();
                 Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show();
@@ -70,4 +64,5 @@ public class EventDetailActivity extends AppCompatActivity {
             }
         });
 
-    }}*/
+    }}
+*/
