@@ -1,29 +1,44 @@
 package com.example.deimos_events;
 
-import android.content.Context;
-import android.provider.Settings;
-import android.util.Log;
-
 import java.util.List;
 import java.util.function.Consumer;
+
+/**
+ * Handles persistent operations connected to the {@link Actor} instances
+ * such as deleting, posting, or retrieving data from the database.
+ * <p>
+ * activities may instantiate {@link Actor} objects temporarily, but all persistent operations
+ * must be performed via the {@code ActorManager}.
+ *<p>
+ * data retrieved from the database is stored in the {@link Session} for use by other classes.
+ */
 public class ActorManager {
 
     private final SessionManager sessionManager;
 
     public ActorManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
+    }
 
+    public ActorManager(){
+        this.sessionManager = null;
     }
     public void deleteActor(Consumer<Result> callback) {
 
 
-        // Validate what you are trying to do, before querying the database
 
 
         // grab session, database, and what you need, in this case the actor
         Session session = sessionManager.getSession();
-        Database db = session.getDatabase();
+        IDatabase db = session.getDatabase();
         Actor actor = session.getCurrentActor();
+
+
+        // Validate what you are trying to do, before querying the database
+        if (actor == null){
+            callback.accept(new Result(Boolean.FALSE, "DELETE_ACTOR", "No Actor in Session"));
+            return;
+        }
 
 
         // Validate the query
@@ -45,13 +60,17 @@ public class ActorManager {
         });
     }
 
-    public void upsertActor(Consumer<Result> callback) {
+    public void insertActor(Consumer<Result> callback) {
         // grab session, database, and what you need, in this case the actor
         Session session = sessionManager.getSession();
-        Database db = session.getDatabase();
+        IDatabase db = session.getDatabase();
         Actor actor = session.getCurrentActor();
 
         // Validate what you are trying to do, before querying the database
+        if (actor == null){
+            callback.accept(new Result(Boolean.FALSE, "CREATE_ACTOR", "No Actor in Session"));
+            return;
+        }
 
         // Validate the query
         db.actorExists(actor, exists ->{
@@ -60,7 +79,7 @@ public class ActorManager {
             }else if (exists){
                 callback.accept(new Result(Boolean.FALSE, "CREATE_ACTOR", "Actor already exists"));
             }else{
-                db.upsertActor(actor, createResult -> {
+                db.insertActor(actor, createResult -> {
                     if (createResult) {
                          callback.accept(new Result(Boolean.TRUE, "CREATE_ACTOR",  "Successfully created user"));
                     } else {
@@ -90,10 +109,10 @@ public class ActorManager {
     }
     */
 
-    public void getAvailableEvents(Consumer<List<Event>> callback) {
-        Session session = sessionManager.getSession();
-        Database db = session.getDatabase();
-        Actor actor = session.getCurrentActor();
-        db.getAvailableEvents(actor, callback);
-    }
+//    public void getAvailableEvents(Consumer<List<Event>> callback) {
+//        Session session = sessionManager.getSession();
+//        IDatabase db = session.getDatabase();
+//        Actor actor = session.getCurrentActor();
+//        db.getAvailableEvents(actor, callback);
+//    }
 }

@@ -2,17 +2,27 @@ package com.example.deimos_events;
 
 import android.app.Activity;
 
+/**
+ * Used to represent the current application state, acting as a snapshot of the data that is
+ * shared between managers and activities
+ * <p>
+ * The {@code Session} Contains no UI elements. It stores information that activities might need
+ * to transfer data between activities. It also exists to reduce unnecessary database queries
+ * <p>
+ * The {@code Session} does not perform database operations. Any data it holds must be saved,
+ * updated, or deleted by the appropriate manager.
+ */
 public class Session {
-    private Database database;
+    private IDatabase database;
     private Actor currentActor;
     private Actor selectedActor;
 
     private Activity activity;
-    public Session(Database database){
+    public Session(IDatabase database){
         this.database = database;
     }
 
-    public Database getDatabase() {
+    public IDatabase getDatabase() {
         return database;
     }
 
