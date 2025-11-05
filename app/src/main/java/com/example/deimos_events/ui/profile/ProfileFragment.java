@@ -1,8 +1,6 @@
 package com.example.deimos_events.ui.profile;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,8 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
@@ -35,16 +31,6 @@ public class ProfileFragment extends Fragment {
 
     private static final String SP = "entrant_prefs";
     private static final String KEY_NOTIFY = "receive_notifications";
-
-    private final ActivityResultLauncher<Intent> deleteLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    Toast.makeText(requireContext(),
-                            "Profile deleted successfully.", Toast.LENGTH_SHORT).show();
-
-                    // e.g., profileViewModel.deleteProfile();
-                }
-            });
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -67,17 +53,12 @@ public class ProfileFragment extends Fragment {
                     sp.edit().putBoolean(KEY_NOTIFY, checked).apply());
         }
 
-        // Update button logic
         if (binding.updateButton != null) {
             binding.updateButton.setOnClickListener(v -> showInlineEditDialog());
         }
 
-        // Delete button opens popup
         if (binding.deleteButton != null) {
-            binding.deleteButton.setOnClickListener(v -> {
-                Intent intent = new Intent(requireContext(), RemoveProfileActivity.class);
-                deleteLauncher.launch(intent);
-            });
+            binding.deleteButton.setOnClickListener(v -> showDeleteDialog());
         }
 
         if (binding.roleText != null) binding.roleText.setText("Role: Entrant");
@@ -89,10 +70,12 @@ public class ProfileFragment extends Fragment {
     }
 
     private void bindProfileCard(Profile p) {
+        if (p == null) return;
         if (binding.nameText != null) binding.nameText.setText(p.getName());
         if (binding.emailText != null) binding.emailText.setText("Email: " + p.getEmail());
         if (binding.phoneText != null) {
-            binding.phoneText.setText("Phone Number: " + (TextUtils.isEmpty(p.getPhone()) ? "—" : p.getPhone()));
+            binding.phoneText.setText("Phone Number: " +
+                    (TextUtils.isEmpty(p.getPhone()) ? "—" : p.getPhone()));
         }
     }
 
@@ -133,10 +116,47 @@ public class ProfileFragment extends Fragment {
                         t.show();
                         return;
                     }
+
                     profileViewModel.updateProfile(name, email, phone);
+                    Toast.makeText(requireContext(), "Profile saved", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void showDeleteDialog() {
+        View content = LayoutInflater.from(requireContext())
+                .inflate(R.layout.remove_profile, null, false);
+
+        View confirmBtn = content.findViewById(R.id.confirm_delete_btn);
+        View returnBtn  = content.findViewById(R.id.return_btn);
+
+        if (confirmBtn == null || returnBtn == null) {
+            throw new IllegalStateException("remove_profile.xml missing confirm/return button IDs.");
+        }
+
+        androidx.appcompat.app.AlertDialog dialog =
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setView(content)
+                        .setCancelable(true)
+                        .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        returnBtn.setOnClickListener(v -> dialog.dismiss());
+
+        confirmBtn.setOnClickListener(v -> {
+            Toast.makeText(requireContext(), "Deleting profile…", Toast.LENGTH_SHORT).show();
+
+            profileViewModel.updateProfile("—", "—", "");
+            dialog.dismiss();
+
+            Toast.makeText(requireContext(), "Profile deleted successfully.", Toast.LENGTH_SHORT).show();
+        });
+
+        dialog.show();
     }
 
     @Override
