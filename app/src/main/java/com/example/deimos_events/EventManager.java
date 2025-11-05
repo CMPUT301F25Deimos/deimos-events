@@ -1,15 +1,14 @@
 package com.example.deimos_events;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.provider.Settings;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.zxing.common.BitMatrix;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.function.Consumer;
 
 public class EventManager {
@@ -25,11 +24,34 @@ public class EventManager {
         db.createEvent(event, success ->{
             Result r;
             if (success) {
-                r = new Result(Boolean.TRUE, "Succeeded on creating Event");
+                r = new Result(Boolean.TRUE,"creating event", "Succeeded on creating Event");
             } else {
-                r = new Result(Boolean.FALSE, "Failed to create Event");
+                r = new Result(Boolean.FALSE, "creating event", "Failed to create Event");
             }
-            sessionManager.setResult(r);
         });
+    }
+
+    public void getEventById(String eventId, Consumer<Event> callback) {
+        Session session = sessionManager.getSession();
+        Database db = session.getDatabase();
+        DocumentReference docref = db.getEvent(eventId , success ->{
+            Result r;
+            if (success) {
+                r = new Result(Boolean.TRUE,"creating event", "Succeeded on creating Event");
+            } else {
+                r = new Result(Boolean.FALSE, "creating event", "Failed to create Event");
+            }
+        });
+
+        docref.get().addOnSuccessListener(documentSnapshot -> {
+            if(documentSnapshot.exists()){
+                Event event =  documentSnapshot.toObject(Event.class);
+                callback.accept(documentSnapshot.toObject(Event.class));
+            }
+
+        });
+
+        Task<DocumentSnapshot> snapshot = docref.get();
+        return;
     }
 }

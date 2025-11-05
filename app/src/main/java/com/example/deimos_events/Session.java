@@ -1,27 +1,19 @@
 package com.example.deimos_events;
 
+import android.app.Activity;
+
 public class Session {
     private Database database;
-    private Result result;
     private Actor currentActor;
     private Actor selectedActor;
+
+    private Activity activity;
     public Session(Database database){
         this.database = database;
     }
 
     public Database getDatabase() {
         return database;
-    }
-
-    public Result getResult() {
-        return result;
-    }
-
-    public void setResult() {
-        this.result = null;
-    }
-    public void setResult(Result result) {
-        this.result = result;
     }
 
     public Actor getCurrentActor() {
@@ -31,10 +23,14 @@ public class Session {
     public Actor getSelectedActor() {
         return selectedActor;
     }
-    public void setCurrentActor() {
-        this.currentActor = null;
-    }
     public void setCurrentActor(Actor actor) {
         this.currentActor = actor;
+    }
+
+    public Activity getActivity() {
+        return activity;
+    }
+    public void setActivity(Activity activity){
+        this.activity = activity;
     }
 }
