@@ -13,10 +13,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.deimos_events.Actor;
+import com.example.deimos_events.ActorManager;
 import com.example.deimos_events.Administrator;
 import com.example.deimos_events.Database;
 import com.example.deimos_events.Entrant;
 import com.example.deimos_events.EventsApp;
+import com.example.deimos_events.FoundationActivity;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.MainActivity;
 import com.example.deimos_events.NavigationManager;
@@ -34,7 +36,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-public class SignupActivity extends AppCompatActivity {
+public class SignupActivity extends FoundationActivity {
 
     private TextInputLayout      tilName, tilEmail, tilPhone, tilDeviceId, tilRole;
     private TextInputEditText    etDeviceId, etName, etEmail, etPhone;
@@ -46,6 +48,8 @@ public class SignupActivity extends AppCompatActivity {
     private SessionManager       SM;
     private UserInterfaceManager UIM;
     private NavigationManager    NM;
+
+    private ActorManager AM;
 
     private static final Set<String> ALLOWED_DOMAINS = new HashSet<>(
             Arrays.asList("gmail.com", "outlook.com", "hotmail.com", "yahoo.com", "yahoo.ca")
@@ -59,6 +63,7 @@ public class SignupActivity extends AppCompatActivity {
         SM  = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
         NM  = UIM.getNavigationManager();
+        AM = SM.getActorManager();
         db = SM.getSession().getDatabase();
 
 
@@ -131,15 +136,16 @@ public class SignupActivity extends AppCompatActivity {
                 tilEmail.setError("User already exists with this email");
                 return;
             }
+            // create an actor instance
+            Actor actor = createActorByRole(deviceId, name, email, phone, role);
 
-            Actor actor = createActorByRole(role, deviceId, name, email, phone);
+            //add the actor to the session, and then test if it works
+            UIM.setCurrentActor(actor);
 
-            // Save to Firestore with role (expects Database.upsertActorWithRole)
-            db.upsertActorWithRole(actor, role, success -> {
+            // Attempt to Save to Firestore with role
+            AM.insertActor(res-> {
                 btnSignup.setEnabled(true);
-                if (Boolean.TRUE.equals(success)) {
-                    UIM.setCurrentActor(actor);
-
+                if (res.isSuccess()) {
                     getSharedPreferences("entrant_profile", MODE_PRIVATE)
                             .edit()
                             .putString("userId", deviceId)
@@ -155,19 +161,51 @@ public class SignupActivity extends AppCompatActivity {
                             .apply();
 
                     Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
+                    NM.goTo(MainActivity.class, true);
 
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
+//                    Intent intent = new Intent(this, MainActivity.class);
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(intent);
+//                    finish();
                 } else {
                     Toast.makeText(this, "Failed to save. Try again.", Toast.LENGTH_SHORT).show();
+                    UIM.clearCurrentActor(); // remove the current actor from the session to try again
                 }
             });
+
+//            db.insertActor(actor, success -> {
+//                btnSignup.setEnabled(true);
+//                if (Boolean.TRUE.equals(success)) {
+//                    UIM.setCurrentActor(actor);
+//
+//                    getSharedPreferences("entrant_profile", MODE_PRIVATE)
+//                            .edit()
+//                            .putString("userId", deviceId)
+//                            .putString("name", name)
+//                            .putString("email", email)
+//                            .putString("phone", phone)
+//                            .putString("role", role)
+//                            .apply();
+//
+//                    getSharedPreferences("app", MODE_PRIVATE)
+//                            .edit()
+//                            .putBoolean("signed_up", true)
+//                            .apply();
+//
+//                    Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
+//
+//                    Intent intent = new Intent(this, MainActivity.class);
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(intent);
+//                    finish();
+//                } else {
+//                    Toast.makeText(this, "Failed to save. Try again.", Toast.LENGTH_SHORT).show();
+//                }
+//            });
         });
     }
 
-    private Actor createActorByRole(String role, String id, String name, String email, String phone) {
+    private Actor createActorByRole(String id, String name, String email, String phone, String role) {
         if (Roles.ORGANIZER.equals(role)) return new Organizer(id, name, email, phone);
         if (Roles.ADMIN.equals(role))     return new Administrator(id, name, email, phone);
         return new Entrant(id, name, email, phone, false);

@@ -70,8 +70,16 @@ public class ActorManagerTest {
         Actor actor_1 = new Actor("123", "john", "myemail@gmail.com", "911");
         mdb.insertActor(actor_1, r ->{}); // place actor in database
         mdb.deleteActor(actor_1, r->{}); // remove actor from database
-        testSession.setCurrentActor(actor_1); // place actor into database
+        testSession.setCurrentActor(actor_1); // place actor into session
         AM.deleteActor(resultCapturer); // this will try to delete the actor in the session but not in the database
         assertFalse(resultCapturer.get().getCond(), "Delete should fail when actor is not in database");
+    }
+
+    @Test
+    void testFetchActorByID(){
+        Actor actor_1 = new Actor("123", "john", "myemail@gmail.com", "911");
+        mdb.insertActor(actor_1, r ->{}); // place actor in database
+        AM.fetchActorByID(actor_1.getDeviceIdentifier(), r->{}); // Now should be in session
+        assertEquals(actor_1, testSession.getCurrentActor());
     }
 }

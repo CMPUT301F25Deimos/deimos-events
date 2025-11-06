@@ -20,8 +20,14 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.deimos_events.Actor;
+import com.example.deimos_events.ActorManager;
 import com.example.deimos_events.Database;
+import com.example.deimos_events.EventsApp;
+import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
+import com.example.deimos_events.Session;
+import com.example.deimos_events.SessionManager;
+import com.example.deimos_events.UserInterfaceManager;
 import com.example.deimos_events.databinding.FragmentProfileBinding;
 
 import java.text.DateFormat;
@@ -43,11 +49,26 @@ public class ProfileFragment extends Fragment {
             Arrays.asList("gmail.com", "outlook.com", "hotmail.com", "yahoo.com", "yahoo.ca")
     );
 
-    private final Database db = new Database();
+    private  ActorManager AM;
+
+    private SessionManager SM;
+
+    private Session session;
+
+    private UserInterfaceManager UIM;
+
+
+    private IDatabase db;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+
+        SM = ((EventsApp) requireActivity().getApplication()).getSessionManager();
+        UIM = SM.getUserInterfaceManager();
+        AM = SM.getActorManager();
+        db = SM.getSession().getDatabase();
+
 
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
         binding = FragmentProfileBinding.inflate(inflater, container, false);
@@ -65,7 +86,7 @@ public class ProfileFragment extends Fragment {
         String savedId    = prof.getString("userId", "tempUserId");
         String savedRole  = prof.getString("role", "Entrant");
         if (!TextUtils.isEmpty(savedEmail) && !TextUtils.isEmpty(savedName)) {
-            profileViewModel.setProfile(new Profile(savedId, savedName, savedEmail, savedPhone == null ? "" : savedPhone));
+            profileViewModel.setProfile(new Profile(savedId, savedName, savedEmail, savedPhone == null ? "" : savedPhone, savedRole));
         }
         if (binding.roleText != null) binding.roleText.setText("Role: " + savedRole);
 
@@ -211,11 +232,28 @@ public class ProfileFragment extends Fragment {
             Toast.makeText(requireContext(), "No profile loaded", Toast.LENGTH_SHORT).show();
             return;
         }
+        // No longer overwrites the users role, if they update
+          Actor actor = new Actor(cur.getUserId(), name, email, phone, cur.getRole());
+//        AM.insertActor(result -> {
+//            if (result.isSuccess()) {
+//                requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE)
+//                        .edit()
+//                        .putString("userId", cur.getUserId())
+//                        .putString("name", name)
+//                        .putString("email", email)
+//                        .putString("phone", phone)
+//                        .putString("role", role) // keep existing role
+//                        .apply();
+//
+//                profileViewModel.updateProfile(name, email, phone);
+//
+//                Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show();
+//            } else {
+//                Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
-        com.example.deimos_events.Actor actor = new com.example.deimos_events.Actor(
-                cur.getUserId(), name, email, phone
-        );
-        db.upsertActorWithRole(actor, role, success -> {
+        db.insertActor(actor, success -> {
             if (Boolean.TRUE.equals(success)) {
                 requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE)
                         .edit()
