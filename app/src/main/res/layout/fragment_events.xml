@@ -7,24 +7,23 @@
     tools:context=".ui.events.EventsFragment"
     android:background="@color/background_colour">
 
-
     <ListView
-        android:layout_width="410dp"
-        android:layout_height="718dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></ListView>
+        android:id="@+id/events_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
-    <Button
-        android:id="@+id/Add"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addEvent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="84dp"
-        android:text="Add"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="85dp"
+        android:clickable="true"
+        app:backgroundTint="@color/chosen_background"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:shapeAppearanceOverlay="@style/fab_shape"
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:tint="@color/text_colour" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

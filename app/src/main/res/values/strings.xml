@@ -4,4 +4,8 @@
     <string name="title_qr_code">QR Code</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_profile">Profile</string>
+    <string name="go_back">Go Back</string>
+    <string name="facility_name_label">Name:</string>
+    <string name="facility_phone_number_label">Phone:</string>
+
 </resources>
