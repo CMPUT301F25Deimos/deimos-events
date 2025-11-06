@@ -90,6 +90,12 @@ public class ActorManager {
         });
     }
 
+
+
+    public void actorExistsByEmail(Consumer<Result> callback){
+
+    }
+
     /* Temporarily commented out.
     public void createActor(Context context, String name, String email, String phoneNo) {
         String androidId = Settings.Secure.getString(
