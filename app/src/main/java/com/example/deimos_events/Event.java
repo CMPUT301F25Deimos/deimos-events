@@ -1,6 +1,7 @@
 package com.example.deimos_events;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * A class for events. This also contains methods for getting data related to registrations and users.
@@ -15,6 +16,16 @@ public class Event {
     Boolean recordLocation;
     String qrCodeId;
 
+    String guidelines;
+    String criteria;
+    String time;
+    String location;
+    Date date;
+
+
+
+
+
     public Event(String id, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation) {
         this.id = id;
         this.title = title;
@@ -24,6 +35,8 @@ public class Event {
         this.participantCap = participantCap;
         this.recordLocation = recordLocation;
         this.qrCodeId = qrCodeId;
+        this.criteria = criteria;
+        this.guidelines = guidelines;
     }
     public String getTitle() {
         return title;
@@ -87,6 +100,19 @@ public class Event {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getGuidelines(){return guidelines;}
+    public String getCriteria(){return criteria;}
+
+    public Date getDate() {
+        return date;
+    }
+    public String getLocation() {
+        return location;
+    }
+    public String getTime() {
+        return time;
     }
 }
 

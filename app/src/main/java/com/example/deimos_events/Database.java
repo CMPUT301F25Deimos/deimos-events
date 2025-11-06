@@ -31,33 +31,7 @@ public class Database implements IDatabase {
     }
 
     public void insertActor(Actor actor, Consumer<Boolean> callback){
-        db.collection("actors")
-                .document(actor.getEmail())
-                //.document(actor.getDeviceIdentifier())
-                .set(actor)
-                .addOnSuccessListener(tempVoid ->{
-                    callback.accept(Boolean.TRUE);
-                })
-                .addOnFailureListener(e -> {
-                    callback.accept(Boolean.FALSE);
-                });
-    }
-
-//    public void upsertActorWithRole(Actor actor, String role, Consumer<Boolean> callback) {
-//        java.util.Map<String, Object> data = new java.util.HashMap<>();
-//        data.put("deviceIdentifier", actor.getDeviceIdentifier());
-//        data.put("name", actor.getName());
-//        data.put("email", actor.getEmail());
-//        data.put("phoneNumber", actor.getPhoneNumber());
-//        data.put("role", role);
-//        db.collection("actors")
-//                .document(actor.getDeviceIdentifier())
-//                .set(data) // write a flat map so Firestore always has "role"
-//                .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
-//                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
-//    }
-
-    public void upsertActor(Actor actor, Consumer<Boolean> callback){
+        // temp for testing
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
                 .set(actor)
@@ -69,13 +43,9 @@ public class Database implements IDatabase {
                 });
     }
 
-
-
-
     public void actorExists(Actor actor, Consumer<Boolean> callback){
         db.collection("actors")
-                .document(actor.getEmail())
-                //.document(actor.getDeviceIdentifier())
+                .document(actor.getDeviceIdentifier())
                 .get()
                 .addOnSuccessListener(doc ->{
                     if (doc.exists()){
@@ -103,6 +73,20 @@ public class Database implements IDatabase {
                 .get()
                 .addOnSuccessListener(q -> callback.accept(!q.isEmpty()))
                 .addOnFailureListener(e -> callback.accept(null)); // null = error path
+    }
+    public void upsertActorWithRole(Actor actor, String role, java.util.function.Consumer<Boolean> callback) {
+        java.util.Map<String, Object> data = new java.util.HashMap<>();
+        data.put("deviceIdentifier", actor.getDeviceIdentifier());
+        data.put("name", actor.getName());
+        data.put("email", actor.getEmail());
+        data.put("phoneNumber", actor.getPhoneNumber());
+        data.put("role", role);
+
+        db.collection("actors")
+                .document(actor.getDeviceIdentifier())
+                .set(data) // write a flat map so Firestore always has "role"
+                .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
     }
 
     public void deleteEntrantCascade(String entrantId, Consumer<Boolean> callback) {
@@ -170,4 +154,26 @@ public class Database implements IDatabase {
                     callback.accept(null);
                 });
     }
+    public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback){
+        db.collection("registrations")
+                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("status", "Pending")
+                .get()
+                .addOnSuccessListener(querySnapshot->{
+                    boolean alreadyExists = false;
+                    for(DocumentSnapshot doc : querySnapshot.getDocuments()){
+                        String entrantId = doc.getString("entrantId");
+                        if (entrantId != null && entrantId.equals(actor.getDeviceIdentifier())){
+                            alreadyExists = true;
+                            break;
+                        }
+                    }
+                    if(alreadyExists){
+                        callback.accept(false);
+                    }else{
+                        //Finish implementing this
+                    }
+                });
+    }
 }
+

@@ -15,4 +15,6 @@ public interface IDatabase {
     public void upsertActor(Actor actor, Consumer<Boolean> callback);
 
     public void deleteEntrantCascade(String email, Consumer<Boolean> callback);
+
+    public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback)
 }

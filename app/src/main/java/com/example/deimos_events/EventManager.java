@@ -1,4 +1,5 @@
 package com.example.deimos_events;
+import java.util.function.Consumer;
 
 /**
  * Handles persistent operations connected to the {@link Event} instances
@@ -15,4 +16,16 @@ public class EventManager {
     public EventManager(SessionManager sessionManager){
         this.sessionManager = sessionManager;
     }
+
+    public void getWaitingListCount(String eventID, Consumer<Integer> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        db.getPendingRegistrationsForEvent(eventID, count->{
+            callback.accept(count);
+        });
+
+
+    }
+
+
 }
