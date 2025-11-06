@@ -32,7 +32,8 @@ public class Database implements IDatabase {
 
     public void insertActor(Actor actor, Consumer<Boolean> callback){
         db.collection("actors")
-                .document(actor.getDeviceIdentifier())
+                .document(actor.getEmail())
+                //.document(actor.getDeviceIdentifier())
                 .set(actor)
                 .addOnSuccessListener(tempVoid ->{
                     callback.accept(Boolean.TRUE);
@@ -73,7 +74,8 @@ public class Database implements IDatabase {
 
     public void actorExists(Actor actor, Consumer<Boolean> callback){
         db.collection("actors")
-                .document(actor.getDeviceIdentifier())
+                .document(actor.getEmail())
+                //.document(actor.getDeviceIdentifier())
                 .get()
                 .addOnSuccessListener(doc ->{
                     if (doc.exists()){
