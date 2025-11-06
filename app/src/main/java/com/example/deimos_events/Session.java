@@ -12,10 +12,16 @@ import android.app.Activity;
  * The {@code Session} does not perform database operations. Any data it holds must be saved,
  * updated, or deleted by the appropriate manager.
  */
+import android.app.Activity;
+
 public class Session {
+    private Database database;
     private IDatabase database;
     private Actor currentActor;
     private Actor selectedActor;
+
+    private Activity activity;
+    public Session(Database database){
 
     private Activity activity;
     public Session(IDatabase database){

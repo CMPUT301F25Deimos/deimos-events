@@ -1,6 +1,8 @@
 package com.example.deimos_events;
 
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.auth.User;
 import com.google.firebase.firestore.WriteBatch;
@@ -13,8 +15,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+
 public class Database implements IDatabase {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private Result r;
 
 
 
@@ -48,7 +53,7 @@ public class Database implements IDatabase {
     }
     public void createEvent(Event event, Consumer<Boolean> callback){
         db.collection("events")
-                .document(event.getId())
+                .document()
                 .set(event)
                 .addOnSuccessListener(e ->{
                     callback.accept(Boolean.TRUE);
@@ -57,6 +62,7 @@ public class Database implements IDatabase {
                     callback.accept(Boolean.FALSE);
                 });
     }
+
 
     public void actorExists(Actor actor, Consumer<Boolean> callback){
         db.collection("actors")
@@ -102,6 +108,9 @@ public class Database implements IDatabase {
                 .set(data) // write a flat map so Firestore always has "role"
                 .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
                 .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+    }
+    public DocumentReference getEvent(String eventid, Consumer<Boolean> callback){
+        return db.collection("events").document(eventid);
     }
 
     public void deleteEntrantCascade(String entrantId, Consumer<Boolean> callback) {
@@ -154,4 +163,17 @@ public class Database implements IDatabase {
                 })
                 .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
     }
-}
+
+    public void updateImage(String eventId, String posterIdArray) {
+        db.collection("events").document(eventId).set(posterIdArray);
+    }
+    public void deleteRegistor(Register register, Consumer<Register> call){
+        db.collection("register")
+                .document(register.Id)
+                .delete()
+                .addOnSuccessListener(aVoid -> call.accept(true))
+                .addOnFailureListener(e -> call.accept(false));
+    }
+
+    }
+

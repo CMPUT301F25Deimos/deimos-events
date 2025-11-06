@@ -10,6 +10,7 @@
     <uses-permission android:name="android.hardware.camera" />
     <uses-permission android:name="android.hardware.camera.autofocus" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:name=".EventsApp"
         android:allowBackup="true"

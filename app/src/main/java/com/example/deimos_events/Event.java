@@ -12,7 +12,6 @@ import java.util.List;
  */
 public class Event {
     String id;
-    List<String>  waitingListParticipantIds;
     String title;
     String posterId;
     String description;
@@ -21,7 +20,7 @@ public class Event {
     Boolean recordLocation;
     String qrCodeId;
 
-    public Event(String id, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation) {
+    public Event(String id, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, String qrCodeId) {
         this.id = id;
         this.title = title;
         this.posterId = posterId;
@@ -60,6 +59,13 @@ public class Event {
     }
 
     public void setRegistrationDeadline(String registrationDeadline) {
+    }
+
+    public Date getRegistrationDeadline() {
+        return registrationDeadline;
+    }
+
+    public void setRegistrationDeadline(Date registrationDeadline) {
         this.registrationDeadline = registrationDeadline;
     }
 
@@ -86,13 +92,18 @@ public class Event {
     public void setQrCodeId(String qrCodeId) {
         this.qrCodeId = qrCodeId;
     }
-    public String getId(){return id;}
 
-
-
+    public String getId() {
+        return id;
+    }
     public void setId(String id) {
         this.id = id;
     }
+
+
+
 }
+
+
 
 

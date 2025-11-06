@@ -126,14 +126,16 @@ public class createFragment extends Fragment {
             } catch (WriterException e) {
                 throw new RuntimeException(e);
             }
-            SessionManager SM = ((EventsApp) requireActivity().getApplication()).getSessionManager();
+            SessionManager SM = ((EventsApp)requireActivity().getApplicationContext()).getSessionManager();
             EventManager EM = new EventManager(SM);
-            ArrayList<String> test = new ArrayList<>();
-            EM.createEvent(uniqueId,test,name,imageBit,decs,date,capacity,loc,qr);
-            NavController navController = NavHostFragment.findNavController(this);
 
-            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events,true).build();
-            navController.navigate(R.id.navigation_events, null , navOptions);
+            EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
+
+            NavController navController = NavHostFragment.findNavController(this);
+            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events, true).build();
+            Bundle arg = new Bundle();
+            arg.putString("id", uniqueId);
+            navController.navigate(R.id.navigation_edit, arg, navOptions);
 
         });
 

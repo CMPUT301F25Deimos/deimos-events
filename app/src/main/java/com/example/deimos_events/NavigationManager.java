@@ -5,7 +5,12 @@ import android.content.Intent;
 import android.util.Log;
 
 
+import android.app.Activity;
+import android.content.Intent;
+import android.util.Log;
+
 public class NavigationManager {
+
     private final UserInterfaceManager userInterfaceManager;
     public NavigationManager(UserInterfaceManager userInterfaceManager){
         this.userInterfaceManager = userInterfaceManager;
