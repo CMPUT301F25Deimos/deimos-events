@@ -18,12 +18,19 @@ public class UserInterfaceManager {
         sessionManager.getSession().setCurrentActor(actor);
     }
 
+    public void clearCurrentActor(){
+        setCurrentActor(null);
+    }
+
     public NavigationManager getNavigationManager() {
         return navigationManager;
     }
 
     public Activity getActivity(){
         return sessionManager.getSession().getActivity();
+    }
+    public void setActivity(Activity a){
+        sessionManager.getSession().setActivity(a);
     }
 
 

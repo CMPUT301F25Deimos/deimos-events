@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.deimos_events.Roles;
+
 public class ProfileViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText = new MutableLiveData<>();
@@ -11,7 +13,7 @@ public class ProfileViewModel extends ViewModel {
 
     public ProfileViewModel() {
         mText.setValue("Profile");
-        profile.setValue(new Profile("tempUserId", "Alex Entrant", "alex.entrant@example.com", "780-555-1212"));
+        profile.setValue(new Profile("tempUserId", "Alex Entrant", "alex.entrant@example.com", "780-555-1212", Roles.ENTRANT));
     }
 
     public LiveData<String> getText() { return mText; }
@@ -22,6 +24,6 @@ public class ProfileViewModel extends ViewModel {
     public void updateProfile(String name, String email, String phone) {
         Profile cur = profile.getValue();
         String uid = (cur == null) ? "tempUserId" : cur.getUserId();
-        profile.setValue(new Profile(uid, name, email, phone));
+        profile.setValue(new Profile(uid, name, email, phone, cur.getRole()));
     }
 }

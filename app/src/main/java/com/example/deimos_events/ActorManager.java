@@ -24,6 +24,106 @@ public class ActorManager {
         this.sessionManager = null;
     }
 
+    /**
+     * This method will attempt to insert the current {@link Actor} stored in the {@link Session}.
+     * <p>
+     * This method does some validation before issuing the insertion request to the database
+     * <p>
+     * Verifies that the current Actor is present in the Session.
+     * Verifies that the current Actor is not present in the Database.
+     * <p>
+     * If the Actor is not present in the database it will send an insert request via
+     * {@code Database.insertActor()}
+     * <p>
+     *
+     * This operation talks to the database and as such is asynchronous.
+     * The {@link Result} object will contain the following on completion of the callback
+     * <ul>
+     *     <li>{@code cond = true} if the insertion succeeded</li>
+     *     <li>{@code cond = false} if the operation failed, the actor was already found in the database
+     *     or the session contained no such actor</li>
+     *     <li>{@code type = "INSERT_ACTOR"} which identifies the result type</li>
+     *     <li>{@code message} which describes the specific outcome or failure reason</li>
+     * </ul>
+     *
+     * @param callback a {@link Consumer} that receives a {@link Result} which represents the
+     *                 outcome of the insertion attempt. The callback is always invoked even if the
+     *                 database is not queried.
+     *
+     * @see Session
+     * @see Actor
+     * @see Database#insertActor(Actor, Consumer)
+     * @see Database#actorExists(Actor, Consumer)
+     */
+    public void insertActor(Consumer<Result> callback) {
+        // grab session, database, and what you need, in this case the actor
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        Actor actor = session.getCurrentActor();
+
+        // Validate what you are trying to do, before querying the database
+        if (actor == null){
+            callback.accept(new Result(Boolean.FALSE, "INSERT_ACTOR", "No Actor in Session"));
+            return;
+        }
+        // Validate the query
+        db.actorExists(actor, exists ->{
+            if (exists == null){
+                callback.accept(new Result(Boolean.FALSE, "INSERT_ACTOR", "Database Failed to Read"));
+            }else if (exists){
+                callback.accept(new Result(Boolean.FALSE, "INSERT_ACTOR", "Actor already exists"));
+            }else{
+                db.insertActor(actor, createResult -> {
+                    if (createResult) {
+                        callback.accept(new Result(Boolean.TRUE, "INSERT_ACTOR",  "Successfully created user"));
+                    } else {
+                        callback.accept(new Result(Boolean.FALSE, "INSERT_ACTOR", "Failed to write user"));
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * This method will attempt to fetch the current {@link Actor} defined by the ID and place it
+     * Into the {@link Session} object.
+     * <p>
+     * If the Actor is not present in the database it will not modify the session object
+     * <p>
+     *
+     * This operation talks to the database and as such is asynchronous.
+     * The {@link Result} object will contain the following on completion of the callback
+     * <ul>
+     *     <li>{@code cond = true} if the fetch succeeded</li>
+     *     <li>{@code cond = false} if the operation failed, or no actor with such an ID was found
+     *     </li>
+     *     <li>{@code type = "FETCH_ACTOR"} which identifies the result type</li>
+     *     <li>{@code message} which describes the specific outcome or failure reason</li>
+     * </ul>
+     *
+     * @param callback a {@link Consumer} that receives a {@link Result} which represents the
+     *                 outcome of the fetch attempt.
+     * @see Session
+     * @see Actor
+     * @see Database#getActorByID(String, Consumer)
+     */
+    public void  fetchActorByID(String id, Consumer<Result> callback){
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+
+        db.getActorByID(id, actor ->{
+            if (actor != null){
+                session.setCurrentActor(actor);
+                callback.accept(new Result(true, "FETCH_ACTOR", "Actor was fetched successfully"));
+            } else {
+                callback.accept(new Result(false, "FETCH_ACTOR", "Actor not found"));
+            }
+        });
+
+    }
+
+
+
 
     /**
      * This method will attempt to delete the current {@link Actor} stored in the {@link Session}.
@@ -86,66 +186,7 @@ public class ActorManager {
             }
         });
     }
-    /**
-     * This method will attempt to insert the current {@link Actor} stored in the {@link Session}.
-     * <p>
-     * This method does some validation before issuing the insertion request to the database
-     * <p>
-     * Verifies that the current Actor is present in the Session.
-     * Verifies that the current Actor is not present in the Database.
-     * <p>
-     * If the Actor is not present in the database it will send an insert request via
-     * {@code Database.insertActor()}
-     * <p>
-     *
-     * This operation talks to the database and as such is asynchronous.
-     * The {@link Result} object will contain the following on completion of the callback
-     * <ul>
-     *     <li>{@code cond = true} if the insertion succeeded</li>
-     *     <li>{@code cond = false} if the operation failed, the actor was already found in the database
-     *     or the session contained no such actor</li>
-     *     <li>{@code type = "INSERT_ACTOR"} which identifies the result type</li>
-     *     <li>{@code message} which describes the specific outcome or failure reason</li>
-     * </ul>
-     *
-     * @param callback a {@link Consumer} that receives a {@link Result} which represents the
-     *                 outcome of the insertion attempt. The callback is always invoked even if the
-     *                 database is not queried.
-     *
-     * @see Session
-     * @see Actor
-     * @see Database#insertActor(Actor, Consumer)
-     * @see Database#actorExists(Actor, Consumer)
-     */
-    public void insertActor(Consumer<Result> callback) {
-        // grab session, database, and what you need, in this case the actor
-        Session session = sessionManager.getSession();
-        IDatabase db = session.getDatabase();
-        Actor actor = session.getCurrentActor();
 
-        // Validate what you are trying to do, before querying the database
-        if (actor == null){
-            callback.accept(new Result(Boolean.FALSE, "INSERT_ACTOR", "No Actor in Session"));
-            return;
-        }
-
-        // Validate the query
-        db.actorExists(actor, exists ->{
-            if (exists == null){
-                callback.accept(new Result(Boolean.FALSE, "INSERT_ACTOR", "Database Failed to Read"));
-            }else if (exists){
-                callback.accept(new Result(Boolean.FALSE, "INSERT_ACTOR", "Actor already exists"));
-            }else{
-                db.insertActor(actor, createResult -> {
-                    if (createResult) {
-                         callback.accept(new Result(Boolean.TRUE, "INSERT_ACTOR",  "Successfully created user"));
-                    } else {
-                       callback.accept(new Result(Boolean.FALSE, "INSERT_ACTOR", "Failed to write user"));
-                    }
-                });
-            }
-        });
-    }
 
 
 

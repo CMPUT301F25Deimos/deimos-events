@@ -24,7 +24,6 @@
 
         <activity android:name="com.example.deimos_events.MainActivity" android:exported="true" />
         <activity android:name="com.example.deimos_events.DeleteActivity" />
-        <activity android:name="com.example.deimos_events.CreateActivity" />
         <activity android:name="com.example.deimos_events.DisplayDataActivity" />
         <activity android:name="com.example.deimos_events.SignInActivity" />
     </application>
