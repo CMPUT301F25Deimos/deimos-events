@@ -23,7 +23,7 @@ public class Session {
     private Activity activity;
     public Session(Database database){
 
-    private Activity activity;
+
     public Session(IDatabase database){
         this.database = database;
     }

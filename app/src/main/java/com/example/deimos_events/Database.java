@@ -15,13 +15,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-
 public class Database implements IDatabase {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+
+
     private Result r;
-
-
 
     public FirebaseFirestore getDb() {
         return db;
@@ -109,9 +108,6 @@ public class Database implements IDatabase {
                 .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
                 .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
     }
-    public DocumentReference getEvent(String eventid, Consumer<Boolean> callback){
-        return db.collection("events").document(eventid);
-    }
 
     public void deleteEntrantCascade(String entrantId, Consumer<Boolean> callback) {
         db.collection("registrations").whereEqualTo("entrantId", entrantId).get()
@@ -163,17 +159,4 @@ public class Database implements IDatabase {
                 })
                 .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
     }
-
-    public void updateImage(String eventId, String posterIdArray) {
-        db.collection("events").document(eventId).set(posterIdArray);
-    }
-    public void deleteRegistor(Register register, Consumer<Register> call){
-        db.collection("register")
-                .document(register.Id)
-                .delete()
-                .addOnSuccessListener(aVoid -> call.accept(true))
-                .addOnFailureListener(e -> call.accept(false));
-    }
-
-    }
-
+}

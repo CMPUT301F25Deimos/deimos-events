@@ -131,6 +131,8 @@ public class createFragment extends Fragment {
 
             EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
 
+
+            EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
             NavController navController = NavHostFragment.findNavController(this);
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events, true).build();
             Bundle arg = new Bundle();

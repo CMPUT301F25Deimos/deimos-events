@@ -76,7 +76,7 @@ public class EventManager {
 
     public void getEventById(String eventId, Consumer<Event> callback) {
         Session session = sessionManager.getSession();
-        Database db = session.getDatabase();
+        IDatabase db = session.getDatabase();
         DocumentReference docref = db.getEvent(eventId, success -> {
             Result r;
             if (success) {
@@ -114,9 +114,6 @@ public class EventManager {
             Database db = session.getDatabase();
             db.deleteRegistor(register.getEventId,register.getActorId);
         }
-
-
-
     public void updateImage(String eventId, Bitmap imageBit)   {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         imageBit.compress(Bitmap.CompressFormat.PNG, 100, baos);

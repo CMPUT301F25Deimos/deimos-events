@@ -26,6 +26,7 @@ public class ActorManager {
     public void deleteActor(Consumer<Result> callback) {
 
 
+        // Validate what you are trying to do, before querying the database
 
 
         // grab session, database, and what you need, in this case the actor

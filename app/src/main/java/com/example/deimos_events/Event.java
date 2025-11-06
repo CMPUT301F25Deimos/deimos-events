@@ -16,7 +16,7 @@ public class Event {
     String posterId;
     String description;
     String registrationDeadline;
-    Number participantCap;
+    Integer participantCap;
     Boolean recordLocation;
     String qrCodeId;
 
@@ -96,14 +96,10 @@ public class Event {
     public String getId() {
         return id;
     }
+
     public void setId(String id) {
         this.id = id;
     }
-
-
-
 }
-
-
 
 
