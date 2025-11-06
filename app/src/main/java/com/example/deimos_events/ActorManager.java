@@ -23,10 +23,38 @@ public class ActorManager {
     public ActorManager(){
         this.sessionManager = null;
     }
+
+
+    /**
+     * This method will attempt to delete the current {@link Actor} stored in the {@link Session}.
+     * <p>
+     * This method does some validation before issuing the delete request to the database
+     * <p>
+     * Verifies that the current Actor is present in the Session.
+     * Checks if the Actor exists in the database using {@code Database.actorExists()}
+     * If the Actor exists it sends a delete request via {@code Database.deleteActor()}
+     * <p>
+     *
+     * This operation talks to the database and as such is asynchronous.
+     * The {@link Result} object will contain the following on completion of the callback
+     * <ul>
+     *     <li>{@code cond = true} if the deletion succeeded</li>
+     *     <li>{@code cond = false} if the operation failed, the actor was not found or the
+     *     session contained no such actor</li>
+     *     <li>{@code type = "DELETE_ACTOR"} which identifies the result type</li>
+     *     <li>{@code message} which describes the specific outcome or failure reason</li>
+     * </ul>
+     *
+     * @param callback a {@link Consumer} that receives a {@link Result} which represents the
+     *                 outcome of the deletion attempt. The callback is always created even if the
+     *                 database is not queried.
+     *
+     * @see Session
+     * @see Actor
+     * @see Database#deleteActor(Actor, Consumer)
+     * @see Database#actorExists(Actor, Consumer)
+     */
     public void deleteActor(Consumer<Result> callback) {
-
-
-
 
         // grab session, database, and what you need, in this case the actor
         Session session = sessionManager.getSession();
@@ -39,7 +67,6 @@ public class ActorManager {
             callback.accept(new Result(Boolean.FALSE, "DELETE_ACTOR", "No Actor in Session"));
             return;
         }
-
 
         // Validate the query
         db.actorExists(actor, exists -> {
@@ -59,7 +86,37 @@ public class ActorManager {
             }
         });
     }
-
+    /**
+     * This method will attempt to insert the current {@link Actor} stored in the {@link Session}.
+     * <p>
+     * This method does some validation before issuing the insertion request to the database
+     * <p>
+     * Verifies that the current Actor is present in the Session.
+     * Verifies that the current Actor is not present in the Database.
+     * <p>
+     * If the Actor is not present in the database it will send an insert request via
+     * {@code Database.insertActor()}
+     * <p>
+     *
+     * This operation talks to the database and as such is asynchronous.
+     * The {@link Result} object will contain the following on completion of the callback
+     * <ul>
+     *     <li>{@code cond = true} if the insertion succeeded</li>
+     *     <li>{@code cond = false} if the operation failed, the actor was already found in the database
+     *     or the session contained no such actor</li>
+     *     <li>{@code type = "INSERT_ACTOR"} which identifies the result type</li>
+     *     <li>{@code message} which describes the specific outcome or failure reason</li>
+     * </ul>
+     *
+     * @param callback a {@link Consumer} that receives a {@link Result} which represents the
+     *                 outcome of the insertion attempt. The callback is always created even if the
+     *                 database is not queried.
+     *
+     * @see Session
+     * @see Actor
+     * @see Database#insertActor(Actor, Consumer)
+     * @see Database#actorExists(Actor, Consumer)
+     */
     public void insertActor(Consumer<Result> callback) {
         // grab session, database, and what you need, in this case the actor
         Session session = sessionManager.getSession();
@@ -92,9 +149,7 @@ public class ActorManager {
 
 
 
-    public void actorExistsByEmail(Consumer<Result> callback){
 
-    }
 
     /* Temporarily commented out.
     public void createActor(Context context, String name, String email, String phoneNo) {

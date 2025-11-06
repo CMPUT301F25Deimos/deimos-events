@@ -43,39 +43,50 @@ public class SessionManager {
 
 
     public InvitationManager getInvitationManager() {
-        return invitationManager;
+        return checkObjectInitialized("InvitationManager", invitationManager);
     }
 
     public NotificationManager getNotificationManager() {
-        return notificationManager;
+        return checkObjectInitialized("NotificationManager",notificationManager);
     }
 
     public UserInterfaceManager getUserInterfaceManager() {
-        return userInterfaceManager;
+        return checkObjectInitialized("UserInterfaceManager", userInterfaceManager);
     }
 
 
     public Session getSession() {
-        return session;
+        return checkObjectInitialized("Session", session);
     }
 
     public EventManager getEventManager() {
-        return eventManager;
+         return checkObjectInitialized("EventManager", eventManager);
     }
 
     public ActorManager getActorManager() {
-        return actorManager;
+        return checkObjectInitialized("ActorManager", actorManager);
     }
 
     public void setSession(Session session) {
-        isFullInitialized(this);
+        checkFullInitialization(this);
         this.session = session;
     }
-
-    private void isFullInitialized(Object obj){
+    private void checkFullInitialization(Object obj){
         if (fullInitialization){
-            String msg = obj.getClass().getSimpleName() + "Has already been initialized";
+            String msg = obj.getClass().getSimpleName() + " has already been initialized";
             throw new IllegalStateException(msg);
         }
+    }
+
+    private <T> T checkObjectInitialized(String name, T value){
+        if (value == null){
+            throw new IllegalStateException(name + " has not been initalized yet");
+        }
+        return value;
+    }
+
+
+    public boolean isFullInitialization(){
+        return fullInitialization;
     }
 }
