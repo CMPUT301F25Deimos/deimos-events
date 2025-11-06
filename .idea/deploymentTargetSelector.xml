@@ -4,20 +4,6 @@
     <selectionStates>
       <SelectionState runConfigName="Deimos_events">
         <option name="selectionMode" value="DROPDOWN" />
-<<<<<<< HEAD
-=======
-        <DropdownSelection timestamp="2025-11-03T23:58:55.334422246Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=R5CR50LWF6H" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="SignupActivity (1)">
-        <option name="selectionMode" value="DROPDOWN" />
->>>>>>> bc9acc708478e032745338257f5d2bae4f378291
       </SelectionState>
     </selectionStates>
   </component>
