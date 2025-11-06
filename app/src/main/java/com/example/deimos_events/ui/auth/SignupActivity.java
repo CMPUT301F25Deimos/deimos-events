@@ -17,6 +17,7 @@ import com.example.deimos_events.Administrator;
 import com.example.deimos_events.Database;
 import com.example.deimos_events.Entrant;
 import com.example.deimos_events.EventsApp;
+import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.MainActivity;
 import com.example.deimos_events.NavigationManager;
 import com.example.deimos_events.Organizer;
@@ -40,7 +41,7 @@ public class SignupActivity extends AppCompatActivity {
     private AutoCompleteTextView etRole;
     private MaterialButton       btnSignup, btnMore;
 
-    private final Database db = new Database();
+    private IDatabase db;
 
     private SessionManager       SM;
     private UserInterfaceManager UIM;
@@ -58,6 +59,8 @@ public class SignupActivity extends AppCompatActivity {
         SM  = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
         NM  = UIM.getNavigationManager();
+        db = SM.getSession().getDatabase();
+
 
 
         tilDeviceId = findViewById(R.id.til_device_id);

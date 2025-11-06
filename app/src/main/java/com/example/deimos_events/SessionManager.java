@@ -43,35 +43,27 @@ public class SessionManager {
 
 
     public InvitationManager getInvitationManager() {
-        isFullInitialized(this);
         return invitationManager;
     }
 
     public NotificationManager getNotificationManager() {
-        isFullInitialized(this);
         return notificationManager;
     }
 
     public UserInterfaceManager getUserInterfaceManager() {
-        isFullInitialized(this);
         return userInterfaceManager;
     }
 
 
     public Session getSession() {
-        if(session == null){
-            throw new IllegalArgumentException("Session Not Initialized");
-        }
         return session;
     }
 
     public EventManager getEventManager() {
-        isFullInitialized(this);
         return eventManager;
     }
 
     public ActorManager getActorManager() {
-        isFullInitialized(this);
         return actorManager;
     }
 
@@ -86,5 +78,4 @@ public class SessionManager {
             throw new IllegalStateException(msg);
         }
     }
-
 }

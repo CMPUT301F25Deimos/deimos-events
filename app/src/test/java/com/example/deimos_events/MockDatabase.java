@@ -32,5 +32,15 @@ public class MockDatabase implements IDatabase{
         throw new UnsupportedOperationException("Not Implemented yet");
     }
 
+    @Override
+    public void actorExistsByEmail(String email, Consumer<Boolean> callback){
+        throw new UnsupportedOperationException("Not Implemented yet");
+    }
+    @Override
+    public void upsertActorWithRole(Actor actor, String role, java.util.function.Consumer<Boolean> callback){
+        throw new UnsupportedOperationException("Not Implemented yet");
+    }
+
+
 
 }
