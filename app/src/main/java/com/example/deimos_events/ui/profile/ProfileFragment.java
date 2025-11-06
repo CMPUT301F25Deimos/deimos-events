@@ -306,16 +306,16 @@ public class ProfileFragment extends Fragment {
         confirmBtn.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Deleting account…", Toast.LENGTH_SHORT).show();
 
-            String entrantId = requireContext()
+            String email = requireContext()
                     .getSharedPreferences("entrant_profile", Context.MODE_PRIVATE)
-                    .getString("userId", null);
+                    .getString("email", null);
 
-            if (TextUtils.isEmpty(entrantId)) {
+            if (TextUtils.isEmpty(email)) {
                 Toast.makeText(requireContext(), "No user session found.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            db.deleteEntrantCascade(entrantId, success -> {
+            db.deleteEntrantCascade(email, success -> {
                 if (!Boolean.TRUE.equals(success)) {
                     Toast.makeText(requireContext(), "Failed to delete from Firebase. Try again.", Toast.LENGTH_LONG).show();
                     return;
