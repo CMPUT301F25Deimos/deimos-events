@@ -2,7 +2,9 @@ package com.example.deimos_events.ui.events;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +65,11 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
             description.setText(event.getDescription());
             
             ImageView imageView = convertView.findViewById(R.id.event_image);
-            imageView.setImageBitmap(event.getPosterId());
+            
+            // turns base64 image to bitmap
+            String base64Image = event.getPosterId().contains(",") ? event.getPosterId().split(",")[1] : event.getPosterId();
+            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+            imageView.setImageBitmap(BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length));
             
             // changes buttons initial look
             changeButtonLook(button, event);
@@ -84,6 +90,10 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
                 changeButtonLook(button, event);
             });
         }
+        
+        // if clicking a Listview item, you select an event
+//        view.setOnClickListener(v -> db.setSelectedEvent(event));
+        
         return view;
     }
     

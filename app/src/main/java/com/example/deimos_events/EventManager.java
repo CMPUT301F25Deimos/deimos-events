@@ -2,7 +2,6 @@ package com.example.deimos_events;
 import android.graphics.Bitmap;
 import android.util.Base64;
 
-import com.google.firebase.firestore.DocumentReference;
 import com.google.zxing.common.BitMatrix;
 
 import java.io.ByteArrayOutputStream;
