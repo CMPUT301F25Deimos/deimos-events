@@ -170,7 +170,10 @@ public class ProfileFragment extends Fragment {
             public void onCreateMenu(@NonNull android.view.Menu menu, @NonNull android.view.MenuInflater menuInflater) {
                 menuInflater.inflate(R.menu.profile_menu, menu);
             }
-
+            //The following part Idea is taken from: https://developer.android.com/training/data-storage/shared-preferences
+            //Authored By: Android Developers
+            //Taken By: Harmanjot Kaur Dhaliwal
+            //Taken on: November 2nd, 2025
             @Override
             public boolean onMenuItemSelected(@NonNull android.view.MenuItem menuItem) {
                 if (menuItem.getItemId() == R.id.action_switch_user) {
@@ -310,6 +313,11 @@ public class ProfileFragment extends Fragment {
      * @param email email address to validate
      * @return {@code true} if the domain is in {@link #ALLOWED_DOMAINS}, otherwise {@code false}
      */
+
+    //The following part Idea is taken from: https://stackoverflow.com/questions/201323/how-can-i-validate-an-email-address-using-a-regular-expression/51332395#51332395
+    //Authored By: Stack Overflow
+    //Taken By: Harmanjot Kaur Dhaliwal
+    //Taken on: November 2nd, 2025
     private boolean hasAllowedDomain(String email) {
         int at = email.lastIndexOf('@');
         if (at < 0 || at == email.length() - 1) return false;

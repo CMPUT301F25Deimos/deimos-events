@@ -97,7 +97,10 @@ public class SignupActivity extends FoundationActivity {
         AM  = SM.getActorManager();
         db  = SM.getSession().getDatabase();
 
-        // Restore saved profile if user already signed up
+        //The following part Idea is taken from: https://stackoverflow.com/questions/5082846/how-to-implement-stay-logged-in-when-user-login-in-to-the-web-application
+        //Authored By: Thang Pham
+        //Taken By: Harmanjot Kaur Dhaliwal
+        //Taken on: November 6th, 2025
         boolean signedUp = getSharedPreferences("app", MODE_PRIVATE)
                 .getBoolean("signed_up", false);
         if (signedUp) {
