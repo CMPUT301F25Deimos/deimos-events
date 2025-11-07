@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.List;
 
+/**
+ * helps for Events Fragment UI
+ */
 public class EventsViewModel extends ViewModel {
     
     private final MutableLiveData<String> event;
