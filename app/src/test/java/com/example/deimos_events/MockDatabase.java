@@ -6,24 +6,27 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class MockDatabase implements IDatabase{
-    private final Map<String, Actor> mockData = new HashMap<>();
+    private final Map<String, Actor> mockActors = new HashMap<>();
+    private final Map<String, Event> mockEvents = new HashMap<>();
+    private final Map<String, Registration> mockRegistrations = new HashMap<>();
+
 
 
     @Override
     public void deleteActor(Actor actor, Consumer<Boolean> callback){
-        mockData.remove(actor.getDeviceIdentifier());
+        mockActors.remove(actor.getDeviceIdentifier());
         callback.accept(Boolean.TRUE);
     }
 
     @Override
     public void insertActor(Actor actor, Consumer<Boolean> callback){
-        mockData.put(actor.getDeviceIdentifier(), actor);
+        mockActors.put(actor.getDeviceIdentifier(), actor);
         callback.accept(Boolean.TRUE);
     }
 
     @Override
     public void actorExists(Actor actor, Consumer<Boolean> callback){
-        Boolean exists = mockData.containsKey(actor.getDeviceIdentifier());
+        Boolean exists = mockActors.containsKey(actor.getDeviceIdentifier());
         callback.accept(exists);
     }
 
@@ -34,20 +37,51 @@ public class MockDatabase implements IDatabase{
 
     @Override
     public void actorExistsByEmail(String email, Consumer<Boolean> callback){
-        throw new UnsupportedOperationException("Not Implemented yet");
+
+        boolean found = false;
+        try {
+            for (Actor a : mockActors.values()){
+                if (a.getEmail() == email){
+                    found = true;
+                    callback.accept(found);
+                    break;
+                }
+            }
+            callback.accept(found);
+        } catch (Exception e){
+            callback.accept(null);
+        }
     }
     @Override
-    public void upsertActor(Actor actor, Consumer<Boolean> callback){
-        throw new UnsupportedOperationException("Not Implemented yet");
-    }
-    @Override
-    public void getActorByID(String id, Consumer<Actor> callback){
-        callback.accept(mockData.get(id));
+    public void fetchActorByID(String id, Consumer<Actor> callback){
+        callback.accept(mockActors.get(id));
     }
 
     @Override
-    public void deleteEntrantCascade(String email, Consumer<Boolean> callback){
-        throw new UnsupportedOperationException("Not Implemented yet");
+    public void deleteEntrantCascade(String deviceIdentifier, Consumer<Boolean> callback){
+        try {
+
+            mockActors.remove(deviceIdentifier); // remove the actor
+
+            mockRegistrations.values().removeIf(r ->
+                deviceIdentifier.equals(r.getEntrantId())
+            );
+
+            callback.accept(Boolean.TRUE);
+
+        } catch (Exception e){
+            callback.accept(Boolean.FALSE);
+        }
+    }
+
+    @Override
+    public void updateActor(Actor oldActor, Actor updatedActor, Consumer<Boolean> callback){
+        if (mockActors.containsKey(oldActor.getDeviceIdentifier())){
+            mockActors.put(oldActor.getDeviceIdentifier(), updatedActor);
+            callback.accept(Boolean.TRUE);
+        } else {
+            callback.accept(Boolean.FALSE);
+        }
     }
 
 

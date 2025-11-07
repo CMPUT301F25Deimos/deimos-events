@@ -82,4 +82,45 @@ public class ActorManagerTest {
         AM.fetchActorByID(actor_1.getDeviceIdentifier(), r->{}); // Now should be in session
         assertEquals(actor_1, testSession.getCurrentActor());
     }
+
+    @Test
+    void testUpdateActor(){
+        Actor old_actor = new Actor("123", "john", "myemail@gmail.com", "911");
+        mdb.insertActor(old_actor, r->{}); // place the actor
+        Actor updated_actor = new Actor("123", "mike", "noemail@gmail.com", "119");
+        AM.updateActor(old_actor, updated_actor, resultCapturer);
+        assertEquals(updated_actor, testSession.getCurrentActor());
+    }
+    @Test
+    void testActorExistsByEmail(){
+        Actor old_actor = new Actor("123", "john", "myemail@gmail.com", "911");
+        mdb.insertActor(old_actor, r->{}); // place the actor
+        AM.actorExistsByEmail("myemail@gmail.com", resultCapturer);
+        assertTrue(resultCapturer.get().isSuccess());
+    }
+    @Test
+    void testActorExistsByEmailFails(){
+        Actor actor = new Actor("123", "john", "myemail@gmail.com", "911");
+        mdb.insertActor(actor, r->{}); // place the actor
+        AM.actorExistsByEmail("invalid@gmail.com", resultCapturer);
+        assertFalse(resultCapturer.get().isSuccess());
+    }
+//    @Test // how to implement this???
+//    void testActorExistsByEmailNulls(){
+//        Actor old_actor = new Actor("123", "john", "myemail@gmail.com", "911");
+//        mdb.insertActor(old_actor, r->{}); // place the actor
+//        AM.actorExistsByEmail(null, resultCapturer);
+//        assertFalse(resultCapturer.get().isSuccess());
+//    }
+
+    @Test
+    void testDeleteEntrantCascade(){
+        Actor actor = new Actor("123", "john", "myemail@gmail.com", "911");
+        mdb.insertActor(actor, r ->{});
+        mdb.insert
+
+    }
+
+
+
 }
