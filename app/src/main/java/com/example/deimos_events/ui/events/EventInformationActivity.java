@@ -72,20 +72,19 @@ public class EventInformationActivity  extends AppCompatActivity {
 
 
         Location.setText("Location: " + selectedEvent.getLocation());
-        //returns Date object, so fix that later
         eventDate.setText("Date: " + selectedEvent.getDate());
         eventTime.setText("Time: " + selectedEvent.getTime());
 
         availablespots.setText(String.valueOf(selectedEvent.getParticipantCap()));//needs to be changed so that is updated
 
-        //Implemented this, good for now but check in later
+
         EM.getWaitingListCount(selectedEvent.getId(), count->{
             runOnUiThread(()->waitlisted.setText("Waiting List Count: " + count));
         });
 
 
         //Need to figure out how to go from activity to fragment
-        returnButton.setOnClickListener(v-> finish());//fix this
+        returnButton.setOnClickListener(v-> finish());
 
 
         signUpButton.setOnClickListener(v->{

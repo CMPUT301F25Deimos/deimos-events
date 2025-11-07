@@ -23,11 +23,13 @@ import com.example.deimos_events.Actor;
 import com.example.deimos_events.ActorManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
+import com.example.deimos_events.NavigationManager;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.SessionManager;
 import com.example.deimos_events.UserInterfaceManager;
 import com.example.deimos_events.databinding.FragmentProfileBinding;
+import com.example.deimos_events.ui.auth.SignupActivity;
 
 import java.text.DateFormat;
 import java.util.Arrays;
@@ -52,6 +54,7 @@ public class ProfileFragment extends Fragment {
     private SessionManager SM;
     private Session session;
     private UserInterfaceManager UIM;
+    private NavigationManager NaM;
     private IDatabase db;
 
     @Override
@@ -60,6 +63,7 @@ public class ProfileFragment extends Fragment {
 
         SM = ((EventsApp) requireActivity().getApplication()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
+        NaM = SM.getNavigationManager();
         AM = SM.getActorManager();
         db = SM.getSession().getDatabase();
 
@@ -69,7 +73,6 @@ public class ProfileFragment extends Fragment {
 
         final TextView textView = binding.textProfile;
         profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-
         profileViewModel.getActor().observe(getViewLifecycleOwner(), this::bindActorCard);
 
         SharedPreferences prof = requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE);
@@ -201,17 +204,28 @@ public class ProfileFragment extends Fragment {
                     }
 
                     if (!email.equalsIgnoreCase(currentEmail)) {
-                        db.actorExistsByEmail(email, exists -> {
-                            if (exists == null) {
-                                Toast.makeText(requireContext(), "Network error. Try again.", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            if (exists) {
-                                Toast.makeText(requireContext(), "Email already exists", Toast.LENGTH_SHORT).show();
+                        AM.actorExistsByEmail(email, result -> {
+                            if (!result.isNull()) {
+                                if (result.isSuccess()) {
+                                    Toast.makeText(requireContext(), "Email already exists", Toast.LENGTH_SHORT).show();
+                                    return;
+                                } else {
+                                    performProfileSave(name, email, phone, currentRole);
+                                }
                             } else {
-                                performProfileSave(name, email, phone, currentRole);
-                            }
-                        });
+                                Toast.makeText(requireContext(), "Network error. Try again.", Toast.LENGTH_SHORT).show();
+                            }});
+//                        db.actorExistsByEmail(email, exists -> {
+//                            if (exists == null) {
+//                                Toast.makeText(requireContext(), "Network error. Try again.", Toast.LENGTH_SHORT).show();
+//                                return;
+//                            }
+//                            if (exists) {
+//                                Toast.makeText(requireContext(), "Email already exists", Toast.LENGTH_SHORT).show();
+//                            } else {
+//                                performProfileSave(name, email, phone, currentRole);
+//                            }
+//                        });
                     } else {
                         performProfileSave(name, email, phone, currentRole);
                     }
@@ -228,9 +242,8 @@ public class ProfileFragment extends Fragment {
         }
 
         Actor actor = new Actor(cur.getDeviceIdentifier(), name, email, phone, cur.getRole());
-
-        db.insertActor(actor, success -> {
-            if (Boolean.TRUE.equals(success)) {
+        AM.updateActor(cur, actor, res->{
+            if (res.isSuccess()){
                 requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE)
                         .edit()
                         .putString("userId", cur.getDeviceIdentifier())
@@ -239,14 +252,13 @@ public class ProfileFragment extends Fragment {
                         .putString("phone", phone)
                         .putString("role", role)
                         .apply();
-
                 profileViewModel.updateActor(name, email, phone);
-
                 Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), res.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
     private boolean hasAllowedDomain(String email) {
@@ -282,26 +294,24 @@ public class ProfileFragment extends Fragment {
         confirmBtn.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Deleting account…", Toast.LENGTH_SHORT).show();
 
-            String email = requireContext()
+            String deviceIdentifier = requireContext()
                     .getSharedPreferences("entrant_profile", Context.MODE_PRIVATE)
-                    .getString("email", null);
+                    .getString("userId", null);
 
-            if (TextUtils.isEmpty(email)) {
+            if (TextUtils.isEmpty(deviceIdentifier)) {
                 Toast.makeText(requireContext(), "No user session found.", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            db.deleteEntrantCascade(email, success -> {
-                if (!Boolean.TRUE.equals(success)) {
+            Actor actor = UIM.getCurrentActor();
+            AM.deleteEntrantCascade(actor, result -> {
+                if (!result.isSuccess()){
                     Toast.makeText(requireContext(), "Failed to delete from Firebase. Try again.", Toast.LENGTH_LONG).show();
                     return;
                 }
-
                 requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE).edit().clear().apply();
                 requireContext().getSharedPreferences("app", Context.MODE_PRIVATE).edit()
                         .putBoolean("signed_up", false)
                         .apply();
-
                 try {
                     com.example.deimos_events.EventsApp app =
                             (com.example.deimos_events.EventsApp) requireContext().getApplicationContext();
@@ -312,15 +322,45 @@ public class ProfileFragment extends Fragment {
 
                 if (getActivity() != null) {
                     dialog.dismiss();
-                    android.content.Intent intent =
-                            new android.content.Intent(requireContext(), com.example.deimos_events.ui.auth.SignupActivity.class)
-                                    .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK | android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    requireActivity().finish();
+                    NaM.goTo(com.example.deimos_events.ui.auth.SignupActivity.class, NavigationManager.navFlags.RESET_TO_NEW_ROOT);
+//                    android.content.Intent intent =
+//                            new android.content.Intent(requireContext(), com.example.deimos_events.ui.auth.SignupActivity.class)
+//                                    .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK | android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(intent);
+//                    requireActivity().finish();
                 }
-
                 Toast.makeText(requireContext(), "Your account was deleted.", Toast.LENGTH_SHORT).show();
             });
+//            db.deleteEntrantCascade(deviceIdentifier, success -> {
+//                if (!Boolean.TRUE.equals(success)) {
+//                    Toast.makeText(requireContext(), "Failed to delete from Firebase. Try again.", Toast.LENGTH_LONG).show();
+//                    return;
+//                }
+//
+//                requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE).edit().clear().apply();
+//                requireContext().getSharedPreferences("app", Context.MODE_PRIVATE).edit()
+//                        .putBoolean("signed_up", false)
+//                        .apply();
+//
+//                try {
+//                    com.example.deimos_events.EventsApp app =
+//                            (com.example.deimos_events.EventsApp) requireContext().getApplicationContext();
+//                    com.example.deimos_events.SessionManager sm = app.getSessionManager();
+//                    com.example.deimos_events.UserInterfaceManager uim = sm.getUserInterfaceManager();
+//                    uim.setCurrentActor(null);
+//                } catch (Exception ignored) {}
+//
+//                if (getActivity() != null) {
+//                    dialog.dismiss();
+//                    android.content.Intent intent =
+//                            new android.content.Intent(requireContext(), com.example.deimos_events.ui.auth.SignupActivity.class)
+//                                    .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK | android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(intent);
+//                    requireActivity().finish();
+//                }
+//
+//                Toast.makeText(requireContext(), "Your account was deleted.", Toast.LENGTH_SHORT).show();
+//            });
         });
 
         dialog.show();

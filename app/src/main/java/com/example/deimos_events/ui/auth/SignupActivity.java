@@ -75,13 +75,12 @@ public class SignupActivity extends FoundationActivity {
             if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(name) && !TextUtils.isEmpty(email)) {
                 Actor restored = createActorByRole(userId, name, email, phone == null ? "" : phone, role);
                 UIM.setCurrentActor(restored);
-                NM.goTo(MainActivity.class, true);
+                NM.goTo(MainActivity.class, NavigationManager.navFlags.RETURN_TO_TASK);
                 return;
             }
         }
 
   // incoming
-      TestingAndDocumentation
         tilDeviceId = findViewById(R.id.til_device_id);
         tilName     = findViewById(R.id.til_name);
         tilEmail    = findViewById(R.id.til_email);

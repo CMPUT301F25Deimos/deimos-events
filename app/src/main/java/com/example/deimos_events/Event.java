@@ -1,5 +1,9 @@
 package com.example.deimos_events;
 
+import android.graphics.Bitmap;
+
+import com.google.zxing.common.BitMatrix;
+
 import java.util.Date;
 import java.util.List;
 
@@ -11,22 +15,17 @@ public class Event {
     String title;
     String posterId;
     String description;
-    Date registrationDeadline;
-    Number participantCap;
+    String registrationDeadline;
+    Integer participantCap;
     Boolean recordLocation;
     String qrCodeId;
-
     String guidelines;
     String criteria;
     String time;
     String location;
-    Date date;
+    String date;
 
-
-
-
-
-    public Event(String id, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation) {
+    public Event(String id, String title, String posterId, String description, String registrationDeadline, Integer participantCap, Boolean recordLocation, String qrCodeId) {
         this.id = id;
         this.title = title;
         this.posterId = posterId;
@@ -63,11 +62,11 @@ public class Event {
         this.description = description;
     }
 
-    public Date getRegistrationDeadline() {
+    public String getRegistrationDeadline() {
         return registrationDeadline;
     }
 
-    public void setRegistrationDeadline(Date registrationDeadline) {
+    public void setRegistrationDeadline(String registrationDeadline) {
         this.registrationDeadline = registrationDeadline;
     }
 
@@ -75,7 +74,7 @@ public class Event {
         return participantCap;
     }
 
-    public void setParticipantCap(Number participantCap) {
+    public void setParticipantCap(Integer participantCap) {
         this.participantCap = participantCap;
     }
 
@@ -103,10 +102,30 @@ public class Event {
         this.id = id;
     }
 
+    public void setCriteria(String criteria) {
+        this.criteria = criteria;
+    }
+
+    public void setGuidelines(String guidelines) {
+        this.guidelines = guidelines;
+    }
+
     public String getGuidelines(){return guidelines;}
     public String getCriteria(){return criteria;}
 
-    public Date getDate() {
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getDate() {
         return date;
     }
     public String getLocation() {

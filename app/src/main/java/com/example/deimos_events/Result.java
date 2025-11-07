@@ -32,6 +32,9 @@ public class Result {
         return (cond == Boolean.TRUE);
     }
 
+    public Boolean isNull() {
+        return cond == null;
+    }
 
     public Boolean getCond() {
         return cond;

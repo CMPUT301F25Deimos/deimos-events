@@ -63,7 +63,7 @@ public class QRCodeFragment extends Fragment {
 
         if (result != null && result.getContents() != null){
             String scannedData = result.getContents();
-            EM.getEventById(scannedData, event->{
+            EM.fetchEventById(scannedData, event->{
                 if(event != null){
                     UIM.setSelectedEvent(event);
 
