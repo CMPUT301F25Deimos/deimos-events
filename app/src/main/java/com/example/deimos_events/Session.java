@@ -58,3 +58,4 @@ public class Session {
         public Event getSelectedEvent(){return selectedEvent;}
         public void setSelectedEvent(Event event){this.selectedEvent = event;}
 }
+
