@@ -91,20 +91,6 @@ public class Database implements IDatabase {
     }
 
     @Override
-    public void getActorById(String id, Consumer<Actor> callback) {
-        db.collection("actors").
-                document(id).get().
-                addOnSuccessListener(documentSnapshot -> {
-                    if( documentSnapshot!=null){
-                        Actor actor = documentSnapshot.toObject(Actor.class);
-                        callback.accept(actor);
-                    }
-                });
-    }
-
-
-
-    @Override
     public void getRegistration(String eventId, Consumer<List<Registration>> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
@@ -177,10 +163,6 @@ public class Database implements IDatabase {
     }
 
 
-//    public void insertRegistration(Registration registration, Consumer<Boolean> callback){
-//        db.collection("registrations")
-//                .document(registration.id)
-//    }
     public void actorExistsByEmail(String email, Consumer<Boolean> callback) {
         db.collection("actors")
                 .whereEqualTo("email", email)

@@ -14,7 +14,9 @@ import com.example.deimos_events.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Registration;
+import com.example.deimos_events.Session;
 import com.example.deimos_events.SessionManager;
+import com.example.deimos_events.UserInterfaceManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +39,16 @@ public class EventAdapter extends ArrayAdapter<Registration> {
         String Name = register.getEntrantId();
         SessionManager SM = ((EventsApp)getContext().getApplicationContext()).getSessionManager();
         ActorManager AM = SM.getActorManager();
+        UserInterfaceManager UIM = SM.getUserInterfaceManager();
         EventManager EM = SM.getEventManager();
-        AM.getActorById(Name,callback->{
-            tv.setText(callback.getName());
+        Session session = SM.getSession();
+        // going to assume you mean the current entrant
+        // in this case call the session object
+
+        AM.fetchActorByID(Name,callback->{
+            if (callback.isSuccess()){
+                tv.setText(UIM.getCurrentActor().getName());
+            }
         });
         TextView status = convertView.findViewById(R.id.status);
         status.setText(register.getStatus());

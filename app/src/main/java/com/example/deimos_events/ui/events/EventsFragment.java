@@ -106,7 +106,7 @@ public class EventsFragment extends Fragment {
         loadEvents();
 
 
-        final FloatingActionButton add  = binding.eventsList;
+        final FloatingActionButton add  = binding.filterFab;
         add.setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(this);
 
