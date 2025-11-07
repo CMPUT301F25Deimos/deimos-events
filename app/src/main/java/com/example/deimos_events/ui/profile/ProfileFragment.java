@@ -21,7 +21,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.deimos_events.Actor;
 import com.example.deimos_events.ActorManager;
-import com.example.deimos_events.Database;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
@@ -32,9 +31,9 @@ import com.example.deimos_events.databinding.FragmentProfileBinding;
 
 import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Date;
 import java.util.Set;
 
 public class ProfileFragment extends Fragment {
@@ -49,15 +48,10 @@ public class ProfileFragment extends Fragment {
             Arrays.asList("gmail.com", "outlook.com", "hotmail.com", "yahoo.com", "yahoo.ca")
     );
 
-    private  ActorManager AM;
-
+    private ActorManager AM;
     private SessionManager SM;
-
     private Session session;
-
     private UserInterfaceManager UIM;
-
-
     private IDatabase db;
 
     @Override
@@ -69,7 +63,6 @@ public class ProfileFragment extends Fragment {
         AM = SM.getActorManager();
         db = SM.getSession().getDatabase();
 
-
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -77,7 +70,7 @@ public class ProfileFragment extends Fragment {
         final TextView textView = binding.textProfile;
         profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
-        profileViewModel.getProfile().observe(getViewLifecycleOwner(), this::bindProfileCard);
+        profileViewModel.getActor().observe(getViewLifecycleOwner(), this::bindActorCard);
 
         SharedPreferences prof = requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE);
         String savedName  = prof.getString("name", null);
@@ -85,12 +78,13 @@ public class ProfileFragment extends Fragment {
         String savedPhone = prof.getString("phone", null);
         String savedId    = prof.getString("userId", "tempUserId");
         String savedRole  = prof.getString("role", "Entrant");
+
         if (!TextUtils.isEmpty(savedEmail) && !TextUtils.isEmpty(savedName)) {
-            profileViewModel.setProfile(new Profile(savedId, savedName, savedEmail, savedPhone == null ? "" : savedPhone, savedRole));
+            profileViewModel.setActor(new Actor(savedId, savedName, savedEmail, savedPhone == null ? "" : savedPhone, savedRole));
         }
         if (binding.roleText != null) binding.roleText.setText("Role: " + savedRole);
 
-        // Notification toggle local-only
+        // Notification toggle
         SharedPreferences sp = requireContext().getSharedPreferences(SP, Context.MODE_PRIVATE);
         boolean initial = sp.getBoolean(KEY_NOTIFY, true);
         if (binding.notifySwitch != null) {
@@ -114,13 +108,13 @@ public class ProfileFragment extends Fragment {
         return root;
     }
 
-    private void bindProfileCard(Profile p) {
-        if (p == null) return;
-        if (binding.nameText != null)  binding.nameText.setText(p.getName());
-        if (binding.emailText != null) binding.emailText.setText("Email: " + p.getEmail());
+    private void bindActorCard(Actor a) {
+        if (a == null) return;
+        if (binding.nameText != null)  binding.nameText.setText(a.getName());
+        if (binding.emailText != null) binding.emailText.setText("Email: " + a.getEmail());
         if (binding.phoneText != null) {
             binding.phoneText.setText("Phone Number: " +
-                    (TextUtils.isEmpty(p.getPhone()) ? "—" : p.getPhone()));
+                    (TextUtils.isEmpty(a.getPhoneNumber()) ? "—" : a.getPhoneNumber()));
         }
     }
 
@@ -160,7 +154,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showInlineEditDialog() {
-        Profile cur = profileViewModel.getProfile().getValue();
+        Actor cur = profileViewModel.getActor().getValue();
 
         final SharedPreferences prof = requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE);
         final String currentRole = prof.getString("role", "Entrant");
@@ -178,7 +172,7 @@ public class ProfileFragment extends Fragment {
         if (cur != null) {
             etName.setText(cur.getName());
             etEmail.setText(cur.getEmail());
-            etPhone.setText(cur.getPhone());
+            etPhone.setText(cur.getPhoneNumber());
         }
 
         container.addView(etName,  new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -227,44 +221,26 @@ public class ProfileFragment extends Fragment {
     }
 
     private void performProfileSave(String name, String email, String phone, String role) {
-        Profile cur = profileViewModel.getProfile().getValue();
+        Actor cur = profileViewModel.getActor().getValue();
         if (cur == null) {
             Toast.makeText(requireContext(), "No profile loaded", Toast.LENGTH_SHORT).show();
             return;
         }
-        // No longer overwrites the users role, if they update
-          Actor actor = new Actor(cur.getUserId(), name, email, phone, cur.getRole());
-//        AM.insertActor(result -> {
-//            if (result.isSuccess()) {
-//                requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE)
-//                        .edit()
-//                        .putString("userId", cur.getUserId())
-//                        .putString("name", name)
-//                        .putString("email", email)
-//                        .putString("phone", phone)
-//                        .putString("role", role) // keep existing role
-//                        .apply();
-//
-//                profileViewModel.updateProfile(name, email, phone);
-//
-//                Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show();
-//            } else {
-//                Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+
+        Actor actor = new Actor(cur.getDeviceIdentifier(), name, email, phone, cur.getRole());
 
         db.insertActor(actor, success -> {
             if (Boolean.TRUE.equals(success)) {
                 requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE)
                         .edit()
-                        .putString("userId", cur.getUserId())
+                        .putString("userId", cur.getDeviceIdentifier())
                         .putString("name", name)
                         .putString("email", email)
                         .putString("phone", phone)
-                        .putString("role", role) // keep existing role
+                        .putString("role", role)
                         .apply();
 
-                profileViewModel.updateProfile(name, email, phone);
+                profileViewModel.updateActor(name, email, phone);
 
                 Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show();
             } else {
@@ -349,8 +325,6 @@ public class ProfileFragment extends Fragment {
 
         dialog.show();
     }
-
-
 
     @Override
     public void onDestroyView() {

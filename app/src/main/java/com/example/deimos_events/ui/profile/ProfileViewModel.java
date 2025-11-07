@@ -4,26 +4,28 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.deimos_events.Actor;
 import com.example.deimos_events.Roles;
 
 public class ProfileViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText = new MutableLiveData<>();
-    private final MutableLiveData<Profile> profile = new MutableLiveData<>();
+    private final MutableLiveData<Actor> actor = new MutableLiveData<>();
 
     public ProfileViewModel() {
         mText.setValue("Profile");
-        profile.setValue(new Profile("tempUserId", "Alex Entrant", "alex.entrant@example.com", "780-555-1212", Roles.ENTRANT));
+        actor.setValue(new Actor("tempUserId", "Alex Entrant", "alex.entrant@example.com", "780-555-1212", Roles.ENTRANT));
     }
 
     public LiveData<String> getText() { return mText; }
-    public LiveData<Profile> getProfile() { return profile; }
+    public LiveData<Actor> getActor() { return actor; }
 
-    public void setProfile(Profile p) { profile.setValue(p); }
+    public void setActor(Actor a) { actor.setValue(a); }
 
-    public void updateProfile(String name, String email, String phone) {
-        Profile cur = profile.getValue();
-        String uid = (cur == null) ? "tempUserId" : cur.getUserId();
-        profile.setValue(new Profile(uid, name, email, phone, cur.getRole()));
+    public void updateActor(String name, String email, String phone) {
+        Actor cur = actor.getValue();
+        String uid = (cur == null) ? "tempUserId" : cur.getDeviceIdentifier();
+        String role = (cur == null) ? Roles.ENTRANT : cur.getRole();
+        actor.setValue(new Actor(uid, name, email, phone, role));
     }
 }
