@@ -20,6 +20,7 @@ import com.example.deimos_events.Actor;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.Event;
 import com.example.deimos_events.R;
+import com.example.deimos_events.SessionManager;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.HashSet;
@@ -32,14 +33,14 @@ import java.util.Set;
  * - TODO: As of right now, user cannot yet access the edit page by use of the edit button
  */
 public class EventArrayAdapter extends ArrayAdapter<Event>{
-    private final IDatabase db;
     private Set<String> registeredEventIds;
     private final Actor actor;
+    private final SessionManager sm;
     
     public EventArrayAdapter(Context context, List<Event> events,
-                             Set<String> registeredEventIds, IDatabase db, Actor actor) {
+                             Set<String> registeredEventIds, SessionManager sm, Actor actor) {
         super(context, 0, events);
-        this.db = db;
+        this.sm = sm;
         this.registeredEventIds = new HashSet<>(registeredEventIds);
         this.actor = actor;
     }
@@ -56,6 +57,8 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
         }
         
         MaterialButton button = view.findViewById(R.id.placeholder_button);
+        
+        IDatabase db = sm.getSession().getDatabase();
         
         Event event = getItem(position);
         
@@ -92,7 +95,7 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
         }
         
         // if clicking a Listview item, you select an event
-//        view.setOnClickListener(v -> db.setSelectedEvent(event));
+        view.setOnClickListener(v -> sm.getSession().setCurrentEvent(event));
         
         return view;
     }
