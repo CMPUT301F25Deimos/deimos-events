@@ -20,11 +20,15 @@ import com.example.deimos_events.Event;
 import com.example.deimos_events.R;
 import com.google.android.material.button.MaterialButton;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Array adapter for the notifications
+ * - Designs buttons depending on whether user owns the event, and whether they have or have not joined the waiting list for an event
+ * - TODO: As of right now, user cannot yet access the edit page by use of the edit button
+ */
 public class EventArrayAdapter extends ArrayAdapter<Event>{
     private final IDatabase db;
     private Set<String> registeredEventIds;

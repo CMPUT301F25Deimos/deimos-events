@@ -4,6 +4,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+/**
+ * helps for Notifications Fragment UI
+ */
 public class NotificationsViewModel extends ViewModel {
     
     private final MutableLiveData<String> mText;

@@ -56,6 +56,9 @@ import com.google.firebase.firestore.ListenerRegistration;
 // import com.example.deimos_events.models.Event;
 // import com.example.deimos_events.models.Registration;
 
+/**
+ * Shows the screen of the event page
+ */
 public class EventsFragment extends Fragment {
 
     private FragmentEventsBinding binding;
@@ -228,22 +231,9 @@ public class EventsFragment extends Fragment {
         // }
 
         // Fallback demo data so screen runs now
-        seedDemo();
         assignSidecarTags(allEvents);
     }
-
-    private void seedDemo() {
-        ArrayList<EventTest> demo = new ArrayList<>();
-        demo.add(new EventTest(lipsumLong(), R.drawable.img, true, 0, false));   // selected (pending)
-        demo.add(new EventTest("HEllooooooooooooooooooooooooooo", R.drawable.join_sticker_24dp, false, -1, true)); // organizer-owned, waitlisted
-        demo.add(new EventTest(lipsumLong(), R.drawable.img, true, 0, false));
-        demo.add(new EventTest("Short one", R.drawable.join_sticker_24dp, false, -1, false));
-        demo.add(new EventTest(lipsumLong(), R.drawable.img, true, 0, false));
-        demo.add(new EventTest("Another", R.drawable.join_sticker_24dp, false, 0, false));
-
-        allEvents.clear();
-        allEvents.addAll(demo);
-    }
+    
 
     private void assignSidecarTags(List<EventTest> events) {
         dayTypeByEvent.clear();
