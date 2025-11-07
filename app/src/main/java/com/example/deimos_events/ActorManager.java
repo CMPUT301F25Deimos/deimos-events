@@ -181,9 +181,43 @@ public class ActorManager {
                         callback.accept(new Result(Boolean.FALSE, "DELETE_ACTOR", "Failed to delete user"));
                     }
                 });
-            }else{
+            }else {
                 callback.accept(new Result(Boolean.FALSE, "DELETE_ACTOR", "Actor  does not exist"));
             }
         });
     }
+    public void getActorById(String id, Consumer<Actor> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        db.getActorById(id, actor -> {
+            if (actor == null) {
+                callback.accept(null);
+            }
+            else {
+                callback.accept(actor);
+            }
+
+        });
+    }
 }
+
+
+    /* Temporarily commented out.
+    public void createActor(Context context, String name, String email, String phoneNo) {
+        String androidId = Settings.Secure.getString(
+                context.getContentResolver(),
+                Settings.Secure.ANDROID_ID
+        );
+        Session session = sessionManager.getSession();
+        Database db = session.getDatabase();
+        Actor actor = new Actor(androidId, name, email, phoneNo);
+        db.createActor(actor, success -> {
+            if (success) {
+                new Result(Boolean.TRUE, "CREATE_ACTOR",  "Successfully created a user");
+            } else {
+                new Result(Boolean.FALSE, "CREATE_ACTOR",  "Failed To Create User");
+            }
+        });
+    }
+}
+     */

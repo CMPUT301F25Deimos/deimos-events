@@ -3,6 +3,7 @@ package com.example.deimos_events;
 import android.os.Bundle;
 
 import com.example.deimos_events.ui.auth.SignupActivity;
+import com.example.deimos_events.ui.events.EventsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.navigation.NavController;

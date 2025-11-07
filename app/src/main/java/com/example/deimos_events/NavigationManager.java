@@ -6,6 +6,10 @@ import android.content.Intent;
 import androidx.navigation.NavController;
 
 
+import android.app.Activity;
+import android.content.Intent;
+import android.util.Log;
+
 public class NavigationManager {
     private final SessionManager sessionManager;
     public NavigationManager(SessionManager sessionManager){

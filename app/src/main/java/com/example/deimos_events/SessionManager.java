@@ -65,6 +65,16 @@ public class SessionManager {
         return checkObjectInitialized("Session", session);
     }
 
+
+    public void setResult(Result result){
+        this.session.setResult(result);
+    }
+
+
+    public void setCurrentActor(Actor actor){
+        this.session.setCurrentActor(actor);
+    }
+
     public EventManager getEventManager() {
          return checkObjectInitialized("EventManager", eventManager);
     }

@@ -1,6 +1,11 @@
 package com.example.deimos_events;
 
+import android.graphics.Bitmap;
+
+import com.google.zxing.common.BitMatrix;
+
 import java.util.Date;
+import java.util.List;
 
 /**
  * A class for events. This also contains methods for getting data related to registrations and users.
@@ -10,12 +15,12 @@ public class Event {
     String title;
     String posterId;
     String description;
-    Date registrationDeadline;
-    Number participantCap;
+    String registrationDeadline;
+    Integer participantCap;
     Boolean recordLocation;
     String qrCodeId;
 
-    public Event(String id, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation) {
+    public Event(String id, String title, String posterId, String description, String registrationDeadline, Integer participantCap, Boolean recordLocation, String qrCodeId) {
         this.id = id;
         this.title = title;
         this.posterId = posterId;
@@ -49,11 +54,11 @@ public class Event {
         this.description = description;
     }
 
-    public Date getRegistrationDeadline() {
+    public String getRegistrationDeadline() {
         return registrationDeadline;
     }
 
-    public void setRegistrationDeadline(Date registrationDeadline) {
+    public void setRegistrationDeadline(String registrationDeadline) {
         this.registrationDeadline = registrationDeadline;
     }
 
@@ -61,7 +66,7 @@ public class Event {
         return participantCap;
     }
 
-    public void setParticipantCap(Number participantCap) {
+    public void setParticipantCap(Integer participantCap) {
         this.participantCap = participantCap;
     }
 
