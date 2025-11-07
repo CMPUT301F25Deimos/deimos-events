@@ -39,7 +39,16 @@ public class MockDatabase implements IDatabase{
         throw new UnsupportedOperationException("Not Implemented yet");
     }
     @Override
-    public void upsertActorWithRole(Actor actor, String role, java.util.function.Consumer<Boolean> callback){
+    public void upsertActor(Actor actor, Consumer<Boolean> callback){
+        throw new UnsupportedOperationException("Not Implemented yet");
+    }
+    @Override
+    public void getActorByID(String id, Consumer<Actor> callback){
+        callback.accept(mockData.get(id));
+    }
+
+    @Override
+    public void deleteEntrantCascade(String email, Consumer<Boolean> callback){
         throw new UnsupportedOperationException("Not Implemented yet");
     }
 
@@ -67,6 +76,5 @@ public class MockDatabase implements IDatabase{
     public void getActorById(String id, Consumer<Actor> callback) {
 
     }
-
 
 }

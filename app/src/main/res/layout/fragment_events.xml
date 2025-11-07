@@ -4,26 +4,187 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.events.EventsFragment"
-    android:background="@color/background_colour">
+    android:background="@color/background_colour"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.events.EventsFragment">
 
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/events_toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:title="Events"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Quick filters bar: ONE ROW, horizontally scrollable -->
+    <HorizontalScrollView
+        android:id="@+id/filters_quick_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        android:scrollbars="none"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/events_toolbar">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- STATUS (single select) -->
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggle_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggle_status_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggle_status_joined"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Joined" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggle_status_waitlisted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Waitlisted" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggle_status_selected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Selected" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggle_status_not_selected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Not Selected" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <!-- AVAILABILITY (multi select) -->
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggle_availability"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                app:singleSelection="false">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggle_avail_weekdays"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Weekdays" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggle_avail_weekends"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Weekends" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <!-- INTERESTS (chips, multi select) -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chips_interests"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleLine="true"
+                app:singleSelection="false">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_interest_swimming"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Swimming" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_interest_sports"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Sports" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_interest_dance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Dance" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_interest_games"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Games" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_interest_music"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Music" />
+            </com.google.android.material.chip.ChipGroup>
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Events list -->
     <ListView
         android:id="@+id/events_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="88dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/filters_quick_bar" />
 
+    <!-- Filter FAB (bottom-right) -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addEvent"
+        android:id="@+id/filter_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="85dp"
-        android:clickable="true"
-        app:backgroundTint="@color/chosen_background"
+        android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:shapeAppearanceOverlay="@style/fab_shape"
-        app:srcCompat="@android:drawable/ic_input_add"
+        app:srcCompat="@drawable/filter_24dp"
         app:tint="@color/text_colour" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_clear_filters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear Filters"
+        android:layout_marginTop="10dp"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        style="?attr/materialButtonOutlinedStyle" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

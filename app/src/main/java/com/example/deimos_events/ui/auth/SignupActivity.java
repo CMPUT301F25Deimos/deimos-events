@@ -1,6 +1,5 @@
 package com.example.deimos_events.ui.auth;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -10,13 +9,13 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.deimos_events.Actor;
+import com.example.deimos_events.ActorManager;
 import com.example.deimos_events.Administrator;
-import com.example.deimos_events.Database;
 import com.example.deimos_events.Entrant;
 import com.example.deimos_events.EventsApp;
+import com.example.deimos_events.FoundationActivity;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.MainActivity;
 import com.example.deimos_events.NavigationManager;
@@ -34,7 +33,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-public class SignupActivity extends AppCompatActivity {
+public class SignupActivity extends FoundationActivity {
 
     private TextInputLayout      tilName, tilEmail, tilPhone, tilDeviceId, tilRole;
     private TextInputEditText    etDeviceId, etName, etEmail, etPhone;
@@ -47,6 +46,8 @@ public class SignupActivity extends AppCompatActivity {
     private UserInterfaceManager UIM;
     private NavigationManager    NM;
 
+    private ActorManager AM;
+
     private static final Set<String> ALLOWED_DOMAINS = new HashSet<>(
             Arrays.asList("gmail.com", "outlook.com", "hotmail.com", "yahoo.com", "yahoo.ca")
     );
@@ -58,11 +59,29 @@ public class SignupActivity extends AppCompatActivity {
 
         SM  = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
-        NM  = UIM.getNavigationManager();
+        NM  = SM.getNavigationManager();
+        AM = SM.getActorManager();
         db = SM.getSession().getDatabase();
+// incoming
+        boolean signedUp = getSharedPreferences("app", MODE_PRIVATE)
+                .getBoolean("signed_up", false);
+        if (signedUp) {
+            String userId = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("userId", null);
+            String name   = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("name", null);
+            String email  = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("email", null);
+            String phone  = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("phone", "");
+            String role   = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("role", Roles.ENTRANT);
 
+            if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(name) && !TextUtils.isEmpty(email)) {
+                Actor restored = createActorByRole(userId, name, email, phone == null ? "" : phone, role);
+                UIM.setCurrentActor(restored);
+                NM.goTo(MainActivity.class, true);
+                return;
+            }
+        }
 
-
+  // incoming
+      TestingAndDocumentation
         tilDeviceId = findViewById(R.id.til_device_id);
         tilName     = findViewById(R.id.til_name);
         tilEmail    = findViewById(R.id.til_email);
@@ -119,55 +138,45 @@ public class SignupActivity extends AppCompatActivity {
         if (!ok) return;
 
         btnSignup.setEnabled(false);
-
-        db.actorExistsByEmail(email, exists -> {
-            if (exists == null) {
-                btnSignup.setEnabled(true);
-                Toast.makeText(this, "Network error. Try again.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (exists) {
-                btnSignup.setEnabled(true);
-                tilEmail.setError("User already exists with this email");
-                return;
-            }
-
-            Actor actor = createActorByRole(role, deviceId, name, email, phone);
-
-            // Save to Firestore with role (expects Database.upsertActorWithRole)
-            db.upsertActorWithRole(actor, role, success -> {
-                btnSignup.setEnabled(true);
-                if (Boolean.TRUE.equals(success)) {
-                    UIM.setCurrentActor(actor);
-
-                    getSharedPreferences("entrant_profile", MODE_PRIVATE)
-                            .edit()
-                            .putString("userId", deviceId)
-                            .putString("name", name)
-                            .putString("email", email)
-                            .putString("phone", phone)
-                            .putString("role", role)
-                            .apply();
-
-                    getSharedPreferences("app", MODE_PRIVATE)
-                            .edit()
-                            .putBoolean("signed_up", true)
-                            .apply();
-
-                    Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
-
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Toast.makeText(this, "Failed to save. Try again.", Toast.LENGTH_SHORT).show();
+        // create an actor instance
+        Actor actor = createActorByRole(deviceId, name, email, phone, role);
+        // insert the actor, or attempt to do so
+        AM.insertActor(actor, res ->{
+            // react to the result.
+            btnSignup.setEnabled(true);
+            String UIErrorMessage = "";
+            if (!res.isSuccess()){
+                if (res.getMessage() == "Database Failed to Read") {
+                    UIErrorMessage = "Network Error. Try Again";
                 }
-            });
+                if (res.getMessage() == "Actor already exists"){
+                    UIErrorMessage = "User already exists with this email";
+                }
+                Toast.makeText(this, UIErrorMessage, Toast.LENGTH_SHORT).show();
+                UIM.clearCurrentActor(); // sanity check
+                return;
+            } else {
+                getSharedPreferences("entrant_profile", MODE_PRIVATE)
+                        .edit()
+                        .putString("userId", deviceId)
+                        .putString("name", name)
+                        .putString("email", email)
+                        .putString("phone", phone)
+                        .putString("role", role)
+                        .apply();
+
+                getSharedPreferences("app", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("signed_up", true)
+                        .apply();
+
+                Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
+                NM.goTo(MainActivity.class, NavigationManager.navFlags.RETURN_TO_TASK);
+            }
         });
     }
 
-    private Actor createActorByRole(String role, String id, String name, String email, String phone) {
+    private Actor createActorByRole(String id, String name, String email, String phone, String role) {
         if (Roles.ORGANIZER.equals(role)) return new Organizer(id, name, email, phone);
         if (Roles.ADMIN.equals(role))     return new Administrator(id, name, email, phone);
         return new Entrant(id, name, email, phone, false);
