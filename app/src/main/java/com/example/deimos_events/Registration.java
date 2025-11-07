@@ -14,7 +14,7 @@ public class Registration {
     private String status;
     
     public String description;
-    public Bitmap image;
+    public String image;
     
     public Registration() {}
 
@@ -58,5 +58,5 @@ public class Registration {
     }
     
     public void setDescription(String description) { this.description = description; }
-    public void setImage(Bitmap image) { this.image = image; }
+    public void setImage(String image) { this.image = image; }
 }

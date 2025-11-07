@@ -1,14 +1,12 @@
 package com.example.deimos_events;
 
-import android.graphics.Bitmap;
-
 /**
  * A class for events. This also contains methods for getting data related to registrations and users.
  */
 public class Event {
     String id;
     String title;
-    Bitmap posterId;
+    String posterId;
     String description;
     String registrationDeadline;
     Integer participantCap;
@@ -21,7 +19,7 @@ public class Event {
     String date;
     String ownerId;
 
-    public Event(String id, String title, Bitmap posterId, String description, String registrationDeadline, Integer participantCap, Boolean recordLocation, String qrCodeId, String ownerId) {
+    public Event(String id, String title, String posterId, String description, String registrationDeadline, Integer participantCap, Boolean recordLocation, String qrCodeId, String ownerId) {
         this.id = id;
         this.title = title;
         this.posterId = posterId;
@@ -43,11 +41,11 @@ public class Event {
         this.title = title;
     }
 
-    public Bitmap getPosterId() {
+    public String getPosterId() {
         return posterId;
     }
 
-    public void setPosterId(Bitmap posterId) {
+    public void setPosterId(String posterId) {
         this.posterId = posterId;
     }
 

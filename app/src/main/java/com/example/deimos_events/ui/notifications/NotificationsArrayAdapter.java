@@ -2,7 +2,9 @@ package com.example.deimos_events.ui.notifications;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +29,7 @@ import java.util.ArrayList;
 
 /**
  * Array adapter for the notifications
- * - Designs buttons depending on whether user was accepted, or if they accepted/declined their odder
+ * - Designs buttons depending on whether user was accepted, or if they accepted/declined their offer
  * - TODO: As of right now, user automatically gets a notification right after entering an event because
  * - TODO: event lottery logic has yet to be implemented
  */
@@ -64,7 +66,9 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Registration>{
             textView.setText(notification.description);
             
             ImageView imageView = view.findViewById(R.id.event_image);
-            imageView.setImageBitmap(notification.image);
+            String base64Image = notification.image.contains(",") ? notification.image.split(",")[1] : notification.image;
+            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+            imageView.setImageBitmap(BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length));
             
             // person is not accepted, shows option to be removed from waiting list
             if (notification.getStatus() == "Not Selected") {
