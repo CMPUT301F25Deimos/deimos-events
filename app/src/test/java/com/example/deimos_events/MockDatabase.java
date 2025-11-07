@@ -1,5 +1,7 @@
 package com.example.deimos_events;
 
+import org.junit.platform.commons.function.Try;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,9 @@ public class MockDatabase implements IDatabase{
     private final Map<String, Event> mockEvents = new HashMap<>();
     private final Map<String, Registration> mockRegistrations = new HashMap<>();
 
+    private String regKey (String ActorKey, String EventKey){
+        return ActorKey + "_" + EventKey;
+    }
 
 
     @Override
@@ -23,6 +28,22 @@ public class MockDatabase implements IDatabase{
         mockActors.put(actor.getDeviceIdentifier(), actor);
         callback.accept(Boolean.TRUE);
     }
+
+    public void insertEvent(Event event, Consumer<Boolean> callback){
+        mockEvents.put(event.getId(), event);
+        callback.accept(Boolean.TRUE);
+    }
+
+    public void insertRegistration(Registration registration, Consumer<Boolean> callback){
+        try {
+            String registrationID  = regKey(registration.getEntrantId(), registration.getEventId());
+            mockRegistrations.put(registrationID, registration);
+            callback.accept(Boolean.TRUE);
+        } catch (Exception e) {
+           callback.accept(Boolean.FALSE);
+        }
+    }
+
 
     @Override
     public void actorExists(Actor actor, Consumer<Boolean> callback){
@@ -62,13 +83,11 @@ public class MockDatabase implements IDatabase{
         try {
 
             mockActors.remove(deviceIdentifier); // remove the actor
-
             mockRegistrations.values().removeIf(r ->
                 deviceIdentifier.equals(r.getEntrantId())
             );
 
             callback.accept(Boolean.TRUE);
-
         } catch (Exception e){
             callback.accept(Boolean.FALSE);
         }

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Date;
 import java.util.function.Consumer;
 
 public class ActorManagerTest {
@@ -116,9 +117,16 @@ public class ActorManagerTest {
     @Test
     void testDeleteEntrantCascade(){
         Actor actor = new Actor("123", "john", "myemail@gmail.com", "911");
+        Event swimmingEvent = new Event("83A", "swimming", "swimming_pic333", "climbingEvent where you swim", new Date(), 10,  false);
+        Event climbingEvent = new Event("97F", "climbing", "climbing_mock", "climbingEvent where you climb", new Date(), 20,  true);
+        Registration swimRegistration = new Registration("ignored", "123", "83A", "Pending");
+        Registration climbRegistration = new Registration("ignored", "123", "97F", "Accepted");
         mdb.insertActor(actor, r ->{});
-        mdb.insert
-
+        mdb.insertEvent(climbingEvent, r -> {});
+        mdb.insertRegistration(swimRegistration, r-> {});
+        mdb.insertRegistration(climbRegistration, r-> {});
+        AM.deleteEntrantCascade(actor, resultCapturer);
+        assertTrue(resultCapturer.get().isSuccess());
     }
 
 

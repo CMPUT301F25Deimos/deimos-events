@@ -109,10 +109,10 @@ public class Database implements IDatabase {
     }
 
 
-    public void insertRegistration(Registration registration, Consumer<Boolean> callback){
-        db.collection("registrations")
-                .document(registration.id)
-    }
+//    public void insertRegistration(Registration registration, Consumer<Boolean> callback){
+//        db.collection("registrations")
+//                .document(registration.id)
+//    }
     public void actorExistsByEmail(String email, Consumer<Boolean> callback) {
         db.collection("actors")
                 .whereEqualTo("email", email)
