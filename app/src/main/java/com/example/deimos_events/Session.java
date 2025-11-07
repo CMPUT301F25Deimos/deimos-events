@@ -19,6 +19,8 @@ public class Session {
     private Actor selectedActor;
     private Result result;
 
+    private Event currentEvent;
+
     private Activity activity;
 
     public Session(IDatabase database) {
@@ -39,6 +41,9 @@ public class Session {
         public void setCurrentActor (Actor actor){
             this.currentActor = actor;
         }
+         public void setCurrentEvent(Event event) {
+             this.currentEvent= event;
+         }
 
         public Activity getActivity () {
             return activity;

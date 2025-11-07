@@ -20,7 +20,10 @@ public interface IDatabase {
 
     DocumentReference getEvent(String eventId,Consumer<Boolean> callback);
 
-    void createEvent(Event event, Consumer<Boolean> callback);
+
+    //void fetchEventById(String eventId, Consumer<Event> callback);
+
+    void insertEvent(Event event, Consumer<Boolean> callback);
 
     void updateImage(String eventId, String posterIdArray);
 

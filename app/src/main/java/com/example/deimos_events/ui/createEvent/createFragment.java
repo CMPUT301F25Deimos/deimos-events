@@ -12,34 +12,31 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.deimos_events.Event;
 import com.example.deimos_events.EventManager;
 import com.example.deimos_events.EventsApp;
-import com.example.deimos_events.Organizer;
 import com.example.deimos_events.R;
 import com.example.deimos_events.SessionManager;
-import com.example.deimos_events.UserInterfaceManager;
 import com.example.deimos_events.databinding.FragmentCreateEventBinding;
 import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatReader;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
@@ -154,8 +151,23 @@ public class createFragment extends Fragment {
             }
             SessionManager SM = ((EventsApp)requireActivity().getApplicationContext()).getSessionManager();
             EventManager EM = new EventManager(SM);
+            Event event = EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
 
-            EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
+            EM.insertEvent(event, result -> {
+                if (result.isSuccess()){
+                    Toast.makeText(getContext(), "Event created successfully", Toast.LENGTH_SHORT).show();
+
+                    NavController navController = NavHostFragment.findNavController(this);
+                    NavOptions navOptions = new NavOptions.Builder()
+                            .setPopUpTo(R.id.navigation_events, true)
+                            .build();
+                    Bundle arg = new Bundle();
+                    arg.putString("id", uniqueId);
+                    navController.navigate(R.id.navigation_edit, arg, navOptions);
+                } else {
+                    Toast.makeText(getContext(), "Failed to create event", Toast.LENGTH_SHORT).show();
+                }
+            });
             NavController navController = NavHostFragment.findNavController(this);
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events, true).build();
             Bundle arg = new Bundle();

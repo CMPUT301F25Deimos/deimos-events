@@ -58,7 +58,7 @@ public class Database implements IDatabase {
                     callback.accept(Boolean.FALSE);
                 });
     }
-    public void createEvent(Event event, Consumer<Boolean> callback){
+    public void insertEvent(Event event, Consumer<Boolean> callback){
         db.collection("events")
                 .document()
                 .set(event)
@@ -154,13 +154,6 @@ public class Database implements IDatabase {
                 });
     }
 
-    public void insertEvent(Event event, Consumer<Boolean> callback) {
-        db.collection("events")
-                .document(event.id)
-                .set(event)
-                .addOnSuccessListener(e -> callback.accept(true))
-                .addOnFailureListener(e -> callback.accept(false));
-    }
 
 
     public void actorExistsByEmail(String email, Consumer<Boolean> callback) {
@@ -175,7 +168,7 @@ public class Database implements IDatabase {
 
     @Override
     public DocumentReference getEvent(String eventId, Consumer<Boolean> callback) {
-        return null;
+        throw new UnsupportedOperationException("Not Implemented yet");
     }
 
 

@@ -23,13 +23,13 @@ public class MockDatabase implements IDatabase{
 
     @Override
     public void deleteActor(Actor actor, Consumer<Boolean> callback){
-        mockData.remove(actor.getDeviceIdentifier());
+        mockActors.remove(actor.getDeviceIdentifier());
         callback.accept(Boolean.TRUE);
     }
 
     @Override
     public void insertActor(Actor actor, Consumer<Boolean> callback){
-        mockData.put(actor.getDeviceIdentifier(), actor);
+        mockActors.put(actor.getDeviceIdentifier(), actor);
         callback.accept(Boolean.TRUE);
     }
 
@@ -106,14 +106,18 @@ public class MockDatabase implements IDatabase{
             callback.accept(Boolean.FALSE);
         }
     }
+//    @Override
+//    public DocumentReference getEvent(String eventId, Consumer<Event> callback) {
+//        callback.accept(mockEvents.get(eventId));
+//    }
 
-    @Override
-    public DocumentReference getEvent(String eventId, Consumer<Boolean> callback) {
-        return null;
+
+    public void fetchEventById(String eventId, Consumer<Event> callback){
+        callback.accept(mockEvents.get(eventId));
     }
 
     @Override
-    public void createEvent(Event event, Consumer<Boolean> callback) {
+    public DocumentReference getEvent(String eventId,Consumer<Boolean> callback){
         throw new UnsupportedOperationException("Not Implemented yet");
     }
 
@@ -123,13 +127,13 @@ public class MockDatabase implements IDatabase{
     }
 
     @Override
+    public void getRegistration(String eventId, Consumer<List<Registration>> callback){
+        throw new UnsupportedOperationException("Not Implemented yet");
+    }
+
+
+    @Override
     public void deleteRegistor(String entrantId, String eventId) {
         throw new UnsupportedOperationException("Not Implemented yet");
     }
-
-    @Override
-    public void getActorById(String id, Consumer<Actor> callback) {
-        throw new UnsupportedOperationException("Not Implemented yet");
-    }
-
 }
