@@ -124,7 +124,7 @@ class NavigationManager {
     - SessionManager sessionManager
     + NavigationManager(sessionManager: SessionManager)
     + setActivity(a: Activity)
-    + getActivity(): Activity
+    + getActivity() Activity
     + goTo(targetDestination: Class<*>, flag: navFlags)
 }
 class InvitationManager {
@@ -164,6 +164,7 @@ class IDatabase {
     + registrationExists(id: String, cb: Consumer~Boolean~)
     + addUserToWaitList(id: String, actor: Actor, cb: Consumer~Boolean~)
     + fetchEventById(id: String, cb: Consumer~Event~)
+    + eventExists(event: Event, cb: Consumer~Boolean~)
     + joinEvent(id: String, actor: Actor)
     + leaveEvent(id: String, actor: Actor)
     + getEvents(cb: Consumer~List~Event~~)
@@ -173,6 +174,7 @@ class IDatabase {
     + answerEvent(docId: String, answer: String)
 }
 Actor "1" --> "many" Registration
+
 Actor "1" --> "many" Invitation
 Actor "1" --> "many" Notification
 Event "1" --> "many" Registration
