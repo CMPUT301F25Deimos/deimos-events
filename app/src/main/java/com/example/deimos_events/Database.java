@@ -205,5 +205,18 @@ public class Database implements IDatabase {
                     callback.accept(null);
                 });
     }
+    public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback) {
+        db.collection("registrations")
+                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("status", "Pending")
+                .get()
+                .addOnSuccessListener(waitinglistSnapshot -> {
+                    int count = waitinglistSnapshot.size();
+                    callback.accept(count);
+                })
+                .addOnFailureListener(e -> {
+                    callback.accept(0); // return 0 on error
+                });
+    }
 }
 

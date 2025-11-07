@@ -1,18 +1,19 @@
-package com.example.deimos_events;
+package com.example.deimos_events.ui.events;
 
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.function.Consumer;
-
-import androidx.activity.EdgeToEdge;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.example.deimos_events.Event;
+import com.example.deimos_events.EventManager;
+import com.example.deimos_events.EventsApp;
+import com.example.deimos_events.NavigationManager;
+import com.example.deimos_events.R;
+import com.example.deimos_events.SessionManager;
+import com.example.deimos_events.UserInterfaceManager;
 
 public class EventInformationActivity  extends AppCompatActivity {
 
@@ -38,7 +39,6 @@ public class EventInformationActivity  extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.user_event_info);
 
 
@@ -59,10 +59,9 @@ public class EventInformationActivity  extends AppCompatActivity {
 
         SM = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
-        NM = UIM.getNavigationManager();
+        NM = SM.getNavigationManager();
         EM = SM.getEventManager();
 
-        //implemented
         selectedEvent = UIM.getSelectedEvent();
 
         EventTitle.setText(selectedEvent.getTitle());
@@ -85,12 +84,11 @@ public class EventInformationActivity  extends AppCompatActivity {
         });
 
 
-        //After going back also clear selected event
-        returnButton.setOnClickListener(v->NM.goBack());
+        //Need to figure out how to go from activity to fragment
+        returnButton.setOnClickListener(v-> finish());//fix this
 
 
         signUpButton.setOnClickListener(v->{
-            //Implemented for now
             EM.addUserToWaitList(selectedEvent.getId(), success->{
                 runOnUiThread(()->{
                     if(success){

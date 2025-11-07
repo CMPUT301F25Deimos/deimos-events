@@ -4,8 +4,6 @@ import android.app.Activity;
 
 public class UserInterfaceManager {
     private final SessionManager sessionManager;
-    private final NavigationManager navigationManager = new NavigationManager(this);
-
     public UserInterfaceManager(SessionManager sessionManager){
         this.sessionManager = sessionManager;
     }
@@ -21,12 +19,15 @@ public class UserInterfaceManager {
     public void clearCurrentActor(){
         setCurrentActor(null);
     }
-
     public Activity getActivity(){
         return sessionManager.getSession().getActivity();
     }
     public Event getSelectedEvent(){return sessionManager.getSession().getSelectedEvent();}
     public void setSelectedEvent(Event event){sessionManager.getSession().setSelectedEvent(event);}
+
+    public void clearSelectedEvent(){
+        setSelectedEvent(null);
+    }
 
 
 
