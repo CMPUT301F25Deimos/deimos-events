@@ -5,6 +5,12 @@ import android.app.Activity;
 import com.example.deimos_events.Actor;
 import com.example.deimos_events.Event;
 
+/**
+ * This Manager gives access to UI data stored in the Session object to Activities and Fragments
+ * <p>
+ *  Acts to isolate User Interface Layer from the Apps data layer.
+ * </p>
+ */
 public class UserInterfaceManager {
     private final SessionManager sessionManager;
     public UserInterfaceManager(SessionManager sessionManager){

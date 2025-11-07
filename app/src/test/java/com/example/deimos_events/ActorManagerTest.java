@@ -120,8 +120,8 @@ public class ActorManagerTest {
     @Test
     void testDeleteEntrantCascade(){
         Actor actor = new Actor("123", "john", "myemail@gmail.com", "911");
-        Event swimmingEvent = new Event("83A", "swimming", "swimming_pic333", "climbingEvent where you swim", "today", 10,  false, "12NDKA");
-        Event climbingEvent = new Event("97F", "climbing", "climbing_mock", "climbingEvent where you climb", "tomorrow", 20,  true, "90XHAD");
+        Event swimmingEvent = new Event("83A", "swimming", "swimming_pic333", "climbingEvent where you swim", "today", 10,  false, "12NDKA", "michael");
+        Event climbingEvent = new Event("97F", "climbing", "climbing_mock", "climbingEvent where you climb", "tomorrow", 20,  true, "90XHAD", "Jorge");
         Registration swimRegistration = new Registration("ignored", "123", "83A", "Pending");
         Registration climbRegistration = new Registration("ignored", "123", "97F", "Accepted");
         mdb.insertActor(actor, r ->{});

@@ -33,7 +33,7 @@ public class EventManagerTest {
 
     @Test
     void testInsertEventInDatabase(){
-        Event event = new Event("F11", "badminton", "img1223", "game where you hit birdy", "yesterday", 10, Boolean.FALSE, "qe23");
+        Event event = new Event("F11", "badminton", "img1223", "game where you hit birdy", "yesterday", 10, Boolean.FALSE, "qe23", "J333");
         EM.insertEvent(event, resultCapturer);
         assertTrue(resultCapturer.get().getCond(), "Event should be in the database");
         assertEquals(event, testSession.getCurrentEvent());
@@ -41,7 +41,7 @@ public class EventManagerTest {
 
     @Test
     void testDoubleInsertEventInDatabase(){
-        Event event = new Event("F11", "badminton", "img1223", "game where you hit birdy", "yesterday", 10, Boolean.FALSE, "qe23");
+        Event event = new Event("F11", "badminton", "img1223", "game where you hit birdy", "yesterday", 10, Boolean.FALSE, "qe23", "J333");
         mdb.insertEvent(event, r->{}); // insert once
         EM.insertEvent(event, resultCapturer); // insert twice
         assertFalse(resultCapturer.get().isSuccess(), "Inserts Should fail if event is already in database");
@@ -63,7 +63,7 @@ public class EventManagerTest {
 
     @Test
     void testFetchEventById(){
-        Event event = new Event("F11", "badminton", "img1223", "game where you hit birdy", "yesterday", 10, Boolean.FALSE, "qe23");
+        Event event = new Event("F11", "badminton", "img1223", "game where you hit birdy", "yesterday", 10, Boolean.FALSE, "qe23", "J333");
         mdb.insertEvent(event, r->{});
         EM.fetchEventById("F11", resultCapturer);
         assertEquals(event, testSession.getCurrentEvent(), "Fetched event should be in the database");
@@ -72,7 +72,7 @@ public class EventManagerTest {
 
     @Test
     void testFetchEventByIdMissingEvent(){
-        Event event = new Event("F11", "badminton", "img1223", "game where you hit birdy", "yesterday", 10, Boolean.FALSE, "qe23");
+        Event event = new Event("F11", "badminton", "img1223", "game where you hit birdy", "yesterday", 10, Boolean.FALSE, "qe23", "J333");
         EM.fetchEventById("F11", resultCapturer);
         assertNotEquals(event, testSession.getCurrentEvent(), "Database should have remained the same");
         assertFalse(resultCapturer.get().isSuccess(), "Fetch should have worked");
