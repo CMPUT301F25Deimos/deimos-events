@@ -14,10 +14,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.deimos_events.Event;
 import com.example.deimos_events.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.NavigationManager;
 import com.example.deimos_events.R;
+import com.example.deimos_events.Session;
 import com.example.deimos_events.SessionManager;
 import com.example.deimos_events.UserInterfaceManager;
 import com.example.deimos_events.databinding.FragmentQrCodeBinding;
@@ -25,6 +27,10 @@ import com.example.deimos_events.ui.events.EventInformationActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.CaptureActivity;
+
+/**
+ * Fragment scans QR code and send entrant to the event information screen
+ */
 
 public class QRCodeFragment extends Fragment {
     Button scanButton;
@@ -43,6 +49,7 @@ public class QRCodeFragment extends Fragment {
         NM = SM.getNavigationManager();
         EM = SM.getEventManager();
 
+        //When scan button is pressed then QR scanning starts
         scanButton = view.findViewById(R.id.scanButton);
         scanButton.setOnClickListener(v->{startQrScanner();});
 
@@ -66,7 +73,7 @@ public class QRCodeFragment extends Fragment {
             EM.fetchEventById(scannedData, res->{
                 if(!res.isNull()){
                     // succeeded, the event has been placed into the session
-                    NM.goTo(EventInformationActivity.class, NavigationManager.navFlags.NO_FLAGS);//Fix this
+                    NM.goTo(EventInformationActivity.class, NavigationManager.navFlags.NO_FLAGS);
                 }else{
                     Toast.makeText(requireContext(), "Event not found", Toast.LENGTH_SHORT).show();
                 }

@@ -15,6 +15,10 @@ import com.example.deimos_events.R;
 import com.example.deimos_events.SessionManager;
 import com.example.deimos_events.UserInterfaceManager;
 
+/**
+ * Shows the event information for an event (Entrant Side)
+ */
+
 public class EventInformationActivity  extends AppCompatActivity {
 
     private TextView EventTitle;
@@ -33,7 +37,6 @@ public class EventInformationActivity  extends AppCompatActivity {
     private NavigationManager NM;
     private EventManager EM;
 
-    private Event selectedEvent;
 
 
     @Override
@@ -63,7 +66,7 @@ public class EventInformationActivity  extends AppCompatActivity {
         EM = SM.getEventManager();
 
         Event currentEvent = UIM.getCurrentEvent();
-
+        //Setting all the elements of the UI
         EventTitle.setText(currentEvent.getTitle());
         description.setText(currentEvent.getDescription());
 
@@ -77,16 +80,16 @@ public class EventInformationActivity  extends AppCompatActivity {
 
         availablespots.setText(String.valueOf(currentEvent.getParticipantCap()));//needs to be changed so that is updated
 
-
+        //Getting the length of the waiting list from the database
         EM.getWaitingListCount(currentEvent.getId(), count->{
             runOnUiThread(()->waitlisted.setText("Waiting List Count: " + count));
         });
 
 
-        //Need to figure out how to go from activity to fragment
         returnButton.setOnClickListener(v-> finish());
 
-
+        //Sign up entrant if they are not on the waiting list
+        //If they are, then error message appears
         signUpButton.setOnClickListener(v->{
             EM.addUserToWaitList(currentEvent.getId(), success->{
                 runOnUiThread(()->{
