@@ -177,15 +177,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/filter_24dp"
         app:tint="@color/text_colour" />
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_clear_filters"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Clear Filters"
-        android:layout_marginTop="10dp"
-        app:iconGravity="textStart"
-        app:iconPadding="8dp"
-        style="?attr/materialButtonOutlinedStyle" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

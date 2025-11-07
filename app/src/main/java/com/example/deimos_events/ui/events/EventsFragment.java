@@ -6,11 +6,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Button;
-import android.widget.TextView;
-
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,24 +14,24 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.deimos_events.Actor;
+import com.example.deimos_events.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Session;
+import com.example.deimos_events.SessionManager;
+import com.example.deimos_events.UserInterfaceManager;
 import com.example.deimos_events.databinding.FragmentEventsBinding;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.example.deimos_events.ui.notifications.NotificationsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.ListenerRegistration;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -47,17 +42,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.example.deimos_events.SessionManager;
-import com.example.deimos_events.UserInterfaceManager;
-import com.google.firebase.firestore.ListenerRegistration;
-// import com.example.deimos_events.EventManager;   // uncomment when ready
-// import com.example.deimos_events.NavigationManager;
-// import com.example.deimos_events.Result;
-// import com.example.deimos_events.models.Event;
-// import com.example.deimos_events.models.Registration;
-
 /**
- * Shows the screen of the events page
+ * Fragment displaying live event data with client-side filtering for status, availability, and category.
+ * <p>
+ * Data is loaded via {@link SessionManager} and {@link IDatabase}, and a {@link ListView}
+ * is rebuilt whenever the underlying data or filter state changes. The FloatingActionButton
+ * acts as a "clear all filters" control.
  */
 public class EventsFragment extends Fragment {
 
@@ -65,45 +55,50 @@ public class EventsFragment extends Fragment {
 
     private SessionManager SM;
     private UserInterfaceManager UIM;
-    // private EventManager EM;
-    // private NavigationManager NM;
 
-    private final ArrayList<EventTest> allEvents = new ArrayList<>();
-    private final ArrayList<EventTest> visibleEvents = new ArrayList<>();
-    private EventArrayAdapter adapter;
+    private final List<Event> allEventsLive = new ArrayList<>();
+    private Set<String> joinedEventIdsLive = new HashSet<>();
 
-    // Sidecar metadata (so we don’t modify EventTest)
-    private final Map<EventTest, String> dayTypeByEvent = new HashMap<>(); // "Weekdays"/"Weekends"
-    private final Map<EventTest, String> categoryByEvent = new HashMap<>(); // "Swimming"/"Sports"/...
-    private final Map<EventTest, Long>   timeByEvent = new HashMap<>(); // epoch millis for sorting
+    private final Map<Event, String> dayTypeByEvent = new HashMap<>();
+    private final Map<Event, String> categoryByEvent = new HashMap<>();
+    private final Map<Event, Long>   timeByEvent = new HashMap<>();
 
-    // Filter state
+    /**
+     * Filterable status options for the event list.
+     */
     private enum Status { ALL, JOINED, WAITLISTED, SELECTED, NOT_SELECTED }
     private Status currentStatus = Status.ALL;
     private final Set<String> selectedDayTypes = new HashSet<>();
     private final Set<String> selectedCategories = new HashSet<>();
 
-    // Programmatic empty view so we don’t change your XML
     private TextView emptyView;
-    
     private ListenerRegistration registrationListener;
 
+    /**
+     * Initializes managers from the application context.
+     *
+     * @param savedInstanceState previously saved state, if any
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Grab managers if available (non-fatal if not wired yet)
         try {
             EventsApp app = (EventsApp) requireActivity().getApplicationContext();
             SM = app.getSessionManager();
             if (SM != null) {
                 UIM = SM.getUserInterfaceManager();
-                // NM = UIM.getNavigationManager();
-                // EM = SM.getEventManager(); // uncomment when ready
             }
         } catch (Throwable ignored) {}
     }
 
+    /**
+     * Inflates the view, wires up filter UI, loads events and registration state, and sets up live listeners.
+     *
+     * @param inflater  layout inflater
+     * @param container parent container
+     * @param savedInstanceState previously saved state, if any
+     * @return the root view for this fragment
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -112,41 +107,39 @@ public class EventsFragment extends Fragment {
         binding = FragmentEventsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        loadEvents();
-
-
-        final FloatingActionButton add  = binding.filterFab;
-        add.setOnClickListener(v -> {
-            NavController navController = NavHostFragment.findNavController(this);
-
-            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events,true).build();
-            navController.navigate(R.id.navigation_create, null , navOptions);
+        final FloatingActionButton fab = binding.filterFab;
+        fab.setOnClickListener(v -> {
+            clearAllFilters();
+            ListView lv = binding.eventsList;
+            Session sess = (SM != null) ? SM.getSession() : null;
+            Actor current = (sess != null) ? sess.getCurrentActor() : null;
+            renderWithFilters(lv, current);
+            Toast.makeText(getContext(), "Filters cleared", Toast.LENGTH_SHORT).show();
         });
-        
+
         ListView listView = binding.eventsList;
-        visibleEvents.clear();
-        visibleEvents.addAll(allEvents);
-//        adapter = new EventArrayAdapter(requireContext(), visibleEvents);
-//        listView.setAdapter(adapter);
-        
-        // gets data
-        Session session = SM.getSession();
-        IDatabase db = session.getDatabase();
-        Actor actor = session.getCurrentActor();
-        
-        db.getEvents(events -> {
-            db.getEntrantRegisteredEvents(actor, joinedEventIds -> {
-                adapter = new EventArrayAdapter(requireContext(), events, joinedEventIds, SM, actor);
-                listView.setAdapter(adapter);
-                registrationListener = db.listenToRegisteredEvents(actor, (updatedJoinedIds) -> {
-                    adapter.updateJoinedEvents(updatedJoinedIds);
-                });
-            });
-        });
-
         attachEmptyViewToList("You haven’t joined any events yet.");
         listView.setEmptyView(emptyView);
 
+        Session session = SM.getSession();
+        IDatabase db = session.getDatabase();
+        Actor actor = session.getCurrentActor();
+
+        db.getEvents(events -> {
+            allEventsLive.clear();
+            if (events != null) allEventsLive.addAll(events);
+            assignSidecarTagsForRealEvents(allEventsLive);
+
+            db.getEntrantRegisteredEvents(actor, joinedEventIds -> {
+                joinedEventIdsLive = (joinedEventIds == null) ? new HashSet<>() : new HashSet<>(joinedEventIds);
+                renderWithFilters(listView, actor);
+
+                registrationListener = db.listenToRegisteredEvents(actor, updatedIds -> {
+                    joinedEventIdsLive = (updatedIds == null) ? new HashSet<>() : new HashSet<>(updatedIds);
+                    renderWithFilters(listView, actor);
+                });
+            });
+        });
 
         binding.toggleStatus.check(R.id.toggle_status_all);
         binding.toggleStatus.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
@@ -162,7 +155,7 @@ public class EventsFragment extends Fragment {
             } else if (checkedId == R.id.toggle_status_not_selected) {
                 currentStatus = Status.NOT_SELECTED;
             }
-            applyFilters();
+            renderWithFilters(listView, actor);
         });
 
         binding.toggleAvailability.addOnButtonCheckedListener((group, id, isChecked) -> {
@@ -171,7 +164,7 @@ public class EventsFragment extends Fragment {
             } else if (id == R.id.toggle_avail_weekends) {
                 if (isChecked) selectedDayTypes.add("Weekends"); else selectedDayTypes.remove("Weekends");
             }
-            applyFilters();
+            renderWithFilters(listView, actor);
         });
 
         ChipGroup chips = binding.chipsInterests;
@@ -181,19 +174,15 @@ public class EventsFragment extends Fragment {
                 Chip c = group.findViewById(cid);
                 if (c != null) selectedCategories.add(c.getText().toString());
             }
-            applyFilters();
+            renderWithFilters(listView, actor);
         });
 
-        View clearBtn = binding.buttonClearFilters; // present in your XML
-        if (clearBtn != null) {
-            clearBtn.setOnClickListener(v -> clearAllFilters());
-        }
-        binding.filterFab.setOnClickListener(v -> clearAllFilters());
-
-        applyFilters();
         return root;
     }
 
+    /**
+     * Resets all filter controls and in-memory selections to their default state.
+     */
     private void clearAllFilters() {
         binding.toggleStatus.check(R.id.toggle_status_all);
         currentStatus = Status.ALL;
@@ -206,43 +195,27 @@ public class EventsFragment extends Fragment {
 
         binding.chipsInterests.clearCheck();
         selectedCategories.clear();
-
-        applyFilters();
-        Toast.makeText(getContext(), "Filters cleared", Toast.LENGTH_SHORT).show();
     }
 
-    private void loadEvents() {
-        // ===== Uncomment when EventManager is available =====
-        // if (EM != null) {
-        //     String userId = (UIM != null && UIM.getCurrentActor() != null) ? UIM.getCurrentActor().getId() : null;
-        //     EM.getAllEvents(result -> {
-        //         if (result.isSuccess()) {
-        //             List<Event> events = (List<Event>) result.getData();
-        //             mapEventsToUI(events);
-        //             assignSidecarTags(allEvents);
-        //             applyFilters();
-        //         } else {
-        //             Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
-        //             seedDemo();
-        //             assignSidecarTags(allEvents);
-        //         }
-        //     });
-        //     return;
-        // }
+    /**
+     * Populates sidecar maps used for filtering and sorting without altering the {@link Event} model.
+     *
+     * @param events source events to tag
+     */
 
-        // Fallback demo data so screen runs now
-        assignSidecarTags(allEvents);
-    }
-    
-
-    private void assignSidecarTags(List<EventTest> events) {
+    //The following part Idea is taken from: https://www.w3resource.com/java-exercises/constructor/java-constructor-exercise-1.php#google_vignette
+    // and https://stackoverflow.com/questions/16214685/is-it-possible-to-set-a-calendar-c-equal-calendar-c2
+    //Authored By: w3resource and ARMAGEDDON
+    //Taken By: Harmanjot Kaur Dhaliwal
+    //Taken on: November 6th, 2025
+    private void assignSidecarTagsForRealEvents(List<Event> events) {
         dayTypeByEvent.clear();
         categoryByEvent.clear();
         timeByEvent.clear();
 
         Calendar base = Calendar.getInstance();
         for (int i = 0; i < events.size(); i++) {
-            EventTest e = events.get(i);
+            Event e = events.get(i);
 
             String day = (i % 2 == 0) ? "Weekdays" : "Weekends";
             dayTypeByEvent.put(e, day);
@@ -266,29 +239,35 @@ public class EventsFragment extends Fragment {
         }
     }
 
-    private void applyFilters() {
-        List<EventTest> next = new ArrayList<>();
-        for (EventTest e : allEvents) {
+    /**
+     * Applies current filters to the live list, sorts if needed, and rebuilds the adapter.
+     *
+     * @param listView target list view to update
+     * @param actor    current actor for contextual filtering
+     */
+    private void renderWithFilters(ListView listView, Actor actor) {
+        List<Event> filtered = new ArrayList<>();
+        for (Event e : allEventsLive) {
             if (!matchesStatus(e)) continue;
             if (!matchesAvailability(e)) continue;
             if (!matchesCategory(e)) continue;
-            next.add(e);
+            filtered.add(e);
         }
 
         if (currentStatus == Status.JOINED) {
-            Collections.sort(next, new Comparator<EventTest>() {
+            Collections.sort(filtered, new Comparator<Event>() {
                 @Override
-                public int compare(EventTest a, EventTest b) {
+                public int compare(Event a, Event b) {
                     long ta = timeByEvent.containsKey(a) ? timeByEvent.get(a) : 0L;
                     long tb = timeByEvent.containsKey(b) ? timeByEvent.get(b) : 0L;
-                    return Long.compare(tb, ta); // desc
+                    return Long.compare(tb, ta);
                 }
             });
         }
 
-        visibleEvents.clear();
-        visibleEvents.addAll(next);
-        adapter.notifyDataSetChanged();
+        EventArrayAdapter adapter =
+                new EventArrayAdapter(requireContext(), filtered, joinedEventIdsLive, SM, actor);
+        listView.setAdapter(adapter);
 
         if (emptyView != null) {
             if (currentStatus == Status.JOINED) {
@@ -299,39 +278,63 @@ public class EventsFragment extends Fragment {
         }
     }
 
-    private boolean matchesStatus(EventTest e) {
+    /**
+     * Checks whether an event matches the currently selected status filter.
+     *
+     * @param e event to evaluate
+     * @return true if the event matches the active status constraint; otherwise false
+     */
+    private boolean matchesStatus(Event e) {
         if (currentStatus == Status.ALL) return true;
 
-        boolean joined = e.getWaitingList();
-        int wta = e.getWaitingToAccept(); // -1 waitlisted, 0 selected-pending, 1 accepted, 2 declined
-
+        boolean joined = joinedEventIdsLive.contains(e.getId());
         switch (currentStatus) {
             case JOINED:
                 return joined;
-            case WAITLISTED:
-                return wta == -1;
-            case SELECTED:
-                return (wta == 0 || wta == 1);
             case NOT_SELECTED:
-                if (wta == 2) return true;
-                return !joined && (wta != -1 && wta != 0 && wta != 1);
+                return !joined;
+            case WAITLISTED:
+            case SELECTED:
+                return false;
             default:
                 return true;
         }
     }
 
-    private boolean matchesAvailability(EventTest e) {
+    /**
+     * Checks whether an event matches the currently selected availability constraints.
+     *
+     * @param e event to evaluate
+     * @return true if availability matches or no availability is selected; otherwise false
+     */
+    private boolean matchesAvailability(Event e) {
         if (selectedDayTypes.isEmpty()) return true;
         String day = dayTypeByEvent.get(e);
         return day != null && selectedDayTypes.contains(day);
     }
 
-    private boolean matchesCategory(EventTest e) {
+    /**
+     * Checks whether an event matches the currently selected category constraints.
+     *
+     * @param e event to evaluate
+     * @return true if category matches or no category is selected; otherwise false
+     */
+    private boolean matchesCategory(Event e) {
         if (selectedCategories.isEmpty()) return true;
         String cat = categoryByEvent.get(e);
         return cat != null && selectedCategories.contains(cat);
     }
 
+    /**
+     * Creates and attaches a centered {@link TextView} as the empty view for the list.
+     *
+     * @param initialText text to display when the list has no items
+     */
+
+    //The following part Idea is taken from: https://stackoverflow.com/questions/40275152/how-to-programmatically-add-views-and-constraints-to-a-constraintlayout?utm_source=chatgpt.com
+    //Authored By: LeoColman
+    //Taken By: Harmanjot Kaur Dhaliwal
+    //Taken on: November 6th, 2025
     private void attachEmptyViewToList(String initialText) {
         if (!(binding.getRoot() instanceof ConstraintLayout)) return;
         ConstraintLayout root = (ConstraintLayout) binding.getRoot();
@@ -358,14 +361,16 @@ public class EventsFragment extends Fragment {
         cs.applyTo(root);
     }
 
-    private String lipsumLong() {
-        return "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.";
-    }
-
+    /**
+     * Cleans up listeners and view bindings when the fragment view is destroyed.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (registrationListener != null) {
+            registrationListener.remove();
+            registrationListener = null;
+        }
         binding = null;
-        registrationListener.remove();
     }
 }
