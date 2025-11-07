@@ -39,6 +39,7 @@ public class ActorManagerTest {
         testSession.setCurrentActor(actor);
         AM.insertActor(actor, resultCapturer);
         assertTrue(resultCapturer.get().getCond(), "Insert should work if Session has the Actor and the Database doesn't");
+        assertEquals(actor, testSession.getCurrentActor());
     }
     @Test
 

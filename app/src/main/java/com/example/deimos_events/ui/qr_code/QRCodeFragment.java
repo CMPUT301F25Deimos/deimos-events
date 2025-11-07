@@ -63,10 +63,9 @@ public class QRCodeFragment extends Fragment {
 
         if (result != null && result.getContents() != null){
             String scannedData = result.getContents();
-            EM.fetchEventById(scannedData, event->{
-                if(event != null){
-                    UIM.setSelectedEvent(event);
-
+            EM.fetchEventById(scannedData, res->{
+                if(!res.isNull()){
+                    // succeeded, the event has been placed into the session
                     NM.goTo(EventInformationActivity.class, NavigationManager.navFlags.NO_FLAGS);//Fix this
                 }else{
                     Toast.makeText(requireContext(), "Event not found", Toast.LENGTH_SHORT).show();

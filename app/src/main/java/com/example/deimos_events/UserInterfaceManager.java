@@ -22,12 +22,10 @@ public class UserInterfaceManager {
     public Activity getActivity(){
         return sessionManager.getSession().getActivity();
     }
-    public Event getSelectedEvent(){return sessionManager.getSession().getSelectedEvent();}
-    public void setSelectedEvent(Event event){sessionManager.getSession().setSelectedEvent(event);}
-
-    public void clearSelectedEvent(){
-        setSelectedEvent(null);
+    public Event getCurrentEvent(){
+        return sessionManager.getSession().getCurrentEvent();
     }
+
 
 
 

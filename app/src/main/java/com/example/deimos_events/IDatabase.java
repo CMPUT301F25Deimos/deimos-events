@@ -17,26 +17,23 @@ public interface IDatabase {
 
     public void deleteEntrantCascade(String deviceIdentifier, Consumer<Boolean> callback);
 
-
-    DocumentReference getEvent(String eventId,Consumer<Boolean> callback);
-
-
     //void fetchEventById(String eventId, Consumer<Event> callback);
 
     void insertEvent(Event event, Consumer<Boolean> callback);
 
     void updateImage(String eventId, String posterIdArray);
 
-    void deleteRegistor(String entrantId, String eventId);
+    void deleteRegistor(String id, Consumer<Boolean> callback);
 
 
-    void getRegistration(String eventId, Consumer<List<Registration>> callback);
+    public void fetchALLRegistrations(String eventId, Consumer<List<Registration>> callback);
 
     public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback);
 
+    public void registrationExists(String Id, Consumer<Boolean> callback);
     public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback);
 
-    public void getEventById(String eventId, Consumer<Event> callback);
+    public void fetchEventById(String eventId, Consumer<Event> callback);
 
 
 

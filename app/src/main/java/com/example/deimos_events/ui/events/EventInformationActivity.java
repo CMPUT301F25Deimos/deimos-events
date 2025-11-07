@@ -62,23 +62,23 @@ public class EventInformationActivity  extends AppCompatActivity {
         NM = SM.getNavigationManager();
         EM = SM.getEventManager();
 
-        selectedEvent = UIM.getSelectedEvent();
+        Event currentEvent = UIM.getCurrentEvent();
 
-        EventTitle.setText(selectedEvent.getTitle());
-        description.setText(selectedEvent.getDescription());
+        EventTitle.setText(currentEvent.getTitle());
+        description.setText(currentEvent.getDescription());
 
-        Guidelines.setText(selectedEvent.getGuidelines());
-        Criteria.setText(selectedEvent.getCriteria());
-
-
-        Location.setText("Location: " + selectedEvent.getLocation());
-        eventDate.setText("Date: " + selectedEvent.getDate());
-        eventTime.setText("Time: " + selectedEvent.getTime());
-
-        availablespots.setText(String.valueOf(selectedEvent.getParticipantCap()));//needs to be changed so that is updated
+        Guidelines.setText(currentEvent.getGuidelines());
+        Criteria.setText(currentEvent.getCriteria());
 
 
-        EM.getWaitingListCount(selectedEvent.getId(), count->{
+        Location.setText("Location: " + currentEvent.getLocation());
+        eventDate.setText("Date: " + currentEvent.getDate());
+        eventTime.setText("Time: " + currentEvent.getTime());
+
+        availablespots.setText(String.valueOf(currentEvent.getParticipantCap()));//needs to be changed so that is updated
+
+
+        EM.getWaitingListCount(currentEvent.getId(), count->{
             runOnUiThread(()->waitlisted.setText("Waiting List Count: " + count));
         });
 
@@ -88,7 +88,7 @@ public class EventInformationActivity  extends AppCompatActivity {
 
 
         signUpButton.setOnClickListener(v->{
-            EM.addUserToWaitList(selectedEvent.getId(), success->{
+            EM.addUserToWaitList(currentEvent.getId(), success->{
                 runOnUiThread(()->{
                     if(success){
                         Toast.makeText(this, "Added to waitlist!", Toast.LENGTH_SHORT).show();

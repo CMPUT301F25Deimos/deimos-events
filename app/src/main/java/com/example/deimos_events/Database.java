@@ -80,20 +80,29 @@ public class Database implements IDatabase {
     }
 
     @Override
-    public void deleteRegistor(String entrantId, String eventId) {
+    public void deleteRegistor(String id, Consumer<Boolean> callback) {
          db.collection("registrations")
-                .whereEqualTo("entrantId", entrantId)
-                .whereEqualTo("eventId", eventId)
-                .get().addOnSuccessListener(querySnapshot -> {
-                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        doc.getReference().delete();
+                .whereEqualTo("Id", id)
+                .get()
+                 .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()){
+                        callback.accept(Boolean.FALSE);
+                        return;
                     }
-                });
-;
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()){
+                        doc.getReference().delete();
+                        // technically there should only be one document
+                        // but couldn't figure out how to make it work
+                    }
+                    callback.accept(Boolean.TRUE);
+                })
+                 .addOnFailureListener(e ->{
+                     callback.accept(null);
+                 });
     }
 
     @Override
-    public void getRegistration(String eventId, Consumer<List<Registration>> callback) {
+    public void fetchALLRegistrations(String eventId, Consumer<List<Registration>> callback){
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
                 .get()
@@ -111,7 +120,22 @@ public class Database implements IDatabase {
                 });
     }
 
-
+    @Override
+    public void registrationExists(String id, Consumer<Boolean> callback){
+        db.collection("registrations")
+                .document(id)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()){
+                        callback.accept(Boolean.TRUE);
+                    } else {
+                        callback.accept(Boolean.FALSE);
+                    }
+                })
+                .addOnFailureListener(e ->{
+                    callback.accept(null);
+                });
+    }
 
     public void deleteEntrantCascade(String deviceIdentifier, Consumer<Boolean> callback) {
         db.collection("registrations").whereEqualTo("deviceIdentifier", deviceIdentifier).get()
@@ -166,13 +190,6 @@ public class Database implements IDatabase {
                 .addOnSuccessListener(q -> callback.accept(!q.isEmpty()))
                 .addOnFailureListener(e -> callback.accept(null)); // null = error path
     }
-
-
-    @Override
-    public DocumentReference getEvent(String eventId, Consumer<Boolean> callback) {
-        throw new UnsupportedOperationException("Not Implemented yet");
-    }
-
 
 
     public void getAvailableEvents(Actor actor, Consumer<List<Event>> callback) {
@@ -246,7 +263,7 @@ public class Database implements IDatabase {
                 })
                 .addOnFailureListener(e-> callback.accept(false));
     }
-    public void getEventById(String eventId, Consumer<Event> callback){
+    public void fetchEventById(String eventId, Consumer<Event> callback){
         db.collection("events")
                 .document(eventId)
                 .get()

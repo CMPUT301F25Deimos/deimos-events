@@ -6,10 +6,10 @@ package com.example.deimos_events;
  * Pending is the equivalent of being in a waiting list for an event.
  */
 public class Registration {
-    String id;
-    String entrantId;
-    String eventId;
-    String status;
+    private String id;
+    private String entrantId;
+    private String eventId;
+    private String status;
 
     public Registration(String id, String entrantId, String eventId, String status) {
         this.id = id;

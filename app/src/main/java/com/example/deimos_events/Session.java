@@ -6,9 +6,14 @@ import android.app.Activity;
  * Used to represent the current application state, acting as a snapshot of the data that is
  * shared between managers and activities
  * <p>
- * The {@code Session} Contains no UI elements. It stores information that activities might need
- * to transfer data between activities. It also exists to reduce unnecessary database queries
+ * The {@code Session} Contains no UI elements. It stores context relevant information, for example
+ * The current {@link Actor} or current {@link Event} being viewed or edited.
+ * It also exists to reduce unnecessary database queries
  * <p>
+ * The session should hold only context specific objects. UI displays should be maanaged within their
+ * own activity, fragment or viewmodel.
+ * <p>
+ *
  * The {@code Session} does not perform database operations. Any data it holds must be saved,
  * updated, or deleted by the appropriate manager.
  */
@@ -16,11 +21,9 @@ import android.app.Activity;
 public class Session {
     private IDatabase database;
     private Actor currentActor;
-    private Actor selectedActor;
-    private Event selectedEvent;
+    private Event currentEvent;
     private Result result;
 
-    private Event currentEvent;
 
     private Activity activity;
 
@@ -36,9 +39,6 @@ public class Session {
             return currentActor;
         }
 
-        public Actor getSelectedActor () {
-            return selectedActor;
-        }
         public void setCurrentActor (Actor actor){
             this.currentActor = actor;
         }
@@ -60,7 +60,6 @@ public class Session {
         public Result getResult() {
             return result;
         }
-        public Event getSelectedEvent(){return selectedEvent;}
-        public void setSelectedEvent(Event event){this.selectedEvent = event;}
+        public Event getCurrentEvent(){return currentEvent;}
 }
 
