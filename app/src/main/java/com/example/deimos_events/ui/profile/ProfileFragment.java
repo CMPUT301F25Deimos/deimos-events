@@ -38,18 +38,36 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * Fragment responsible for rendering and editing the current user's profile.
+ * <p>
+ * Responsibilities:
+ * <ul>
+ *   <li>Display persisted profile attributes (name, email, phone, role).</li>
+ *   <li>Allow inline edits with basic validation (email format and domain allowlist).</li>
+ *   <li>Toggle notification preference in {@link SharedPreferences}.</li>
+ *   <li>Handle account deletion workflow via {@link ActorManager} and navigation reset.</li>
+ * </ul>
+ * This fragment delegates data mutations to managers obtained from {@link SessionManager}.
+ */
 public class ProfileFragment extends Fragment {
 
+    /** ViewBinding for the Profile layout. */
     private FragmentProfileBinding binding;
+    /** ViewModel that exposes UI state (title and current {@link Actor}). */
     private ProfileViewModel profileViewModel;
 
+    /** SharedPreferences file name for app-level notification preferences. */
     private static final String SP = "entrant_prefs";
+    /** SharedPreferences key for the notification opt-in flag. */
     private static final String KEY_NOTIFY = "receive_notifications";
 
+    /** Email domain allowlist used for basic validation. */
     private static final Set<String> ALLOWED_DOMAINS = new HashSet<>(
             Arrays.asList("gmail.com", "outlook.com", "hotmail.com", "yahoo.com", "yahoo.ca")
     );
 
+    // Managers and session references (injected via EventsApp/SessionManager)
     private ActorManager AM;
     private SessionManager SM;
     private Session session;
@@ -57,6 +75,15 @@ public class ProfileFragment extends Fragment {
     private NavigationManager NaM;
     private IDatabase db;
 
+    /**
+     * Inflates the view, wires up managers/view model, restores persisted profile values,
+     * and sets click handlers for update/delete and the notification toggle.
+     *
+     * @param inflater  layout inflater
+     * @param container parent view group
+     * @param savedInstanceState saved state bundle, if any
+     * @return the root view for this fragment
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -75,6 +102,7 @@ public class ProfileFragment extends Fragment {
         profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         profileViewModel.getActor().observe(getViewLifecycleOwner(), this::bindActorCard);
 
+        // Restore locally persisted profile snapshot (for fast UI before remote load).
         SharedPreferences prof = requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE);
         String savedName  = prof.getString("name", null);
         String savedEmail = prof.getString("email", null);
@@ -87,7 +115,7 @@ public class ProfileFragment extends Fragment {
         }
         if (binding.roleText != null) binding.roleText.setText("Role: " + savedRole);
 
-        // Notification toggle
+        // Wire notification toggle to shared preferences.
         SharedPreferences sp = requireContext().getSharedPreferences(SP, Context.MODE_PRIVATE);
         boolean initial = sp.getBoolean(KEY_NOTIFY, true);
         if (binding.notifySwitch != null) {
@@ -96,10 +124,10 @@ public class ProfileFragment extends Fragment {
                     sp.edit().putBoolean(KEY_NOTIFY, checked).apply());
         }
 
+        // Profile edit and delete actions.
         if (binding.updateButton != null) {
             binding.updateButton.setOnClickListener(v -> showInlineEditDialog());
         }
-
         if (binding.deleteButton != null) {
             binding.deleteButton.setOnClickListener(v -> showDeleteDialog());
         }
@@ -111,6 +139,11 @@ public class ProfileFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Binds the provided {@link Actor} data into the profile header card.
+     *
+     * @param a the actor to display; ignored if {@code null}
+     */
     private void bindActorCard(Actor a) {
         if (a == null) return;
         if (binding.nameText != null)  binding.nameText.setText(a.getName());
@@ -121,6 +154,12 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Sets up the overflow menu for switching users and handles its selection.
+     *
+     * @param view   the root view
+     * @param savedInstanceState saved instance state
+     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -135,6 +174,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public boolean onMenuItemSelected(@NonNull android.view.MenuItem menuItem) {
                 if (menuItem.getItemId() == R.id.action_switch_user) {
+                    // Clear local session flags and navigate to sign-up screen.
                     requireContext().getSharedPreferences("app", android.content.Context.MODE_PRIVATE)
                             .edit()
                             .putBoolean("signed_up", false)
@@ -156,6 +196,11 @@ public class ProfileFragment extends Fragment {
         }, getViewLifecycleOwner(), androidx.lifecycle.Lifecycle.State.RESUMED);
     }
 
+    /**
+     * Shows an inline edit dialog for name, email, and phone with basic validation.
+     * On save, updates via {@link ActorManager#updateActor(Actor, Actor, com.example.deimos_events.ResultCallback)}
+     * and persists the snapshot into {@link SharedPreferences}.
+     */
     private void showInlineEditDialog() {
         Actor cur = profileViewModel.getActor().getValue();
 
@@ -215,17 +260,6 @@ public class ProfileFragment extends Fragment {
                             } else {
                                 Toast.makeText(requireContext(), "Network error. Try again.", Toast.LENGTH_SHORT).show();
                             }});
-//                        db.actorExistsByEmail(email, exists -> {
-//                            if (exists == null) {
-//                                Toast.makeText(requireContext(), "Network error. Try again.", Toast.LENGTH_SHORT).show();
-//                                return;
-//                            }
-//                            if (exists) {
-//                                Toast.makeText(requireContext(), "Email already exists", Toast.LENGTH_SHORT).show();
-//                            } else {
-//                                performProfileSave(name, email, phone, currentRole);
-//                            }
-//                        });
                     } else {
                         performProfileSave(name, email, phone, currentRole);
                     }
@@ -234,6 +268,15 @@ public class ProfileFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Persists the edited profile through {@link ActorManager}, updates the ViewModel, and
+     * writes a snapshot to {@link SharedPreferences} for quick subsequent loads.
+     *
+     * @param name  new display name
+     * @param email new email address
+     * @param phone new phone number (may be empty)
+     * @param role  unchanged role to persist alongside the snapshot
+     */
     private void performProfileSave(String name, String email, String phone, String role) {
         Actor cur = profileViewModel.getActor().getValue();
         if (cur == null) {
@@ -261,6 +304,12 @@ public class ProfileFragment extends Fragment {
 
     }
 
+    /**
+     * Checks whether the given email belongs to an allowed domain.
+     *
+     * @param email email address to validate
+     * @return {@code true} if the domain is in {@link #ALLOWED_DOMAINS}, otherwise {@code false}
+     */
     private boolean hasAllowedDomain(String email) {
         int at = email.lastIndexOf('@');
         if (at < 0 || at == email.length() - 1) return false;
@@ -268,6 +317,11 @@ public class ProfileFragment extends Fragment {
         return ALLOWED_DOMAINS.contains(domain);
     }
 
+    /**
+     * Shows a confirmation dialog for account deletion and, if confirmed, delegates the cascade
+     * deletion to {@link ActorManager#deleteEntrantCascade(Actor, com.example.deimos_events.ResultCallback)}.
+     * On success, clears local session state and navigates back to {@link SignupActivity}.
+     */
     private void showDeleteDialog() {
         View content = LayoutInflater.from(requireContext())
                 .inflate(R.layout.remove_profile, null, false);
@@ -323,49 +377,15 @@ public class ProfileFragment extends Fragment {
                 if (getActivity() != null) {
                     dialog.dismiss();
                     NaM.goTo(com.example.deimos_events.ui.auth.SignupActivity.class, NavigationManager.navFlags.RESET_TO_NEW_ROOT);
-//                    android.content.Intent intent =
-//                            new android.content.Intent(requireContext(), com.example.deimos_events.ui.auth.SignupActivity.class)
-//                                    .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK | android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    startActivity(intent);
-//                    requireActivity().finish();
                 }
                 Toast.makeText(requireContext(), "Your account was deleted.", Toast.LENGTH_SHORT).show();
             });
-//            db.deleteEntrantCascade(deviceIdentifier, success -> {
-//                if (!Boolean.TRUE.equals(success)) {
-//                    Toast.makeText(requireContext(), "Failed to delete from Firebase. Try again.", Toast.LENGTH_LONG).show();
-//                    return;
-//                }
-//
-//                requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE).edit().clear().apply();
-//                requireContext().getSharedPreferences("app", Context.MODE_PRIVATE).edit()
-//                        .putBoolean("signed_up", false)
-//                        .apply();
-//
-//                try {
-//                    com.example.deimos_events.EventsApp app =
-//                            (com.example.deimos_events.EventsApp) requireContext().getApplicationContext();
-//                    com.example.deimos_events.SessionManager sm = app.getSessionManager();
-//                    com.example.deimos_events.UserInterfaceManager uim = sm.getUserInterfaceManager();
-//                    uim.setCurrentActor(null);
-//                } catch (Exception ignored) {}
-//
-//                if (getActivity() != null) {
-//                    dialog.dismiss();
-//                    android.content.Intent intent =
-//                            new android.content.Intent(requireContext(), com.example.deimos_events.ui.auth.SignupActivity.class)
-//                                    .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK | android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    startActivity(intent);
-//                    requireActivity().finish();
-//                }
-//
-//                Toast.makeText(requireContext(), "Your account was deleted.", Toast.LENGTH_SHORT).show();
-//            });
         });
 
         dialog.show();
     }
 
+    /** Clears the binding reference to avoid leaks. */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

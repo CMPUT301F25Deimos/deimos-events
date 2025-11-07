@@ -33,6 +33,29 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * The {@code SignupActivity} class provides a user interface for new users to create an account
+ * within the Deimos Events application. It collects and validates basic user information such as
+ * name, email, phone number, and role (Entrant, Organizer, or Admin).
+ * <p>
+ * Once the information is validated, it creates an {@link Actor} (or its subclass such as
+ * {@link Entrant}, {@link Organizer}, or {@link Administrator}) and stores it in the
+ * Firebase database through the {@link ActorManager}. It also caches the profile locally using
+ * {@link android.content.SharedPreferences} so that returning users can skip sign-up.
+ * </p>
+ * <p>
+ * Key responsibilities:
+ * <ul>
+ *     <li>Validate input fields for correctness and allowed email domains.</li>
+ *     <li>Create and insert {@link Actor} instances into the database.</li>
+ *     <li>Persist user session and navigate to {@link MainActivity} after successful signup.</li>
+ * </ul>
+ * </p>
+ *
+ * @see ActorManager
+ * @see com.example.deimos_events.Session
+ * @see com.example.deimos_events.ui.auth
+ */
 public class SignupActivity extends FoundationActivity {
 
     private TextInputLayout      tilName, tilEmail, tilPhone, tilDeviceId, tilRole;
@@ -48,10 +71,21 @@ public class SignupActivity extends FoundationActivity {
 
     private ActorManager AM;
 
+    /** Allowed email domains for validation. */
     private static final Set<String> ALLOWED_DOMAINS = new HashSet<>(
             Arrays.asList("gmail.com", "outlook.com", "hotmail.com", "yahoo.com", "yahoo.ca")
     );
 
+    /**
+     * Called when the signup screen is created.
+     * <p>
+     * Initializes UI elements, session managers, and preloads stored user information if
+     * the user has previously signed up. If a stored profile exists, the user is redirected
+     * to {@link MainActivity}.
+     * </p>
+     *
+     * @param savedInstanceState saved instance state bundle, if available.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,9 +94,10 @@ public class SignupActivity extends FoundationActivity {
         SM  = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
         NM  = SM.getNavigationManager();
-        AM = SM.getActorManager();
-        db = SM.getSession().getDatabase();
-// incoming
+        AM  = SM.getActorManager();
+        db  = SM.getSession().getDatabase();
+
+        // Restore saved profile if user already signed up
         boolean signedUp = getSharedPreferences("app", MODE_PRIVATE)
                 .getBoolean("signed_up", false);
         if (signedUp) {
@@ -80,7 +115,7 @@ public class SignupActivity extends FoundationActivity {
             }
         }
 
-  // incoming
+        // Initialize form fields
         tilDeviceId = findViewById(R.id.til_device_id);
         tilName     = findViewById(R.id.til_name);
         tilEmail    = findViewById(R.id.til_email);
@@ -95,25 +130,36 @@ public class SignupActivity extends FoundationActivity {
         btnSignup   = findViewById(R.id.btn_signup);
         btnMore     = findViewById(R.id.btn_more);
 
+        // Role selection dropdown
         String[] roles = new String[]{Roles.ENTRANT, Roles.ORGANIZER, Roles.ADMIN};
         etRole.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, roles));
         etRole.setText(Roles.ENTRANT, false);
         etRole.setOnClickListener(v -> etRole.showDropDown());
         etRole.setOnFocusChangeListener((v, hasFocus) -> { if (hasFocus) etRole.showDropDown(); });
 
+        // Automatically fill device ID
         try {
             String id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             if (!TextUtils.isEmpty(id)) etDeviceId.setText(id);
         } catch (Exception ignored) {}
 
+        // Set up button listeners
         btnSignup.setOnClickListener(v -> submit());
         btnMore.setOnClickListener(v -> Toast.makeText(this, "Go to Login screen", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Validates form fields and attempts to register a new user.
+     * <p>
+     * If input validation passes, it creates an {@link Actor} and inserts it into the database
+     * using {@link ActorManager#insertActor(Actor, java.util.function.Consumer)}.
+     * On success, it saves user data locally and navigates to {@link MainActivity}.
+     * </p>
+     */
     private void submit() {
         clearErrors();
 
-        String deviceId = txt(etDeviceId); // UI is read-only, but we still read it for display
+        String deviceId = txt(etDeviceId);
         String name     = txt(etName);
         String email    = txt(etEmail);
         String phone    = txt(etPhone);
@@ -137,22 +183,21 @@ public class SignupActivity extends FoundationActivity {
         if (!ok) return;
 
         btnSignup.setEnabled(false);
-        // create an actor instance
+
         Actor actor = createActorByRole(deviceId, name, email, phone, role);
-        // insert the actor, or attempt to do so
-        AM.insertActor(actor, res ->{
-            // react to the result.
+
+        AM.insertActor(actor, res -> {
             btnSignup.setEnabled(true);
             String UIErrorMessage = "";
-            if (!res.isSuccess()){
+            if (!res.isSuccess()) {
                 if (res.getMessage() == "Database Failed to Read") {
                     UIErrorMessage = "Network Error. Try Again";
                 }
-                if (res.getMessage() == "Actor already exists"){
+                if (res.getMessage() == "Actor already exists") {
                     UIErrorMessage = "User already exists with this email";
                 }
                 Toast.makeText(this, UIErrorMessage, Toast.LENGTH_SHORT).show();
-                UIM.clearCurrentActor(); // sanity check
+                UIM.clearCurrentActor();
                 return;
             } else {
                 getSharedPreferences("entrant_profile", MODE_PRIVATE)
@@ -175,12 +220,23 @@ public class SignupActivity extends FoundationActivity {
         });
     }
 
+    /**
+     * Creates a subclass of {@link Actor} based on the given role.
+     *
+     * @param id unique device identifier for the user.
+     * @param name user's full name.
+     * @param email user's email address.
+     * @param phone user's phone number.
+     * @param role role selection (Entrant, Organizer, Admin).
+     * @return a new {@link Actor} instance matching the selected role.
+     */
     private Actor createActorByRole(String id, String name, String email, String phone, String role) {
         if (Roles.ORGANIZER.equals(role)) return new Organizer(id, name, email, phone);
         if (Roles.ADMIN.equals(role))     return new Administrator(id, name, email, phone);
         return new Entrant(id, name, email, phone, false);
     }
 
+    /** Clears all validation error messages from input fields. */
     private void clearErrors() {
         tilDeviceId.setError(null);
         tilName.setError(null);
@@ -189,10 +245,22 @@ public class SignupActivity extends FoundationActivity {
         tilRole.setError(null);
     }
 
+    /**
+     * Helper to safely extract trimmed text from {@link TextInputEditText}.
+     *
+     * @param et input field.
+     * @return the trimmed text, or an empty string if null.
+     */
     private String txt(TextInputEditText et) {
         return et.getText() == null ? "" : et.getText().toString().trim();
     }
 
+    /**
+     * Checks if the email belongs to an approved domain.
+     *
+     * @param email the user email to verify.
+     * @return true if the domain is in {@link #ALLOWED_DOMAINS}, false otherwise.
+     */
     private boolean hasAllowedDomain(String email) {
         int at = email.lastIndexOf('@');
         if (at < 0 || at == email.length() - 1) return false;
