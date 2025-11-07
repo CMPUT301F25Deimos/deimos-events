@@ -3,6 +3,14 @@ package com.example.deimos_events.managers;
 import android.app.Activity;
 import android.content.Intent;
 
+/**
+ * Controls moving between Activities
+ * <p>
+ * Provides methods to start Activities, clear or reset the Activity stack
+ * <p>
+ * All Navigations are done through the Session object, by manipulating its Activity attribute
+ *
+ */
 public class NavigationManager {
     private final SessionManager sessionManager;
     public NavigationManager(SessionManager sessionManager){
