@@ -9,23 +9,33 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
-    import com.example.deimos_events.ui.events.EventTest;
+import com.example.deimos_events.Registration;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.shape.CornerFamily;
+import com.google.android.material.shape.ShapeAppearanceModel;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
-public class NotificationsArrayAdapter extends ArrayAdapter<EventTest>{
-    
-    public NotificationsArrayAdapter(Context context, ArrayList<EventTest> events) {
+/**
+ * Array adapter for the notifications
+ * - Designs buttons depending on whether user was accepted, or if they accepted/declined their odder
+ * - TODO: As of right now, user automatically gets a notification right after entering an event because
+ * - TODO: event lottery logic has yet to be implemented
+ */
+public class NotificationsArrayAdapter extends ArrayAdapter<Registration>{
+    private IDatabase db;
+    public NotificationsArrayAdapter(Context context, ArrayList<Registration> events, IDatabase db) {
         super(context, 0, events);
+        this.db = db;
     }
     
     @NonNull
@@ -33,12 +43,12 @@ public class NotificationsArrayAdapter extends ArrayAdapter<EventTest>{
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view;
         
-        EventTest notification = getItem(position);
+        Registration notification = getItem(position);
         
         
         if (convertView == null) {
             // sees whether user was kept as a waitlist, or chosen by lottery
-            if (notification.getWaitingToAccept() != -1) {
+            if (notification.getStatus() != "Not Selected") {
                 view = LayoutInflater.from(getContext()).inflate(R.layout.listview_content_and_splitbutton, parent, false);
             }
             else {
@@ -54,85 +64,126 @@ public class NotificationsArrayAdapter extends ArrayAdapter<EventTest>{
             textView.setText(notification.description);
             
             ImageView imageView = view.findViewById(R.id.event_image);
-            imageView.setImageResource(notification.image);
+            imageView.setImageBitmap(notification.image);
             
             // person is not accepted, shows option to be removed from waiting list
-            if (notification.waitingToAccept == -1) {
+            if (notification.getStatus() == "Not Selected") {
                 MaterialButton button = view.findViewById(R.id.placeholder_button);
                 Drawable icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.cancel_24dp);
-                ColorStateList button_colour = ContextCompat.getColorStateList(this.getContext(), com.google.android.material.R.color.design_default_color_error);
+                ColorStateList button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.decline_red);
                 button.setText("Cancel");
                 button.setIcon(icon_button);
                 button.setBackgroundTintList(button_colour);
+                db.answerEvent(notification.getId(), "Accepted");
             }
             // gives person the choices to accept/decline offer
             else {
-                MaterialButtonToggleGroup waitingListAnswer = view.findViewById(R.id.splitButtonLayout);
+                MaterialButtonToggleGroup waitingListAnswer = view.findViewById(R.id.split_button_layout);
                 MaterialButton accept_button = view.findViewById(R.id.accept_button);
                 MaterialButton decline_button = view.findViewById(R.id.decline_button);
+                
+                // changes accept/decline button roundness so that they appear as they originally looked like
+                ShapeAppearanceModel original_accept = accept_button.getShapeAppearanceModel()
+                        .toBuilder()
+                        .setTopLeftCorner(CornerFamily.ROUNDED, 15f)
+                        .setBottomLeftCorner(CornerFamily.ROUNDED, 15f)
+                        .setBottomRightCorner(CornerFamily.ROUNDED, 0f)
+                        .setTopRightCorner(CornerFamily.ROUNDED, 0f)
+                        .build();
+                
+                ShapeAppearanceModel original_decline = decline_button.getShapeAppearanceModel()
+                        .toBuilder()
+                        .setTopLeftCorner(CornerFamily.ROUNDED, 0f)
+                        .setBottomLeftCorner(CornerFamily.ROUNDED, 0f)
+                        .setBottomRightCorner(CornerFamily.ROUNDED, 35f)
+                        .setTopRightCorner(CornerFamily.ROUNDED, 35f)
+                        .build();
+                
+                
+                if ("Accepted".equals(notification.getStatus())) {
+                    accept_button.setCornerRadius(100);
+                    accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.accept_green));
+                    
+                    // Reset decline button
+                    decline_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
+                    decline_button.setShapeAppearanceModel(original_decline);
+                    
+                } else if ("Declined".equals(notification.getStatus())) {
+                    decline_button.setCornerRadius(100);
+                    decline_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.decline_red));
+                    
+                    // Reset accept button
+                    accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
+                    accept_button.setShapeAppearanceModel(original_accept);
+                } else {
+                    // Default colors if not answered yet
+                    accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
+                    decline_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
+                }
+                
+                
                 
                 waitingListAnswer.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
                     @Override
                     public void onButtonChecked(MaterialButtonToggleGroup materialButtonToggleGroup, int i, boolean b) {
-                        MaterialButton choice;
-                        ColorStateList button_colour;
+                        MaterialButton choice = null;
+                        ColorStateList button_colour = null;
+                        Snackbar snackbar = null;
+                        
                         // sees if a button was clicked (if entrant chose an answer)
                         if (b) {
                             // finds which button entrant clicked (accept or decline)
                             if (i == R.id.accept_button) {
-                                Toast.makeText(NotificationsArrayAdapter.this.getContext(), "You have accepted your offer.", Toast.LENGTH_SHORT).show();
-                                button_colour = ContextCompat.getColorStateList(getContext(), R.color.teal_700);
+                                snackbar = Snackbar.make(view, "You have accepted your offer.", Snackbar.LENGTH_SHORT);
                                 choice = accept_button;
+                                button_colour = ContextCompat.getColorStateList(getContext(), R.color.accept_green);
+
+                                    // if person had previously answered, then only keeps the most recently clicked button (accept)
+                                decline_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
+                                decline_button.setShapeAppearanceModel(original_decline);
                                 
-                                // if person had previously answered, then only keeps the most recently clicked button (accept)
-                                if (notification.getWaitingToAccept() == 2) {
-                                    decline_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.black));
-                                    decline_button.setCornerRadius(10);
-                                }
-                                
+                                db.answerEvent(notification.getId(), "Accepted");
                                 // saves their answer as "accept"
-                                notification.setWaitingToAccept(1);
+                                notification.setStatus("Accepted");
                             }
                             // declined button was clicked
-                            else {
-                                Toast.makeText(NotificationsArrayAdapter.this.getContext(), "You have declined your offer.", Toast.LENGTH_SHORT).show();
+                            else if (i == R.id.decline_button) {
+                                snackbar = Snackbar.make(view, "You have declined your offer.", Snackbar.LENGTH_SHORT);
                                 choice = decline_button;
-                                button_colour = ContextCompat.getColorStateList(getContext(), com.google.android.material.R.color.design_default_color_error);
+                                button_colour = ContextCompat.getColorStateList(getContext(), R.color.decline_red);
+
+                                    // if person had previously answered, then only keeps the most recently clicked button (decline)
+                                accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
+                                accept_button.setShapeAppearanceModel(original_accept);
                                 
-                                // if person had previously answered, then only keeps the most recently clicked button (decline)
-                                if (notification.getWaitingToAccept() == 1) {
-                                    accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.black));
-                                    accept_button.setCornerRadius(10);
-                                }
-                                
+                                db.answerEvent(notification.getId(), "Declined");
                                 // saves their answer as "decline"
-                                notification.setWaitingToAccept(2);
-                            }
-                            choice.setCornerRadius(100);
-                            choice.setBackgroundTintList(button_colour);
-                        }
-                        // if person clicked a button two times in a row (aka deselect)
-                        else {
-                            String changed_answer = new String();
-                            // changes the "accept" button back to default
-                            if (notification.getWaitingToAccept() == 1) {
-                                accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.black));
-                                changed_answer = "acceptance";
-                                accept_button.setCornerRadius(10);
-                            }
-                            else if (notification.getWaitingToAccept() == 2) {
-                                decline_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.black));
-                                changed_answer = "rejection";
-                                decline_button.setCornerRadius(10);
+                                notification.setStatus("Declined");
                             }
                             
-                            // saves their answer as "unanswered"
-                            notification.setWaitingToAccept(0);
-                            Toast.makeText(NotificationsArrayAdapter.this.getContext(), "You have rescinded your " + changed_answer + ".", Toast.LENGTH_SHORT).show();
+                            // makes chosen button into a circle, and colours it
+                            ShapeAppearanceModel chosen = choice.getShapeAppearanceModel()
+                                    .toBuilder()
+                                    .setAllCorners(CornerFamily.ROUNDED, 100f)
+                                    .build();
+                            choice.setShapeAppearanceModel(chosen);
+                            choice.setBackgroundTintList(button_colour);
                         }
+                        // if person clicked a button two times in a row
+                        else {
+                            if (notification.getStatus() == "Accepted") {
+                                snackbar = Snackbar.make(view, "You have accepted your offer.", Snackbar.LENGTH_SHORT);
+                            } else if (notification.getStatus() == "Declined") {
+                                snackbar = Snackbar.make(view, "You have declined your offer.", Snackbar.LENGTH_SHORT);
+                            }
+                        }
+                        
+                        // puts snackbar notification higher
+                        snackbar.getView().setTranslationY(-220);
+                        snackbar.show();
                     }
                 });
-              
+                
             }
         }
         return view;

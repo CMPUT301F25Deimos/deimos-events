@@ -1,5 +1,7 @@
 package com.example.deimos_events;
 
+import android.graphics.Bitmap;
+
 /**
  * Registration class. This represents the registration of an entrant into an event. The status
  * can either be Declined, Not Selected, Pending, or Accepted.
@@ -10,6 +12,11 @@ public class Registration {
     private String entrantId;
     private String eventId;
     private String status;
+    
+    public String description;
+    public Bitmap image;
+    
+    public Registration() {}
 
     public Registration(String id, String entrantId, String eventId, String status) {
         this.id = id;
@@ -49,4 +56,7 @@ public class Registration {
     public void setStatus(String status) {
         this.status = status;
     }
+    
+    public void setDescription(String description) { this.description = description; }
+    public void setImage(Bitmap image) { this.image = image; }
 }

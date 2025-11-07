@@ -28,7 +28,7 @@
         android:layout_weight="1.6"
         android:layout_marginTop="12dp"/>
     <com.google.android.material.button.MaterialButtonToggleGroup
-        android:id="@+id/splitButtonLayout"
+        android:id="@+id/split_button_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="18dp"
@@ -41,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:icon="@drawable/baseline_check_24"
-            app:backgroundTint="@color/black"
+            app:backgroundTint="@color/title_colour"
             app:iconPadding="0dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
@@ -53,12 +53,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:icon="@drawable/outline_close_24"
-            app:backgroundTint="@color/black"
+            app:backgroundTint="@color/title_colour"
             app:iconPadding="0dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
             android:paddingHorizontal="12dp"
-            app:cornerRadius="10dp"/>
+            app:cornerRadius="12dp"/>
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
 </LinearLayout>

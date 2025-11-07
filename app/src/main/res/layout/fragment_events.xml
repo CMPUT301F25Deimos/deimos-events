@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:background="@color/background_colour"
     android:fitsSystemWindows="true"
-    tools:context=".ui.events.EventsFragment">
+    tools:context=".ui.events.EventsFragment"
+    android:layout_marginBottom="80dp">
 
     <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
