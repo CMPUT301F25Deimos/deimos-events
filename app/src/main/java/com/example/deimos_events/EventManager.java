@@ -35,7 +35,7 @@ import java.util.function.Consumer;
 public class EventManager {
     private final SessionManager sessionManager;
 
-    public EventManager(SessionManager sessionManager) {
+    public EventManager(SessionManager sessionManager){
         this.sessionManager = sessionManager;
     }
 
@@ -145,4 +145,28 @@ public class EventManager {
         });
         return registrations;
     }
+    public void getWaitingListCount(String eventID, Consumer<Integer> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        db.getPendingRegistrationsForEvent(eventID, count->{
+            callback.accept(count);
+        });
+    }
+    public void addUserToWaitList(String eventId, Consumer<Boolean> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        Actor actor = session.getCurrentActor();
+        if (actor == null){
+            callback.accept(false);
+            return;
+        }
+        db.addUserToWaitList(eventId, actor, callback);
+    }
+
+    public void fetchEventById(String eventId, Consumer<Event> callback){
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        db.getEventById(eventId, callback);
+    }
+
 }

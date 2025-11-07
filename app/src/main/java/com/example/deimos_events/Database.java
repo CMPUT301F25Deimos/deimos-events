@@ -8,8 +8,10 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -219,4 +221,66 @@ public class Database implements IDatabase {
                     callback.accept(null);
                 });
     }
+    public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback){
+        db.collection("registrations")
+                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("status", "Pending")
+                .get()
+                .addOnSuccessListener(querySnapshot->{
+                    boolean alreadyExists = false;
+                    for(DocumentSnapshot doc : querySnapshot.getDocuments()){
+                        String entrantId = doc.getString("entrantId");
+                        if (entrantId != null && entrantId.equals(actor.getDeviceIdentifier())){
+                            alreadyExists = true;
+                            break;
+                        }
+                    }
+                    if(alreadyExists){
+                        callback.accept(false);
+                    }else{
+                        Map<String, Object> registrationData = new HashMap<>();
+                        registrationData.put("entrantId", actor.getDeviceIdentifier());
+                        registrationData.put("eventId", eventId);
+                        registrationData.put("status", "Pending");
+
+                        db.collection("registrations")
+                                .add(registrationData)
+                                .addOnSuccessListener(ref-> callback.accept(true))
+                                .addOnFailureListener(e -> callback.accept(false));
+
+
+                    }
+                })
+                .addOnFailureListener(e-> callback.accept(false));
+    }
+    public void getEventById(String eventId, Consumer<Event> callback){
+        db.collection("events")
+                .document(eventId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()){
+                        Event event = documentSnapshot.toObject(Event.class);
+                        callback.accept(event);
+                    }else{
+                        callback.accept(null);
+                    }
+                })
+                .addOnFailureListener(e->{
+                    callback.accept(null);
+                });
+    }
+    public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback) {
+        db.collection("registrations")
+                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("status", "Pending")
+                .get()
+                .addOnSuccessListener(waitinglistSnapshot -> {
+                    int count = waitinglistSnapshot.size();
+                    callback.accept(count);
+                })
+                .addOnFailureListener(e -> {
+                    callback.accept(0); // return 0 on error
+                });
+    }
 }
+

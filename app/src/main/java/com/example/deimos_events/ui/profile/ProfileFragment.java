@@ -73,7 +73,6 @@ public class ProfileFragment extends Fragment {
 
         final TextView textView = binding.textProfile;
         profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-
         profileViewModel.getActor().observe(getViewLifecycleOwner(), this::bindActorCard);
 
         SharedPreferences prof = requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE);

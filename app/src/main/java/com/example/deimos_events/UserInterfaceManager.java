@@ -19,11 +19,16 @@ public class UserInterfaceManager {
     public void clearCurrentActor(){
         setCurrentActor(null);
     }
-
-
     public Activity getActivity(){
         return sessionManager.getSession().getActivity();
     }
+    public Event getSelectedEvent(){return sessionManager.getSession().getSelectedEvent();}
+    public void setSelectedEvent(Event event){sessionManager.getSession().setSelectedEvent(event);}
+
+    public void clearSelectedEvent(){
+        setSelectedEvent(null);
+    }
+
 
 
 
