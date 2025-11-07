@@ -6,6 +6,11 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Button;
+import android.widget.TextView;
+
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,13 +19,19 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
 import com.example.deimos_events.databinding.FragmentEventsBinding;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.example.deimos_events.ui.notifications.NotificationsFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -94,6 +105,26 @@ public class EventsFragment extends Fragment {
 
         loadEvents();
 
+
+        final FloatingActionButton add  = binding.eventsList;
+        add.setOnClickListener(v -> {
+            NavController navController = NavHostFragment.findNavController(this);
+
+            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events,true).build();
+            navController.navigate(R.id.navigation_create, null , navOptions);
+        });
+
+
+
+        // data to use in the list
+        ArrayList<EventTest> eventsList = new ArrayList<>();
+        eventsList.add(new EventTest("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", R.drawable.img, true, 0, false));
+        eventsList.add(new EventTest("HEllooooooooooooooooooooooooooo", R.drawable.join_sticker_24dp, false, -1, true));
+        eventsList.add(new EventTest("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", R.drawable.img, true, 0, false));
+        eventsList.add(new EventTest("HEllooooooooooooooooooooooooooo", R.drawable.join_sticker_24dp, false,-1, false));
+        eventsList.add(new EventTest("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", R.drawable.img, true, 0, false));
+        eventsList.add(new EventTest("HEllooooooooooooooooooooooooooo", R.drawable.join_sticker_24dp, false, 0, false));
+        
         ListView listView = binding.eventsList;
         visibleEvents.clear();
         visibleEvents.addAll(allEvents);

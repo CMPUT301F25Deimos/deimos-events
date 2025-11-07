@@ -1,6 +1,8 @@
 package com.example.deimos_events;
 
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -56,6 +58,72 @@ public class Database implements IDatabase {
                     callback.accept(Boolean.FALSE);
                 });
     }
+    public void createEvent(Event event, Consumer<Boolean> callback){
+        db.collection("events")
+                .document()
+                .set(event)
+                .addOnSuccessListener(e ->{
+                    callback.accept(Boolean.TRUE);
+                })
+                .addOnFailureListener(e ->{
+                    callback.accept(Boolean.FALSE);
+                });
+    }
+
+    @Override
+    public void updateImage(String eventId, String posterIdArray) {
+        db.collection("events")
+                .document(eventId)
+                .update("posterIdArray", posterIdArray);
+    }
+
+    @Override
+    public void deleteRegistor(String entrantId, String eventId) {
+         db.collection("registrations")
+                .whereEqualTo("entrantId", entrantId)
+                .whereEqualTo("eventId", eventId)
+                .get().addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        doc.getReference().delete();
+                    }
+                });
+;
+    }
+
+    @Override
+    public void getActorById(String id, Consumer<Actor> callback) {
+        db.collection("actors").
+                document(id).get().
+                addOnSuccessListener(documentSnapshot -> {
+                    if( documentSnapshot!=null){
+                        Actor actor = documentSnapshot.toObject(Actor.class);
+                        callback.accept(actor);
+                    }
+                });
+    }
+
+
+
+    @Override
+    public void getRegistration(String eventId, Consumer<List<Registration>> callback) {
+        db.collection("registrations")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Registration> registrations = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Registration registration = doc.toObject(Registration.class);
+                        registrations.add(registration);
+                    }
+                    callback.accept(registrations);
+                })
+                .addOnFailureListener(e -> {
+                    System.err.println("Error getting registrations: " + e.getMessage());
+                    callback.accept(Collections.emptyList());
+                });
+    }
+
+
 
     public void deleteEntrantCascade(String deviceIdentifier, Consumer<Boolean> callback) {
         db.collection("registrations").whereEqualTo("deviceIdentifier", deviceIdentifier).get()
@@ -120,6 +188,12 @@ public class Database implements IDatabase {
                 .get()
                 .addOnSuccessListener(q -> callback.accept(!q.isEmpty()))
                 .addOnFailureListener(e -> callback.accept(null)); // null = error path
+    }
+
+
+    @Override
+    public DocumentReference getEvent(String eventId, Consumer<Boolean> callback) {
+        return null;
     }
 
 

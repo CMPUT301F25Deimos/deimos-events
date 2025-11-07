@@ -280,7 +280,7 @@ public class ActorManager {
                         callback.accept(new Result(Boolean.FALSE, "DELETE_ACTOR", "Failed to delete user"));
                     }
                 });
-            }else{
+            }else {
                 callback.accept(new Result(Boolean.FALSE, "DELETE_ACTOR", "Actor  does not exist"));
             }
         });

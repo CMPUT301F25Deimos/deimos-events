@@ -1,8 +1,12 @@
 package com.example.deimos_events;
 
+import com.google.firebase.firestore.DocumentReference;
+
 import org.junit.platform.commons.function.Try;
 
 import java.util.HashMap;
+
+import com.google.firebase.firestore.DocumentReference;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -19,13 +23,13 @@ public class MockDatabase implements IDatabase{
 
     @Override
     public void deleteActor(Actor actor, Consumer<Boolean> callback){
-        mockActors.remove(actor.getDeviceIdentifier());
+        mockData.remove(actor.getDeviceIdentifier());
         callback.accept(Boolean.TRUE);
     }
 
     @Override
     public void insertActor(Actor actor, Consumer<Boolean> callback){
-        mockActors.put(actor.getDeviceIdentifier(), actor);
+        mockData.put(actor.getDeviceIdentifier(), actor);
         callback.accept(Boolean.TRUE);
     }
 
@@ -103,5 +107,29 @@ public class MockDatabase implements IDatabase{
         }
     }
 
+    @Override
+    public DocumentReference getEvent(String eventId, Consumer<Boolean> callback) {
+        return null;
+    }
+
+    @Override
+    public void createEvent(Event event, Consumer<Boolean> callback) {
+        throw new UnsupportedOperationException("Not Implemented yet");
+    }
+
+    @Override
+    public void updateImage(String eventId, String posterIdArray) {
+        throw new UnsupportedOperationException("Not Implemented yet");
+    }
+
+    @Override
+    public void deleteRegistor(String entrantId, String eventId) {
+        throw new UnsupportedOperationException("Not Implemented yet");
+    }
+
+    @Override
+    public void getActorById(String id, Consumer<Actor> callback) {
+        throw new UnsupportedOperationException("Not Implemented yet");
+    }
 
 }
