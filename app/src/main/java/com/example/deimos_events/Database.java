@@ -8,8 +8,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -172,7 +174,35 @@ public class Database implements IDatabase {
                         callback.accept(false);
                     }else{
                         //Finish implementing this
+                        Map<String, Object> registrationData = new HashMap<>();
+                        registrationData.put("entrantId", actor.getDeviceIdentifier());
+                        registrationData.put("eventId", eventId);
+                        registrationData.put("status", "Pending");
+
+                        db.collection("registrations")
+                                .add(registrationData)
+                                .addOnSuccessListener(ref-> callback.accept(true))
+                                .addOnFailureListener(e -> callback.accept(false));
+
+
                     }
+                })
+                .addOnFailureListener(e-> callback.accept(false));
+    }
+    public void getEventById(String eventId, Consumer<Event> callback){
+        db.collection("events")
+                .document(eventId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()){
+                        Event event = documentSnapshot.toObject(Event.class);
+                        callback.accept(event);
+                    }else{
+                        callback.accept(null);
+                    }
+                })
+                .addOnFailureListener(e->{
+                    callback.accept(null);
                 });
     }
 }

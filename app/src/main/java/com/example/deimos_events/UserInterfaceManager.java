@@ -26,6 +26,8 @@ public class UserInterfaceManager {
         return sessionManager.getSession().getActivity();
     }
     public Event getSelectedEvent(){return sessionManager.getSession().getSelectedEvent();}
+    public void setSelectedEvent(Event event){sessionManager.getSession().setSelectedEvent(event);}
+
 
 
 

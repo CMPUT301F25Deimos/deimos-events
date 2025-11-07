@@ -38,6 +38,7 @@ public class Event {
         this.criteria = criteria;
         this.guidelines = guidelines;
     }
+    public Event(){}
     public String getTitle() {
         return title;
     }

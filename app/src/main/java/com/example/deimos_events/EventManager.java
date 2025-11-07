@@ -23,9 +23,24 @@ public class EventManager {
         db.getPendingRegistrationsForEvent(eventID, count->{
             callback.accept(count);
         });
-
-
     }
+    public void addUserToWaitList(String eventId, Consumer<Boolean> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        Actor actor = session.getCurrentActor();
+        if (actor == null){
+            callback.accept(false);
+            return;
+        }
+        db.addUserToWaitList(eventId, actor, callback);
+    }
+
+    public void getEventById(String eventId, Consumer<Event> callback){
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        db.getEventById(eventId, callback);
+    }
+
 
 
 }

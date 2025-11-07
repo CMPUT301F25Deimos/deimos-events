@@ -16,5 +16,9 @@ public interface IDatabase {
 
     public void deleteEntrantCascade(String email, Consumer<Boolean> callback);
 
-    public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback)
+    public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback);
+
+    public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback);
+
+    public void getEventById(String eventId, Consumer<Event> callback);
 }

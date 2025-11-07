@@ -3,6 +3,8 @@ package com.example.deimos_events;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.util.function.Consumer;
 
 import androidx.activity.EdgeToEdge;
@@ -38,11 +40,7 @@ public class EventInformationActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.user_event_info);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
 
         returnButton = findViewById(R.id.btnReturn);
         signUpButton = findViewById(R.id.btnJoin);
@@ -64,7 +62,7 @@ public class EventInformationActivity  extends AppCompatActivity {
         NM = UIM.getNavigationManager();
         EM = SM.getEventManager();
 
-        //getSelectedEvent() to be implemented
+        //implemented
         selectedEvent = UIM.getSelectedEvent();
 
         EventTitle.setText(selectedEvent.getTitle());
@@ -78,7 +76,7 @@ public class EventInformationActivity  extends AppCompatActivity {
         //returns Date object, so fix that later
         eventDate.setText("Date: " + selectedEvent.getDate());
         eventTime.setText("Time: " + selectedEvent.getTime());
-        //participants cap needs to be subtracted but the amount of entrants accepted
+
         availablespots.setText(String.valueOf(selectedEvent.getParticipantCap()));//needs to be changed so that is updated
 
         //Implemented this, good for now but check in later
@@ -92,7 +90,17 @@ public class EventInformationActivity  extends AppCompatActivity {
 
 
         signUpButton.setOnClickListener(v->{
-            //Implement this
+            //Implemented for now
+            EM.addUserToWaitList(selectedEvent.getId(), success->{
+                runOnUiThread(()->{
+                    if(success){
+                        Toast.makeText(this, "Added to waitlist!", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(this,"Already on waitlist or failed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            });
         });
 
 
