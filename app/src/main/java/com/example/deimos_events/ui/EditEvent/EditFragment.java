@@ -1,28 +1,18 @@
 package com.example.deimos_events.ui.EditEvent;
 
-import static android.content.ContentValues.TAG;
-
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.deimos_events.Event;
 import com.example.deimos_events.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
@@ -49,11 +39,17 @@ public class EditFragment extends Fragment {
         eventId = getArguments().getString("eventId");
         SessionManager SM = ((EventsApp) getActivity().getApplication()).getSessionManager();
         EventManager EM = SM.getEventManager();
-        List< Registration > registrations = EM.getRegistration(eventId);
-        for(Registration r : registrations) {
-            EventAdapter adapter = new EventAdapter(getContext(), r);
-            entrants.setAdapter(adapter);
-        }
+        EM.fetchAllRegistrations(eventId, regList ->{
+            if (regList != null && !regList.isEmpty()){
+                for (Registration r : regList){
+                    EventAdapter adapter = new EventAdapter(getContext(), r);
+                    entrants.setAdapter(adapter);
+                }
+            } else {
+                Toast.makeText(requireContext(), "Failed to grab any Registrations", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return view;
     }
 }

@@ -4,11 +4,13 @@ import com.google.firebase.firestore.DocumentReference;
 
 import org.junit.platform.commons.function.Try;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.firebase.firestore.DocumentReference;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class MockDatabase implements IDatabase{
@@ -23,13 +25,13 @@ public class MockDatabase implements IDatabase{
 
     @Override
     public void deleteActor(Actor actor, Consumer<Boolean> callback){
-        mockData.remove(actor.getDeviceIdentifier());
+        mockActors.remove(actor.getDeviceIdentifier());
         callback.accept(Boolean.TRUE);
     }
 
     @Override
     public void insertActor(Actor actor, Consumer<Boolean> callback){
-        mockData.put(actor.getDeviceIdentifier(), actor);
+        mockActors.put(actor.getDeviceIdentifier(), actor);
         callback.accept(Boolean.TRUE);
     }
 
@@ -60,6 +62,10 @@ public class MockDatabase implements IDatabase{
         throw new UnsupportedOperationException("Not Implemented yet");
     }
 
+    @Override
+    public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback){
+        throw new UnsupportedOperationException("Not Implemented yet");
+    }
     @Override
     public void actorExistsByEmail(String email, Consumer<Boolean> callback){
 
@@ -106,15 +112,61 @@ public class MockDatabase implements IDatabase{
             callback.accept(Boolean.FALSE);
         }
     }
+    @Override
+    public void fetchEventById(String eventId, Consumer<Event> callback){
+        callback.accept(mockEvents.get(eventId));
+    }
+    @Override
+    public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback){
+        if (actor == null || eventId == null){
+            callback.accept(Boolean.FALSE);
+            return; // both need to exist
+        }
+
+        boolean exists = Boolean.FALSE;
+        for (Registration r : mockRegistrations.values()) {
+            if (r.getEventId().equals(eventId) && r.getEntrantId().equals(actor.getDeviceIdentifier())
+                    && "Pending".equals(r.getStatus())) {
+                exists = Boolean.TRUE;
+                break;
+            }
+        }
+        if (exists){
+            callback.accept(false); // found one already, don't need another registration
+            return;
+        }
+
+        String id = UUID.randomUUID().toString();
+        Registration registration = new Registration(id, actor.getDeviceIdentifier(), eventId, "Pending");
+        mockRegistrations.put(id, registration);
+        callback.accept(true);
+
+    }
+
 
     @Override
-    public DocumentReference getEvent(String eventId, Consumer<Boolean> callback) {
-        return null;
+    public void fetchALLRegistrations(String eventId, Consumer<List<Registration>> callback){
+                List<Registration> regList = new ArrayList<>();
+                for (Registration r : mockRegistrations.values()){
+                    if (r.getEventId().equals(eventId)){
+                        regList.add(r);
+                    }
+                }
+                callback.accept(regList);
     }
 
     @Override
-    public void createEvent(Event event, Consumer<Boolean> callback) {
-        throw new UnsupportedOperationException("Not Implemented yet");
+    public void registrationExists(String Id, Consumer<Boolean> callback){
+        callback.accept(mockRegistrations.containsKey(Id));
+    }
+
+    @Override
+    public void deleteRegistor(String Id, Consumer<Boolean> callback) {
+        if (mockRegistrations.remove(Id) != null){
+            callback.accept(Boolean.TRUE);
+        } else {
+            callback.accept(false);
+        }
     }
 
     @Override
@@ -122,14 +174,9 @@ public class MockDatabase implements IDatabase{
         throw new UnsupportedOperationException("Not Implemented yet");
     }
 
-    @Override
-    public void deleteRegistor(String entrantId, String eventId) {
-        throw new UnsupportedOperationException("Not Implemented yet");
-    }
-
-    @Override
-    public void getActorById(String id, Consumer<Actor> callback) {
-        throw new UnsupportedOperationException("Not Implemented yet");
-    }
-
 }
+
+//    @Override
+//    public DocumentReference getEvent(String eventId,Consumer<Boolean> callback){
+//        throw new UnsupportedOperationException("Not Implemented yet");
+//    }
