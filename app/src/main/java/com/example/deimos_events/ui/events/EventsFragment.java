@@ -57,7 +57,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 // import com.example.deimos_events.models.Registration;
 
 /**
- * Shows the screen of the event page
+ * Shows the screen of the events page
  */
 public class EventsFragment extends Fragment {
 

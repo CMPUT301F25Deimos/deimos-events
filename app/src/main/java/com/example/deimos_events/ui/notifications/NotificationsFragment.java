@@ -17,6 +17,9 @@ import com.example.deimos_events.databinding.FragmentNotificationsBinding;
 
 import java.util.ArrayList;
 
+/**
+ * Shows the screen for the notifications page
+ */
 public class NotificationsFragment extends Fragment {
     
     private FragmentNotificationsBinding binding;
