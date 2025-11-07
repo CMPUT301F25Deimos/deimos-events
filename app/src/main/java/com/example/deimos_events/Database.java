@@ -4,9 +4,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.auth.User;
 import com.google.firebase.firestore.WriteBatch;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,27 +16,9 @@ import java.util.function.Consumer;
 public class Database implements IDatabase {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private Result r;
-
-    public FirebaseFirestore getDb() {
-        return db;
-    }
-
-    public void deleteActor(Actor actor, Consumer<Boolean> callback){
-        db.collection("actors")
-                .document(actor.getDeviceIdentifier())
-                .delete()
-                .addOnSuccessListener(tempVoid ->{
-                    callback.accept(Boolean.TRUE);
-                })
-                .addOnFailureListener(e -> {
-                    callback.accept(Boolean.FALSE);
-                });
-    }
-
     public void insertActor(Actor actor, Consumer<Boolean> callback){
         db.collection("actors")
-                .document(actor.getEmail())
+                .document(actor.getDeviceIdentifier())
                 //.document(actor.getDeviceIdentifier())
                 .set(actor)
                 .addOnSuccessListener(tempVoid ->{
@@ -49,24 +29,28 @@ public class Database implements IDatabase {
                 });
     }
 
-//    public void upsertActorWithRole(Actor actor, String role, Consumer<Boolean> callback) {
-//        java.util.Map<String, Object> data = new java.util.HashMap<>();
-//        data.put("deviceIdentifier", actor.getDeviceIdentifier());
-//        data.put("name", actor.getName());
-//        data.put("email", actor.getEmail());
-//        data.put("phoneNumber", actor.getPhoneNumber());
-//        data.put("role", role);
-//        db.collection("actors")
-//                .document(actor.getDeviceIdentifier())
-//                .set(data) // write a flat map so Firestore always has "role"
-//                .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
-//                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
-//    }
+    public void updateActor(Actor oldActor, Actor updatedActor, Consumer<Boolean> callback){
 
-    public void upsertActor(Actor actor, Consumer<Boolean> callback){
+        db.collection("actors")
+                .document(oldActor.getDeviceIdentifier())
+                .update(
+                        "name", updatedActor.getName(),
+                        "email", updatedActor.getEmail(),
+                        "phoneNumber", updatedActor.getPhoneNumber(),
+                        "role", updatedActor.getRole())
+                .addOnSuccessListener(tempVoid->{
+                    callback.accept(Boolean.TRUE);
+                })
+                .addOnFailureListener(e->{
+                    callback.accept(Boolean.FALSE);
+                });
+
+    }
+
+    public void deleteActor(Actor actor, Consumer<Boolean> callback){
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
-                .set(actor)
+                .delete()
                 .addOnSuccessListener(tempVoid ->{
                     callback.accept(Boolean.TRUE);
                 })
@@ -107,20 +91,6 @@ public class Database implements IDatabase {
     }
 
     @Override
-    public void getActorById(String id, Consumer<Actor> callback) {
-        db.collection("actors").
-                document(id).get().
-                addOnSuccessListener(documentSnapshot -> {
-                    if( documentSnapshot!=null){
-                        Actor actor = documentSnapshot.toObject(Actor.class);
-                        callback.accept(actor);
-                    }
-                });
-    }
-
-
-
-    @Override
     public void getRegistration(String eventId, Consumer<List<Registration>> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
@@ -141,12 +111,35 @@ public class Database implements IDatabase {
 
 
 
+    public void deleteEntrantCascade(String deviceIdentifier, Consumer<Boolean> callback) {
+        db.collection("registrations").whereEqualTo("deviceIdentifier", deviceIdentifier).get()
+                .addOnSuccessListener(regSnap -> {
+                    db.collection("waiting_lists").whereEqualTo("deviceIdentifier", deviceIdentifier).get()
+                            .addOnSuccessListener(waitSnap -> {
+                                WriteBatch batch = db.batch();
 
+                                batch.delete(db.collection("actors").document(deviceIdentifier));
 
+                                for (DocumentSnapshot d : regSnap.getDocuments()) {
+                                    batch.delete(d.getReference());
+                                }
+
+                                for (DocumentSnapshot d : waitSnap.getDocuments()) {
+                                    batch.delete(d.getReference());
+                                }
+
+                                batch.commit()
+                                        .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                                        .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                            })
+                            .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                })
+                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+    }
 
     public void actorExists(Actor actor, Consumer<Boolean> callback){
         db.collection("actors")
-                .document(actor.getEmail())
+                .document(actor.getDeviceIdentifier())
                 //.document(actor.getDeviceIdentifier())
                 .get()
                 .addOnSuccessListener(doc ->{
@@ -168,6 +161,8 @@ public class Database implements IDatabase {
                 .addOnSuccessListener(e -> callback.accept(true))
                 .addOnFailureListener(e -> callback.accept(false));
     }
+
+
     public void actorExistsByEmail(String email, Consumer<Boolean> callback) {
         db.collection("actors")
                 .whereEqualTo("email", email)
@@ -177,41 +172,13 @@ public class Database implements IDatabase {
                 .addOnFailureListener(e -> callback.accept(null)); // null = error path
     }
 
-    @Override
-    public void upsertActorWithRole(Actor actor, String role, Consumer<Boolean> callback) {
-
-    }
 
     @Override
     public DocumentReference getEvent(String eventId, Consumer<Boolean> callback) {
         return null;
     }
 
-    public void deleteEntrantCascade(String entrantId, Consumer<Boolean> callback) {
-        db.collection("registrations").whereEqualTo("entrantId", entrantId).get()
-                .addOnSuccessListener(regSnap -> {
-                    db.collection("waiting_lists").whereEqualTo("entrantId", entrantId).get()
-                            .addOnSuccessListener(waitSnap -> {
-                                WriteBatch batch = db.batch();
 
-                                batch.delete(db.collection("actors").document(entrantId));
-
-                                for (DocumentSnapshot d : regSnap.getDocuments()) {
-                                    batch.delete(d.getReference());
-                                }
-
-                                for (DocumentSnapshot d : waitSnap.getDocuments()) {
-                                    batch.delete(d.getReference());
-                                }
-
-                                batch.commit()
-                                        .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
-                                        .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
-                            })
-                            .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
-                })
-                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
-    }
 
     public void getAvailableEvents(Actor actor, Consumer<List<Event>> callback) {
         db.collection("registrations")
@@ -238,7 +205,7 @@ public class Database implements IDatabase {
                 .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
     }
 
-    public void getActorByID(String id, Consumer<Actor> callback) {
+    public void fetchActorByID(String id, Consumer<Actor> callback) {
         db.collection("actors").document(id).get()
                 .addOnSuccessListener(docSnapshot -> {
                     if (docSnapshot.exists()) {
