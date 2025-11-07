@@ -25,8 +25,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.deimos_events.Actor;
 import com.example.deimos_events.EventsApp;
+import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
+import com.example.deimos_events.Session;
 import com.example.deimos_events.databinding.FragmentEventsBinding;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -46,6 +49,7 @@ import java.util.Set;
 
 import com.example.deimos_events.SessionManager;
 import com.example.deimos_events.UserInterfaceManager;
+import com.google.firebase.firestore.ListenerRegistration;
 // import com.example.deimos_events.EventManager;   // uncomment when ready
 // import com.example.deimos_events.NavigationManager;
 // import com.example.deimos_events.Result;
@@ -78,6 +82,8 @@ public class EventsFragment extends Fragment {
 
     // Programmatic empty view so we don’t change your XML
     private TextView emptyView;
+    
+    private ListenerRegistration registrationListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -113,23 +119,27 @@ public class EventsFragment extends Fragment {
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events,true).build();
             navController.navigate(R.id.navigation_create, null , navOptions);
         });
-
-
-
-        // data to use in the list
-        ArrayList<EventTest> eventsList = new ArrayList<>();
-        eventsList.add(new EventTest("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", R.drawable.img, true, 0, false));
-        eventsList.add(new EventTest("HEllooooooooooooooooooooooooooo", R.drawable.join_sticker_24dp, false, -1, true));
-        eventsList.add(new EventTest("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", R.drawable.img, true, 0, false));
-        eventsList.add(new EventTest("HEllooooooooooooooooooooooooooo", R.drawable.join_sticker_24dp, false,-1, false));
-        eventsList.add(new EventTest("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", R.drawable.img, true, 0, false));
-        eventsList.add(new EventTest("HEllooooooooooooooooooooooooooo", R.drawable.join_sticker_24dp, false, 0, false));
         
         ListView listView = binding.eventsList;
         visibleEvents.clear();
         visibleEvents.addAll(allEvents);
-        adapter = new EventArrayAdapter(requireContext(), visibleEvents);
-        listView.setAdapter(adapter);
+//        adapter = new EventArrayAdapter(requireContext(), visibleEvents);
+//        listView.setAdapter(adapter);
+        
+        // gets data
+        Session session = SM.getSession();
+        IDatabase db = session.getDatabase();
+        Actor actor = session.getCurrentActor();
+        
+        db.getEvents(events -> {
+            db.getEntrantRegisteredEvents(actor, joinedEventIds -> {
+                adapter = new EventArrayAdapter(requireContext(), events, joinedEventIds, db, actor);
+                listView.setAdapter(adapter);
+                registrationListener = db.listenToRegisteredEvents(actor, (updatedJoinedIds) -> {
+                    adapter.updateJoinedEvents(updatedJoinedIds);
+                });
+            });
+        });
 
         attachEmptyViewToList("You haven’t joined any events yet.");
         listView.setEmptyView(emptyView);
@@ -366,5 +376,6 @@ public class EventsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        registrationListener.remove();
     }
 }

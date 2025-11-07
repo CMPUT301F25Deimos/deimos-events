@@ -1,9 +1,12 @@
 package com.example.deimos_events;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
@@ -291,6 +294,137 @@ public class Database implements IDatabase {
                 .addOnFailureListener(e -> {
                     callback.accept(0); // return 0 on error
                 });
+    }
+    
+    /**
+     * finds the events which an actor have joined
+     * @param eventId
+     * @param actor
+     */
+    public void joinEvent(String eventId, Actor actor) {
+        db.collection("registrations")
+                .add(new Registration(null, eventId, actor.getDeviceIdentifier(), "Pending"))
+                .addOnSuccessListener(documentReference -> {
+                    String documentId = documentReference.getId();
+                    // id is the its documentId
+                    documentReference.update("id", documentId);
+                });
+    }
+    
+    /**
+     * user's data from the registered collection is deleted if they leave the event
+     * @param actor
+     * @param eventId
+     */
+    public void leaveEvent(String eventId, Actor actor) {
+        db.collection("registrations")
+                .whereEqualTo("entrantId", actor.getDeviceIdentifier())
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        doc.getReference().delete();
+                    }
+                });
+    }
+    
+    /**
+     * gets all events info
+     * @param callback
+     */
+    public void getEvents(Consumer<List<Event>> callback) {
+        db.collection("events")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Event> eventList = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        eventList.add(doc.toObject(Event.class));
+                    }
+                    callback.accept(eventList);
+                })
+                .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
+    }
+    
+    /**
+     * finds the events which an actor is registered in
+     * (for the buttons in the edit event screen)
+     * @param actor: person currently logged in
+     * @param callback
+     */
+    public void getEntrantRegisteredEvents(Actor actor, Consumer<Set<String>> callback) {
+        db.collection("registrations")
+                .whereEqualTo("entrantId", actor.getDeviceIdentifier())
+                .get()
+                .addOnSuccessListener(registrationSnapshot -> {
+                    Set<String> registeredEventIds = new HashSet<>();
+                    for (DocumentSnapshot doc : registrationSnapshot.getDocuments()) {
+                        registeredEventIds.add(doc.getString("eventId"));
+                    }
+                    callback.accept(registeredEventIds);
+                });
+    }
+    
+    /**
+     * listener so that screen updates immediately after the database does
+     * @param callback
+     * @return listener
+     */
+    public ListenerRegistration listenToRegisteredEvents(Actor actor, Consumer<Set<String>> callback) {
+        return db.collection("registrations")
+                .whereEqualTo("entrantId", actor.getDeviceIdentifier())
+                .addSnapshotListener((snapshot, e) -> {
+                    Set<String> registeredEventIds = new HashSet<>();
+                    if (snapshot != null) {
+                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                            registeredEventIds.add(doc.getString("eventId"));
+                        }
+                    }
+                    callback.accept(registeredEventIds);
+                });
+    }
+    
+    /**
+     * used so that event image and description can be taken from the events collection and displayed
+     * @param actor
+     * @param callback
+     */
+    public void getNotificationEventInfo(Actor actor, Consumer<List<Registration>> callback) {
+        db.collection("registrations")
+                .whereEqualTo("entrantId", actor.getDeviceIdentifier())
+                .get()
+                .addOnSuccessListener(snapshot -> {List<Registration> registrations = new ArrayList<>();
+                    List<Task<DocumentSnapshot>> eventTasks = new ArrayList<>();
+                    for (DocumentSnapshot registerDoc : snapshot.getDocuments()) {
+                        Registration register = registerDoc.toObject(Registration.class);
+                        if (register != null) {
+                            // to be able to display image + description in notification
+                            String eventId = register.getEventId();
+                            eventTasks.add(db.collection("events").document(eventId).get()
+                                    .addOnSuccessListener(eventDoc -> {
+                                        if (eventDoc.exists()) {
+                                            Event event = eventDoc.toObject(Event.class);
+                                            if (event != null) {
+                                                register.setDescription(event.getDescription());
+                                                register.setImage(event.getPosterId());
+                                            }
+                                        }
+                                    }));
+                        }
+                    }
+                    Tasks.whenAllComplete(eventTasks)
+                            .addOnSuccessListener(done -> callback.accept(registrations));
+                });
+    }
+    
+    /**
+     * gives answer to notifications
+     * @param documentId: the event's documentId
+     * @param answer: "Accepted" or "Declined"
+     */
+    public void answerEvent(String documentId, String answer) {
+        db.collection("registrations")
+                .document(documentId)
+                .update("status", answer);
     }
 }
 

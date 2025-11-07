@@ -14,15 +14,28 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.example.deimos_events.Actor;
+import com.example.deimos_events.IDatabase;
+import com.example.deimos_events.Event;
 import com.example.deimos_events.R;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-public class EventArrayAdapter extends ArrayAdapter<EventTest>{
+public class EventArrayAdapter extends ArrayAdapter<Event>{
+    private final IDatabase db;
+    private Set<String> registeredEventIds;
+    private final Actor actor;
     
-    public EventArrayAdapter(Context context, ArrayList<EventTest> events) {
+    public EventArrayAdapter(Context context, List<Event> events,
+                             Set<String> registeredEventIds, IDatabase db, Actor actor) {
         super(context, 0, events);
+        this.db = db;
+        this.registeredEventIds = new HashSet<>(registeredEventIds);
+        this.actor = actor;
     }
     
     @NonNull
@@ -38,51 +51,75 @@ public class EventArrayAdapter extends ArrayAdapter<EventTest>{
         
         MaterialButton button = view.findViewById(R.id.placeholder_button);
         
-        EventTest event = getItem(position);
+        Event event = getItem(position);
         
         if (event != null) {
-            TextView textView = view.findViewById(R.id.event_text);
-            textView.setText(event.description);
+            // gets event images and descriptions
+            TextView description = convertView.findViewById(R.id.event_text);
+            description.setText(event.getDescription());
             
-            ImageView imageView = view.findViewById(R.id.event_image);
-            imageView.setImageResource(event.image);
+            ImageView imageView = convertView.findViewById(R.id.event_image);
+            imageView.setImageBitmap(event.getPosterId());
             
-            Boolean own = event.ownEvent;
-            clicked(button, event.waitingList, own);
-
+            // changes buttons initial look
+            changeButtonLook(button, event);
+            
             button.setOnClickListener(v -> {
-                event.setWaitingList(!event.getWaitingList());
-                clicked(button, event.getWaitingList(), own);
+                // sees if the current user owns the event or not
+                if (!actor.getDeviceIdentifier().equals(event.getOwnerId())) {
+                    if (registeredEventIds.contains(event.getId())) {
+                        registeredEventIds.remove(event.getId());
+                        db.leaveEvent(event.getId(), actor);
+                    } else {
+                        registeredEventIds.add(event.getId());
+                        db.joinEvent(event.getId(), actor);
+                    }
+                }
+                // TODO: else {// clicking edit event button}
+                
+                changeButtonLook(button, event);
             });
         }
-        
         return view;
     }
     
-    private void clicked(MaterialButton button, boolean click, boolean own) {
+    private void changeButtonLook(MaterialButton button, Event event) {
         // sets icon button depending on clicked state
         Drawable icon_button;
         ColorStateList button_colour;
         
-        // sees if the organizer owns the event (thus, will have an edit button)
-        if (!own) {
-            // sees if already part of waiting list
-            if (!click) {
-                icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.join_sticker_24dp);
-                button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.chosen_background);
-                button.setText("Join");
-            } else {
-                icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.cancel_24dp);
-                button_colour = ContextCompat.getColorStateList(this.getContext(), com.google.android.material.R.color.design_default_color_error);
-                button.setText("Cancel");
-            }
-        }
-        else {
-            icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.baseline_edit_24);
-            button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.chosen_background);
+        int colour, icon;
+        
+        // checks whether user owns or has joined the event to customize the buttons
+        boolean ownsEvent = actor.getDeviceIdentifier().equals(event.getOwnerId());
+        boolean hasJoined = registeredEventIds.contains(event.getId());
+        
+        if (ownsEvent) {
             button.setText("Edit");
+            colour = R.color.title_colour;
+            icon = R.drawable.baseline_edit_24;
+        } else {
+            // if user has joined the event, then they have the option to cancel, otherwise, they have the chance to join
+            button.setText(hasJoined ? "Cancel" : "Join");
+            colour = hasJoined ? com.google.android.material.R.color.design_default_color_error : R.color.title_colour;
+            icon = hasJoined ? R.drawable.cancel_24dp : R.drawable.join_sticker_24dp;
         }
+        
+        // updates the icon and colour depending on what the state of the buttons are
+        icon_button = ContextCompat.getDrawable(this.getContext(), icon);
+        button_colour = ContextCompat.getColorStateList(this.getContext(), colour);
+        
         button.setIcon(icon_button);
         button.setBackgroundTintList(button_colour);
     }
+    
+    /**
+     * updates events list with joined or left events
+     * @param newJoinedEventIds
+     */
+    public void updateJoinedEvents(Set<String> newJoinedEventIds) {
+        this.registeredEventIds = new HashSet<>(newJoinedEventIds);
+        notifyDataSetChanged();
+    }
+    
 }

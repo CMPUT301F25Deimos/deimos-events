@@ -1,8 +1,10 @@
 package com.example.deimos_events;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public interface IDatabase {
@@ -34,9 +36,19 @@ public interface IDatabase {
     public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback);
 
     public void fetchEventById(String eventId, Consumer<Event> callback);
-
-
-
-
-
+    
+    public void joinEvent(String eventId, Actor actor);
+    
+    public void leaveEvent(String eventId, Actor actor);
+    
+    public void getEvents(Consumer<List<Event>> callback);
+    
+    public void getEntrantRegisteredEvents(Actor actor, Consumer<Set<String>> callback);
+    
+    public ListenerRegistration listenToRegisteredEvents(Actor actor, Consumer<Set<String>> callback);
+    
+    public void getNotificationEventInfo(Actor actor, Consumer<List<Registration>> callback);
+    
+    public void answerEvent(String documentId, String answer);
+    
 }
