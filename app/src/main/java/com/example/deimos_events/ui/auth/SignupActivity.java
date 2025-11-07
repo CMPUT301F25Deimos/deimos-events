@@ -66,7 +66,22 @@ public class SignupActivity extends FoundationActivity {
         AM = SM.getActorManager();
         db = SM.getSession().getDatabase();
 
+        boolean signedUp = getSharedPreferences("app", MODE_PRIVATE)
+                .getBoolean("signed_up", false);
+        if (signedUp) {
+            String userId = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("userId", null);
+            String name   = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("name", null);
+            String email  = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("email", null);
+            String phone  = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("phone", "");
+            String role   = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("role", Roles.ENTRANT);
 
+            if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(name) && !TextUtils.isEmpty(email)) {
+                Actor restored = createActorByRole(userId, name, email, phone == null ? "" : phone, role);
+                UIM.setCurrentActor(restored);
+                NM.goTo(MainActivity.class, true);
+                return;
+            }
+        }
 
         tilDeviceId = findViewById(R.id.til_device_id);
         tilName     = findViewById(R.id.til_name);
