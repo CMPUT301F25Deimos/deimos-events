@@ -45,6 +45,10 @@ public class MockDatabase implements IDatabase{
         callback.accept(mockData.get(id));
     }
 
+    @Override
+    public void deleteEntrantCascade(String email, Consumer<Boolean> callback){
+        throw new UnsupportedOperationException("Not Implemented yet");
+    }
 
 
 }

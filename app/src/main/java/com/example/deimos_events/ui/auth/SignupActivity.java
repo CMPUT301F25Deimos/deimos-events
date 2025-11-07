@@ -1,6 +1,5 @@
 package com.example.deimos_events.ui.auth;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -10,12 +9,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.deimos_events.Actor;
 import com.example.deimos_events.ActorManager;
 import com.example.deimos_events.Administrator;
-import com.example.deimos_events.Database;
 import com.example.deimos_events.Entrant;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.FoundationActivity;
@@ -62,11 +59,9 @@ public class SignupActivity extends FoundationActivity {
 
         SM  = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
-        NM  = UIM.getNavigationManager();
+        NM  = SM.getNavigationManager();
         AM = SM.getActorManager();
         db = SM.getSession().getDatabase();
-
-
 
         tilDeviceId = findViewById(R.id.til_device_id);
         tilName     = findViewById(R.id.til_name);
@@ -124,84 +119,41 @@ public class SignupActivity extends FoundationActivity {
         if (!ok) return;
 
         btnSignup.setEnabled(false);
-
-        db.actorExistsByEmail(email, exists -> {
-            if (exists == null) {
-                btnSignup.setEnabled(true);
-                Toast.makeText(this, "Network error. Try again.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (exists) {
-                btnSignup.setEnabled(true);
-                tilEmail.setError("User already exists with this email");
-                return;
-            }
-            // create an actor instance
-            Actor actor = createActorByRole(deviceId, name, email, phone, role);
-
-            //add the actor to the session, and then test if it works
-            UIM.setCurrentActor(actor);
-
-            // Attempt to Save to Firestore with role
-            AM.insertActor(res-> {
-                btnSignup.setEnabled(true);
-                if (res.isSuccess()) {
-                    getSharedPreferences("entrant_profile", MODE_PRIVATE)
-                            .edit()
-                            .putString("userId", deviceId)
-                            .putString("name", name)
-                            .putString("email", email)
-                            .putString("phone", phone)
-                            .putString("role", role)
-                            .apply();
-
-                    getSharedPreferences("app", MODE_PRIVATE)
-                            .edit()
-                            .putBoolean("signed_up", true)
-                            .apply();
-
-                    Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
-                    NM.goTo(MainActivity.class, true);
-
-//                    Intent intent = new Intent(this, MainActivity.class);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    startActivity(intent);
-//                    finish();
-                } else {
-                    Toast.makeText(this, "Failed to save. Try again.", Toast.LENGTH_SHORT).show();
-                    UIM.clearCurrentActor(); // remove the current actor from the session to try again
+        // create an actor instance
+        Actor actor = createActorByRole(deviceId, name, email, phone, role);
+        // insert the actor, or attempt to do so
+        AM.insertActor(actor, res ->{
+            // react to the result.
+            btnSignup.setEnabled(true);
+            String UIErrorMessage = "";
+            if (!res.isSuccess()){
+                if (res.getMessage() == "Database Failed to Read") {
+                    UIErrorMessage = "Network Error. Try Again";
                 }
-            });
+                if (res.getMessage() == "Actor already exists"){
+                    UIErrorMessage = "User already exists with this email";
+                }
+                Toast.makeText(this, UIErrorMessage, Toast.LENGTH_SHORT).show();
+                UIM.clearCurrentActor(); // sanity check
+                return;
+            } else {
+                getSharedPreferences("entrant_profile", MODE_PRIVATE)
+                        .edit()
+                        .putString("userId", deviceId)
+                        .putString("name", name)
+                        .putString("email", email)
+                        .putString("phone", phone)
+                        .putString("role", role)
+                        .apply();
 
-//            db.insertActor(actor, success -> {
-//                btnSignup.setEnabled(true);
-//                if (Boolean.TRUE.equals(success)) {
-//                    UIM.setCurrentActor(actor);
-//
-//                    getSharedPreferences("entrant_profile", MODE_PRIVATE)
-//                            .edit()
-//                            .putString("userId", deviceId)
-//                            .putString("name", name)
-//                            .putString("email", email)
-//                            .putString("phone", phone)
-//                            .putString("role", role)
-//                            .apply();
-//
-//                    getSharedPreferences("app", MODE_PRIVATE)
-//                            .edit()
-//                            .putBoolean("signed_up", true)
-//                            .apply();
-//
-//                    Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
-//
-//                    Intent intent = new Intent(this, MainActivity.class);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    startActivity(intent);
-//                    finish();
-//                } else {
-//                    Toast.makeText(this, "Failed to save. Try again.", Toast.LENGTH_SHORT).show();
-//                }
-//            });
+                getSharedPreferences("app", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("signed_up", true)
+                        .apply();
+
+                Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
+                NM.goTo(MainActivity.class, NavigationManager.navFlags.RETURN_TO_TASK);
+            }
         });
     }
 

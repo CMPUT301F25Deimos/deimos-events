@@ -25,23 +25,24 @@ public class ActorManager {
     }
 
     /**
-     * This method will attempt to insert the current {@link Actor} stored in the {@link Session}.
+     * This method will attempt to insert the current {@link Actor} into the Database.
      * <p>
      * This method does some validation before issuing the insertion request to the database
      * <p>
-     * Verifies that the current Actor is present in the Session.
      * Verifies that the current Actor is not present in the Database.
      * <p>
      * If the Actor is not present in the database it will send an insert request via
      * {@code Database.insertActor()}
      * <p>
      *
+     * On Success will add the actor to the {@link Session}
+     * <p>
+     *
      * This operation talks to the database and as such is asynchronous.
      * The {@link Result} object will contain the following on completion of the callback
      * <ul>
      *     <li>{@code cond = true} if the insertion succeeded</li>
-     *     <li>{@code cond = false} if the operation failed, the actor was already found in the database
-     *     or the session contained no such actor</li>
+     *     <li>{@code cond = false} if the operation failed or the actor was already found in the database
      *     <li>{@code type = "INSERT_ACTOR"} which identifies the result type</li>
      *     <li>{@code message} which describes the specific outcome or failure reason</li>
      * </ul>
@@ -55,11 +56,10 @@ public class ActorManager {
      * @see Database#insertActor(Actor, Consumer)
      * @see Database#actorExists(Actor, Consumer)
      */
-    public void insertActor(Consumer<Result> callback) {
+    public void insertActor(Actor actor, Consumer<Result> callback) {
         // grab session, database, and what you need, in this case the actor
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
-        Actor actor = session.getCurrentActor();
 
         // Validate what you are trying to do, before querying the database
         if (actor == null){
@@ -76,6 +76,7 @@ public class ActorManager {
                 db.insertActor(actor, createResult -> {
                     if (createResult) {
                         callback.accept(new Result(Boolean.TRUE, "INSERT_ACTOR",  "Successfully created user"));
+                        session.setCurrentActor(actor); // add actor to session.
                     } else {
                         callback.accept(new Result(Boolean.FALSE, "INSERT_ACTOR", "Failed to write user"));
                     }
@@ -122,16 +123,16 @@ public class ActorManager {
 
     }
 
-
-
-
     /**
-     * This method will attempt to delete the current {@link Actor} stored in the {@link Session}.
+     * This method will attempt to delete the current {@link Actor} from the Database.
      * <p>
-     * This method does some validation before issuing the delete request to the database
+     * This method does some validation before issuing the delete request to the database, and then
+     * removing the actor from the Session object
      * <p>
-     * Verifies that the current Actor is present in the Session.
+     * Checks if the actor is not null
+     * <p>
      * Checks if the Actor exists in the database using {@code Database.actorExists()}
+     * <p>
      * If the Actor exists it sends a delete request via {@code Database.deleteActor()}
      * <p>
      *
@@ -139,8 +140,7 @@ public class ActorManager {
      * The {@link Result} object will contain the following on completion of the callback
      * <ul>
      *     <li>{@code cond = true} if the deletion succeeded</li>
-     *     <li>{@code cond = false} if the operation failed, the actor was not found or the
-     *     session contained no such actor</li>
+     *     <li>{@code cond = false} if the operation failed or the actor was not found</li>
      *     <li>{@code type = "DELETE_ACTOR"} which identifies the result type</li>
      *     <li>{@code message} which describes the specific outcome or failure reason</li>
      * </ul>
@@ -154,17 +154,15 @@ public class ActorManager {
      * @see Database#deleteActor(Actor, Consumer)
      * @see Database#actorExists(Actor, Consumer)
      */
-    public void deleteActor(Consumer<Result> callback) {
+    public void deleteActor(Actor actor, Consumer<Result> callback) {
 
         // grab session, database, and what you need, in this case the actor
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
-        Actor actor = session.getCurrentActor();
-
 
         // Validate what you are trying to do, before querying the database
         if (actor == null){
-            callback.accept(new Result(Boolean.FALSE, "DELETE_ACTOR", "No Actor in Session"));
+            callback.accept(new Result(Boolean.FALSE, "DELETE_ACTOR", "No Actor found"));
             return;
         }
 
@@ -177,6 +175,8 @@ public class ActorManager {
                 db.deleteActor(actor, delResult -> {
                     if (delResult) {
                         callback.accept(new Result(Boolean.TRUE, "DELETE_ACTOR",  "Successfully Deleted user"));
+                        // remove from the session
+                        session.setCurrentActor(null);
                     } else {
                         callback.accept(new Result(Boolean.FALSE, "DELETE_ACTOR", "Failed to delete user"));
                     }
@@ -186,35 +186,4 @@ public class ActorManager {
             }
         });
     }
-
-
-
-
-
-
-    /* Temporarily commented out.
-    public void createActor(Context context, String name, String email, String phoneNo) {
-        String androidId = Settings.Secure.getString(
-                context.getContentResolver(),
-                Settings.Secure.ANDROID_ID
-        );
-        Session session = sessionManager.getSession();
-        Database db = session.getDatabase();
-        Actor actor = new Actor(androidId, name, email, phoneNo);
-        db.createActor(actor, success -> {
-            if (success) {
-                new Result(Boolean.TRUE, "CREATE_ACTOR",  "Successfully created a user");
-            } else {
-                new Result(Boolean.FALSE, "CREATE_ACTOR",  "Failed To Create User");
-            }
-        });
-    }
-    */
-
-//    public void getAvailableEvents(Consumer<List<Event>> callback) {
-//        Session session = sessionManager.getSession();
-//        IDatabase db = session.getDatabase();
-//        Actor actor = session.getCurrentActor();
-//        db.getAvailableEvents(actor, callback);
-//    }
 }
