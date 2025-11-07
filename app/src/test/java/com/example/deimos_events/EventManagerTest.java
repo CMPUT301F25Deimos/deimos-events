@@ -58,7 +58,7 @@ public class EventManagerTest {
     void testDeleteMissingRegistration(){
         Registration registration = new Registration("9ADMC", "3981", "9851", "Pending");
         EM.deleteRegistration(registration, resultCapturer);
-        assertTrue(resultCapturer.get().isSuccess(), "Delete should fail if the registration isn't in the database");
+        assertFalse(resultCapturer.get().isSuccess(), "Delete should fail if the registration isn't in the database");
     }
 
     @Test

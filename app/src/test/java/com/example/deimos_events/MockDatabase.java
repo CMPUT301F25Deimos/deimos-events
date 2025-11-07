@@ -40,15 +40,29 @@ public class MockDatabase implements IDatabase {
     }
 
     public void insertEvent(Event event, Consumer<Boolean> callback) {
+
+        if (event == null){
+            callback.accept(Boolean.FALSE);
+            return;
+        }
+
+        if (mockEvents.containsKey(event.getId())){
+            callback.accept(Boolean.FALSE);
+            return;
+        }
         mockEvents.put(event.getId(), event);
         callback.accept(Boolean.TRUE);
     }
 
+    public void eventExists(Event event, Consumer<Boolean> callback) {
+        callback.accept((mockEvents.containsKey(event.getId())));
+    }
+
     public void insertRegistration(Registration registration, Consumer<Boolean> callback) {
         try {
-            String registrationID = regKey(registration.getEntrantId(), registration.getEventId());
-            mockRegistrations.put(registrationID, registration);
-            callback.accept(Boolean.TRUE);
+            //String registrationID = regKey(registration.getEntrantId(), registration.getEventId());
+           mockRegistrations.put(registration.getId(), registration);
+           callback.accept(Boolean.TRUE);
         } catch (Exception e) {
             callback.accept(Boolean.FALSE);
         }

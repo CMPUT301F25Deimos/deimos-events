@@ -108,7 +108,7 @@ public class EventManager {
         }
         // Validate the query
         // should be eventExists
-        db.insertEvent(event, exists ->{
+        db.eventExists(event, exists ->{
             if (exists == null){
                 callback.accept(new Result(Boolean.FALSE, "INSERT_EVENT", "Database Failed to Read"));
             }else if (exists){

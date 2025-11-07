@@ -19,6 +19,7 @@ public interface IDatabase {
 
     public void deleteEntrantCascade(String deviceIdentifier, Consumer<Boolean> callback);
 
+    public void eventExists(Event event, Consumer<Boolean> callback);
     //void fetchEventById(String eventId, Consumer<Event> callback);
 
     void insertEvent(Event event, Consumer<Boolean> callback);
