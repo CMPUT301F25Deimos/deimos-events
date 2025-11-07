@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.managers.SessionManager;
@@ -34,7 +35,9 @@ public class NotificationsFragment extends Fragment {
         View root = binding.getRoot();
         
         ListView listView = binding.notificationsList;
-        
+
+        EventsApp app = (EventsApp) requireActivity().getApplicationContext();
+        SM = app.getSessionManager();
         // gets data
         Session session = SM.getSession();
         IDatabase db = session.getDatabase();
