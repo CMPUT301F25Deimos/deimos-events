@@ -9,7 +9,10 @@ public interface IDatabase {
     public void actorExists(Actor actor, Consumer<Boolean> callback);
     public void getAvailableEvents(Actor actor,Consumer<List<Event>> callback);
 
+    public void getActorByID(String id, Consumer<Actor> callback);
     public void actorExistsByEmail(String email, Consumer<Boolean> callback);
 
-    public void upsertActorWithRole(Actor actor, String role, java.util.function.Consumer<Boolean> callback);
+    public void upsertActor(Actor actor, Consumer<Boolean> callback);
+
+    public void deleteEntrantCascade(String email, Consumer<Boolean> callback);
 }
