@@ -1,5 +1,7 @@
 package com.example.deimos_events;
 
+import com.google.firebase.firestore.DocumentReference;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,30 @@ public class MockDatabase implements IDatabase{
         throw new UnsupportedOperationException("Not Implemented yet");
     }
 
+    @Override
+    public DocumentReference getEvent(String eventId, Consumer<Boolean> callback) {
+        return null;
+    }
+
+    @Override
+    public void createEvent(Event event, Consumer<Boolean> callback) {
+
+    }
+
+    @Override
+    public void updateImage(String eventId, String posterIdArray) {
+
+    }
+
+    @Override
+    public void deleteRegistor(String entrantId, String eventId) {
+
+    }
+
+    @Override
+    public void getActorById(String id, Consumer<Actor> callback) {
+
+    }
 
 
 }

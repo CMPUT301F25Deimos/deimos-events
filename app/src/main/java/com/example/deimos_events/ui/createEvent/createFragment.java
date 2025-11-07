@@ -102,12 +102,39 @@ public class createFragment extends Fragment {
 
         create.setOnClickListener(v->{
             String name = title.getText().toString();
+            if(name.isEmpty()){
+                title.setError("Title cannot be empty");
+                return;
+            }
             String d = day.getText().toString();
+            if(d.isEmpty()){
+                day.setError("Day cannot be empty");
+                return;
+            }
             String m = month.getText().toString();
-            Integer capacity = Integer.parseInt(cap.getText().toString());
+            if(m.isEmpty()){
+                month.setError("Month cannot be empty");
+                return;
+            }
+            Integer capacity;
+            String c = cap.getText().toString();
+            if(c.isEmpty()){
+                capacity = -1;
+            }else {
+                capacity = Integer.parseInt(cap.getText().toString());
+            }
             Boolean loc = location.isChecked();
+
             String y = year.getText().toString();
+            if(y.isEmpty()){
+                year.setError("Year cannot be empty");
+                return;
+            }
             String decs = Description.getText().toString();
+            if(decs.isEmpty()){
+                Description.setError("Description cannot be empty");
+                return;
+            }
             SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyyy", Locale.getDefault());
             String dateString = d +" "+ m+" "+ y;
             Date date;
@@ -121,7 +148,6 @@ public class createFragment extends Fragment {
             String uniqueId = id.toString();
             BitMatrix qr;
             try {
-                //will come back to add the fragment after it has been created
                qr = new MultiFormatWriter().encode(uniqueId,BarcodeFormat.QR_CODE, 400,400);
             } catch (WriterException e) {
                 throw new RuntimeException(e);
@@ -130,15 +156,11 @@ public class createFragment extends Fragment {
             EventManager EM = new EventManager(SM);
 
             EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
-
-
-            EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
             NavController navController = NavHostFragment.findNavController(this);
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events, true).build();
             Bundle arg = new Bundle();
             arg.putString("id", uniqueId);
             navController.navigate(R.id.navigation_edit, arg, navOptions);
-
         });
 
     return view;

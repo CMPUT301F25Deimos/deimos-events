@@ -22,6 +22,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.deimos_events.R;
 import com.example.deimos_events.databinding.FragmentEventsBinding;
 import com.example.deimos_events.ui.notifications.NotificationsFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -37,13 +38,13 @@ public class EventsFragment extends Fragment {
         binding = FragmentEventsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-       /* final Button add  = binding.Add;
+        final FloatingActionButton add  = binding.addEvent;
         add.setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(this);
 
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events,true).build();
             navController.navigate(R.id.navigation_create, null , navOptions);
-        });*/
+        });
 //        final TextView textView = binding.textEvents;
 //        eventsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 

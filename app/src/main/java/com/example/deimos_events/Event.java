@@ -20,7 +20,7 @@ public class Event {
     Boolean recordLocation;
     String qrCodeId;
 
-    public Event(String id, String title, String posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, String qrCodeId) {
+    public Event(String id, String title, String posterId, String description, String registrationDeadline, Integer participantCap, Boolean recordLocation, String qrCodeId) {
         this.id = id;
         this.title = title;
         this.posterId = posterId;
@@ -59,13 +59,6 @@ public class Event {
     }
 
     public void setRegistrationDeadline(String registrationDeadline) {
-    }
-
-    public Date getRegistrationDeadline() {
-        return registrationDeadline;
-    }
-
-    public void setRegistrationDeadline(Date registrationDeadline) {
         this.registrationDeadline = registrationDeadline;
     }
 
@@ -73,7 +66,7 @@ public class Event {
         return participantCap;
     }
 
-    public void setParticipantCap(Number participantCap) {
+    public void setParticipantCap(Integer participantCap) {
         this.participantCap = participantCap;
     }
 

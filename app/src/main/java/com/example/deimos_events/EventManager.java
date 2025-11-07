@@ -9,15 +9,12 @@ package com.example.deimos_events;
  *<p>
  * data retrieved from the database is stored in the {@link Session} for use by other classes.
  */
-import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.zxing.common.BitMatrix;
 
 import java.io.ByteArrayOutputStream;
@@ -61,9 +58,9 @@ public class EventManager {
         byte[] qrbytes = baos.toByteArray();
         String qrArray = Base64.encodeToString(imageBytes, Base64.DEFAULT);
 
-        Event event = new Event(id, title, posterIdArray, description, registrationDeadline, participantCap, recordLocation, qrArray);
+        Event event = new Event(id, title, posterIdArray, description, registrationDeadline.toString(), participantCap.intValue(), recordLocation, qrArray);
         Session session = sessionManager.getSession();
-        Database db = session.getDatabase();
+        IDatabase db = session.getDatabase();
         db.createEvent(event, success -> {
             Result r;
             if (success) {
@@ -85,7 +82,6 @@ public class EventManager {
                 r = new Result(Boolean.FALSE, "creating event", "Failed to create Event");
             }
         });
-
         docref.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 callback.accept(documentSnapshot.toObject(Event.class));
@@ -95,31 +91,58 @@ public class EventManager {
 
 
     }
+
     public void getImage(String eventId, Consumer<Event> callback) {
-        getEventById(eventId, event -> {
-            if (event != null) {
-                callback.accept(event);
-            } else {
-                Log.e("Database", "No event found with ID: " + eventId);
-                callback.accept(null);
-            }
-            sessionManager.setResult(r);
-        });
+        Bitmap image;
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        DocumentReference docref = db.getEvent(eventId, event -> {
+                    Result r;
+                    if (event) {
+                        r = new Result(Boolean.TRUE, "creating event", "Succeeded on creating Event");
+                    } else {
+                        r = new Result(Boolean.FALSE, "creating event", "Failed to create Event");
+                    }
+                });
+                Event event;
+                docref.get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    callback.accept(documentSnapshot.toObject(Event.class));
+                }
+            });
+
     }
 
 
+    public void deleteRegistration(Registration register, Consumer<Boolean> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        db.deleteRegistor(register.getEntrantId(), register.getEventId());
+    }
 
-        public void deleteRegistor(Register register, Consumer<Boolean> callback) {
-            Session session = sessionManager.getSession();
-            Database db = session.getDatabase();
-            db.deleteRegistor(register.getEventId,register.getActorId);
-        }
-    public void updateImage(String eventId, Bitmap imageBit)   {
+    public void updateImage(String eventId, Bitmap imageBit) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         imageBit.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] imageBytes = baos.toByteArray();
         String posterIdArray = Base64.encodeToString(imageBytes, Base64.DEFAULT);
         Session session = sessionManager.getSession();
-        Database db = session.getDatabase();
-        db.updateImage(eventId,posterIdArray);
+        IDatabase db = session.getDatabase();
+        db.updateImage(eventId, posterIdArray);
     }
+
+
+    public List<Registration> getRegistration(String eventId) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        List<Registration> registrations = new ArrayList<>();
+        db.getRegistration(eventId, callback -> {
+            if(callback!=null) {
+                for (Registration document : callback) {
+                    Registration registration = document;
+                    registrations.add(registration);
+                }
+            }
+        });
+        return registrations;
+    }
+}

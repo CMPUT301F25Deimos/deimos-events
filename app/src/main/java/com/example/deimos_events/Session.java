@@ -12,41 +12,47 @@ import android.app.Activity;
  * The {@code Session} does not perform database operations. Any data it holds must be saved,
  * updated, or deleted by the appropriate manager.
  */
-import android.app.Activity;
 
 public class Session {
-    private Database database;
     private IDatabase database;
     private Actor currentActor;
     private Actor selectedActor;
+    private Result result;
 
     private Activity activity;
-    public Session(Database database){
 
+    public Session(IDatabase database) {
+            this.database = database;
+        }
 
-    public Session(IDatabase database){
-        this.database = database;
+        public IDatabase getDatabase() {
+            return database;
+        }
+
+        public Actor getCurrentActor () {
+            return currentActor;
+        }
+
+        public Actor getSelectedActor () {
+            return selectedActor;
+        }
+        public void setCurrentActor (Actor actor){
+            this.currentActor = actor;
+        }
+
+        public Activity getActivity () {
+            return activity;
+        }
+        public void setActivity (Activity activity){
+            this.activity = activity;
+        }
+
+    public void setResult(Result result) {
+        this.result = result;
     }
 
-    public IDatabase getDatabase() {
-        return database;
-    }
-
-    public Actor getCurrentActor() {
-        return currentActor;
-    }
-
-    public Actor getSelectedActor() {
-        return selectedActor;
-    }
-    public void setCurrentActor(Actor actor) {
-        this.currentActor = actor;
-    }
-
-    public Activity getActivity() {
-        return activity;
-    }
-    public void setActivity(Activity activity){
-        this.activity = activity;
+    public Result getResult() {
+        return result;
     }
 }
+

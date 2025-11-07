@@ -18,8 +18,6 @@ import java.util.function.Consumer;
 public class Database implements IDatabase {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-
-
     private Result r;
 
     public FirebaseFirestore getDb() {
@@ -61,6 +59,60 @@ public class Database implements IDatabase {
                     callback.accept(Boolean.FALSE);
                 });
     }
+
+    @Override
+    public void updateImage(String eventId, String posterIdArray) {
+        db.collection("events")
+                .document(eventId)
+                .update("posterIdArray", posterIdArray);
+    }
+
+    @Override
+    public void deleteRegistor(String entrantId, String eventId) {
+         db.collection("registrations")
+                .whereEqualTo("entrantId", entrantId)
+                .whereEqualTo("eventId", eventId)
+                .get().addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        doc.getReference().delete();
+                    }
+                });
+;
+    }
+
+    @Override
+    public void getActorById(String id, Consumer<Actor> callback) {
+        db.collection("actors").
+                document(id).get().
+                addOnSuccessListener(documentSnapshot -> {
+                    if( documentSnapshot!=null){
+                        Actor actor = documentSnapshot.toObject(Actor.class);
+                        callback.accept(actor);
+                    }
+                });
+    }
+
+
+
+    @Override
+    public void getRegistration(String eventId, Consumer<List<Registration>> callback) {
+        db.collection("registrations")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Registration> registrations = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Registration registration = doc.toObject(Registration.class);
+                        registrations.add(registration);
+                    }
+                    callback.accept(registrations);
+                })
+                .addOnFailureListener(e -> {
+                    System.err.println("Error getting registrations: " + e.getMessage());
+                    callback.accept(Collections.emptyList());
+                });
+    }
+
 
 
     public void actorExists(Actor actor, Consumer<Boolean> callback){
@@ -107,6 +159,11 @@ public class Database implements IDatabase {
                 .set(data) // write a flat map so Firestore always has "role"
                 .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
                 .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+    }
+
+    @Override
+    public DocumentReference getEvent(String eventId, Consumer<Boolean> callback) {
+        return null;
     }
 
     public void deleteEntrantCascade(String entrantId, Consumer<Boolean> callback) {

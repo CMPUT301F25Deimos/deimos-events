@@ -90,7 +90,19 @@ public class ActorManager {
             }
         });
     }
+    public void getActorById(String id, Consumer<Actor> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        db.getActorById(id, actor -> {
+            if (actor == null) {
+                callback.accept(null);
+            }
+            else {
+                callback.accept(actor);
+            }
 
+        });
+    }
 
 
     public void actorExistsByEmail(Consumer<Result> callback){
