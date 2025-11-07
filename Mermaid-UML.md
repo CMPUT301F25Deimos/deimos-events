@@ -85,16 +85,16 @@ class SessionManager {
     - boolean fullInitialization
     + SessionManager()
     + SessionManager(fullInitialization: boolean)
-    + getActorManager(): ActorManager
-    + getEventManager(): EventManager
-    + getInvitationManager(): InvitationManager
-    + getNotificationManager(): NotificationManager
-    + getUserInterfaceManager(): UserInterfaceManager
-    + getNavigationManager(): NavigationManager
-    + getSession(): Session
-    + setSession(session: Session)
-    + setCurrentActor(actor: Actor)
-    + isFullInitialization(): boolean
+    + getActorManager() ActorManager
+    + getEventManager() EventManager
+    + getInvitationManager() InvitationManager
+    + getNotificationManager() NotificationManager
+    + getUserInterfaceManager() UserInterfaceManager
+    + getNavigationManager() NavigationManager
+    + getSession() Session
+    + setSession(session Session)
+    + setCurrentActor(actor Actor)
+    + isFullInitialization() boolean
 }
 class ActorManager {
     <<manager>>
@@ -141,10 +141,10 @@ class UserInterfaceManager {
     <<manager>>
     - SessionManager sessionManager
     + UserInterfaceManager(sessionManager: SessionManager)
-    + getSessionManager(): SessionManager
-    + getSession(): Session
-    + getCurrentActor(): Actor
-    + getCurrentEvent(): Event
+    + getSessionManager() SessionManager
+    + getSession() Session
+    + getCurrentActor() Actor
+    + getCurrentEvent() Event
 }
 class IDatabase {
     <<interface>>
