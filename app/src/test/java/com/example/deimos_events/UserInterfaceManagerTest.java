@@ -1,6 +1,7 @@
 package com.example.deimos_events;
 
-import com.google.firebase.firestore.auth.User;
+import com.example.deimos_events.managers.SessionManager;
+import com.example.deimos_events.managers.UserInterfaceManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,10 +9,6 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.Date;
 public class UserInterfaceManagerTest {
     private MockDatabase mdb;
     private Session testSession;

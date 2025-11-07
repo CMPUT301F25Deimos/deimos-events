@@ -13,13 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.deimos_events.EventManager;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Registration;
-import com.example.deimos_events.SessionManager;
-
-import java.util.List;
+import com.example.deimos_events.managers.SessionManager;
 
 public class EditFragment extends Fragment {
 

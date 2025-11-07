@@ -20,14 +20,14 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.deimos_events.Actor;
-import com.example.deimos_events.ActorManager;
+import com.example.deimos_events.managers.ActorManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
-import com.example.deimos_events.NavigationManager;
+import com.example.deimos_events.managers.NavigationManager;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Session;
-import com.example.deimos_events.SessionManager;
-import com.example.deimos_events.UserInterfaceManager;
+import com.example.deimos_events.managers.SessionManager;
+import com.example.deimos_events.managers.UserInterfaceManager;
 import com.example.deimos_events.databinding.FragmentProfileBinding;
 import com.example.deimos_events.ui.auth.SignupActivity;
 
@@ -377,8 +377,8 @@ public class ProfileFragment extends Fragment {
                 try {
                     com.example.deimos_events.EventsApp app =
                             (com.example.deimos_events.EventsApp) requireContext().getApplicationContext();
-                    com.example.deimos_events.SessionManager sm = app.getSessionManager();
-                    com.example.deimos_events.UserInterfaceManager uim = sm.getUserInterfaceManager();
+                    SessionManager sm = app.getSessionManager();
+                    com.example.deimos_events.managers.UserInterfaceManager uim = sm.getUserInterfaceManager();
                     uim.setCurrentActor(null);
                 } catch (Exception ignored) {}
 

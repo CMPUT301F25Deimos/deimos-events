@@ -22,7 +22,6 @@ public class Session {
     private IDatabase database;
     private Actor currentActor;
     private Event currentEvent;
-    private Result result;
 
 
     private Activity activity;
@@ -53,13 +52,6 @@ public class Session {
             this.activity = activity;
         }
 
-        public void setResult(Result result) {
-            this.result = result;
-        }
-
-        public Result getResult() {
-            return result;
-        }
         public Event getCurrentEvent(){return currentEvent;}
 }
 

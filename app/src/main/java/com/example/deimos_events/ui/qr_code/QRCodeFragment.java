@@ -6,23 +6,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
-import com.example.deimos_events.Event;
-import com.example.deimos_events.EventManager;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
-import com.example.deimos_events.NavigationManager;
+import com.example.deimos_events.managers.NavigationManager;
 import com.example.deimos_events.R;
-import com.example.deimos_events.Session;
-import com.example.deimos_events.SessionManager;
-import com.example.deimos_events.UserInterfaceManager;
-import com.example.deimos_events.databinding.FragmentQrCodeBinding;
+import com.example.deimos_events.managers.SessionManager;
+import com.example.deimos_events.managers.UserInterfaceManager;
 import com.example.deimos_events.ui.events.EventInformationActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;

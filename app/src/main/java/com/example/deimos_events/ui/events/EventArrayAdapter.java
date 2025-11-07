@@ -20,7 +20,7 @@ import com.example.deimos_events.Actor;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.Event;
 import com.example.deimos_events.R;
-import com.example.deimos_events.SessionManager;
+import com.example.deimos_events.managers.SessionManager;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.HashSet;

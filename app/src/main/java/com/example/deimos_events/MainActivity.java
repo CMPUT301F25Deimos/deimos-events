@@ -2,8 +2,10 @@ package com.example.deimos_events;
 
 import android.os.Bundle;
 
+import com.example.deimos_events.managers.NavigationManager;
+import com.example.deimos_events.managers.SessionManager;
+import com.example.deimos_events.managers.UserInterfaceManager;
 import com.example.deimos_events.ui.auth.SignupActivity;
-import com.example.deimos_events.ui.events.EventsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.navigation.NavController;
@@ -14,7 +16,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.deimos_events.databinding.ActivityMainBinding;
 
 public class MainActivity extends FoundationActivity {
-    private SessionManager       SM;
+    private SessionManager SM;
     private UserInterfaceManager UIM;
     private NavigationManager NM;
     private ActivityMainBinding binding;

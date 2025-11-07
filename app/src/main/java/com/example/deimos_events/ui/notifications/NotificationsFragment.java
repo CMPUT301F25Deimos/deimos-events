@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.Session;
-import com.example.deimos_events.SessionManager;
+import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.databinding.FragmentNotificationsBinding;
 
 import java.util.ArrayList;

@@ -9,16 +9,15 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.deimos_events.ActorManager;
-import com.example.deimos_events.EventManager;
+import com.example.deimos_events.managers.ActorManager;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Registration;
 import com.example.deimos_events.Session;
-import com.example.deimos_events.SessionManager;
-import com.example.deimos_events.UserInterfaceManager;
+import com.example.deimos_events.managers.SessionManager;
+import com.example.deimos_events.managers.UserInterfaceManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class EventAdapter extends ArrayAdapter<Registration> {

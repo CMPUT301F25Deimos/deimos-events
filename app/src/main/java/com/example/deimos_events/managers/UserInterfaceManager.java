@@ -1,6 +1,9 @@
-package com.example.deimos_events;
+package com.example.deimos_events.managers;
 
 import android.app.Activity;
+
+import com.example.deimos_events.Actor;
+import com.example.deimos_events.Event;
 
 public class UserInterfaceManager {
     private final SessionManager sessionManager;
@@ -18,9 +21,6 @@ public class UserInterfaceManager {
 
     public void clearCurrentActor(){
         setCurrentActor(null);
-    }
-    public Activity getActivity(){
-        return sessionManager.getSession().getActivity();
     }
     public Event getCurrentEvent(){
         return sessionManager.getSession().getCurrentEvent();

@@ -1,12 +1,14 @@
-package com.example.deimos_events;
-import android.graphics.Bitmap;
-import android.util.Base64;
+package com.example.deimos_events.managers;
 
-import com.google.zxing.common.BitMatrix;
+import com.example.deimos_events.Actor;
+import com.example.deimos_events.Database;
+import com.example.deimos_events.Event;
+import com.example.deimos_events.IDatabase;
+import com.example.deimos_events.Registration;
+import com.example.deimos_events.Result;
+import com.example.deimos_events.Session;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -27,39 +29,39 @@ public class EventManager {
     }
 
 
-    /**
-     * Makes a {@link Event} by encoding a poster {@link Bitmap} and a QR {@link BitMatrix}
-     * into a form that can be stored in the Database, specifically Base64 strings
-     * @param id
-     * @param title
-     * @param posterId
-     * @param description
-     * @param registrationDeadline
-     * @param participantCap
-     * @param recordLocation
-     * @param qrCodeId
-     * @return  Brand new {@link Event} Object
-     */
-    public Event createEvent(String id, String title, Bitmap posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, BitMatrix qrCodeId ){
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        posterId.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] imageBytes = baos.toByteArray();
-        String posterIdArray = Base64.encodeToString(imageBytes, Base64.DEFAULT);
-
-        int width = qrCodeId.getWidth();
-        int height = qrCodeId.getHeight();
-        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                bmp.setPixel(x, y, qrCodeId.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
-            }
-        }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-        byte[] qrBytes = out.toByteArray();
-        String qrArray = Base64.encodeToString(qrBytes, Base64.DEFAULT);
-        return new Event(id, title, posterIdArray, description, registrationDeadline.toString(), participantCap.intValue(),recordLocation, qrArray);
-    }
+//    /**
+//     * Makes a {@link Event} by encoding a poster {@link Bitmap} and a QR {@link BitMatrix}
+//     * into a form that can be stored in the Database, specifically Base64 strings
+//     * @param id
+//     * @param title
+//     * @param posterId
+//     * @param description
+//     * @param registrationDeadline
+//     * @param participantCap
+//     * @param recordLocation
+//     * @param qrCodeId
+//     * @return  Brand new {@link Event} Object
+//     */
+//    public Event createEvent(String id, String title, Bitmap posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, BitMatrix qrCodeId ){
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        posterId.compress(Bitmap.CompressFormat.PNG, 100, baos);
+//        byte[] imageBytes = baos.toByteArray();
+//        String posterIdArray = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+//
+//        int width = qrCodeId.getWidth();
+//        int height = qrCodeId.getHeight();
+//        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+//        for (int x = 0; x < width; x++) {
+//            for (int y = 0; y < height; y++) {
+//                bmp.setPixel(x, y, qrCodeId.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
+//            }
+//        }
+//        ByteArrayOutputStream out = new ByteArrayOutputStream();
+//        bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+//        byte[] qrBytes = out.toByteArray();
+//        String qrArray = Base64.encodeToString(qrBytes, Base64.DEFAULT);
+//        return new Event(id, title, posterIdArray, description, registrationDeadline.toString(), participantCap.intValue(),recordLocation, qrArray);
+//    }
 
 
     /**

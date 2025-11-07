@@ -1,4 +1,7 @@
-package com.example.deimos_events;
+package com.example.deimos_events.managers;
+
+import com.example.deimos_events.Invitation;
+import com.example.deimos_events.Session;
 
 /**
  * Handles persistent operations connected to the {@link Invitation} instances

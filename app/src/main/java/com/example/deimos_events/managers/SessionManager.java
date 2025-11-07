@@ -1,5 +1,9 @@
-package com.example.deimos_events;
+package com.example.deimos_events.managers;
 
+
+import com.example.deimos_events.Actor;
+import com.example.deimos_events.Database;
+import com.example.deimos_events.Session;
 
 /**
  * Top-level manager that gives access to the {@link Session} Object
@@ -63,16 +67,6 @@ public class SessionManager {
 
     public Session getSession() {
         return checkObjectInitialized("Session", session);
-    }
-
-
-    public void setResult(Result result){
-        this.session.setResult(result);
-    }
-
-
-    public void setCurrentActor(Actor actor){
-        this.session.setCurrentActor(actor);
     }
 
     public EventManager getEventManager() {

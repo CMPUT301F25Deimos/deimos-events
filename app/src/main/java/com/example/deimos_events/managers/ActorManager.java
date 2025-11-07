@@ -1,6 +1,12 @@
-package com.example.deimos_events;
+package com.example.deimos_events.managers;
 
-import java.util.List;
+import com.example.deimos_events.Actor;
+import com.example.deimos_events.Database;
+import com.example.deimos_events.Entrant;
+import com.example.deimos_events.IDatabase;
+import com.example.deimos_events.Result;
+import com.example.deimos_events.Session;
+
 import java.util.function.Consumer;
 
 /**

@@ -2,13 +2,12 @@ package com.example.deimos_events;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.example.deimos_events.managers.EventManager;
+import com.example.deimos_events.managers.SessionManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.function.Consumer;
 public class EventManagerTest {
     private MockDatabase mdb;
     private Session testSession;

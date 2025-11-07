@@ -4,6 +4,9 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.deimos_events.managers.NavigationManager;
+import com.example.deimos_events.managers.SessionManager;
+
 public abstract class FoundationActivity extends AppCompatActivity {
     protected SessionManager SM;
     protected NavigationManager NM;

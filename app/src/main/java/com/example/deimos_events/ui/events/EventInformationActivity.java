@@ -8,12 +8,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.deimos_events.Event;
-import com.example.deimos_events.EventManager;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
-import com.example.deimos_events.NavigationManager;
+import com.example.deimos_events.managers.NavigationManager;
 import com.example.deimos_events.R;
-import com.example.deimos_events.SessionManager;
-import com.example.deimos_events.UserInterfaceManager;
+import com.example.deimos_events.managers.SessionManager;
+import com.example.deimos_events.managers.UserInterfaceManager;
 
 /**
  * Shows the event information for an event (Entrant Side)

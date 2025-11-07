@@ -9,11 +9,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.deimos_events.Event;
-import com.example.deimos_events.EventManager;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.Result;
 import com.example.deimos_events.R;
-import com.example.deimos_events.SessionManager;
+import com.example.deimos_events.managers.SessionManager;
 
 public class EventDetailActivity extends AppCompatActivity {
 
