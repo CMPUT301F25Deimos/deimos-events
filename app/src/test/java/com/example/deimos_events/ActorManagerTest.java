@@ -27,16 +27,16 @@ public class ActorManagerTest {
     }
 
     @Test
-    void testInsertActorNotInSession(){
-        Actor actor = new Actor("123", "john", "myemail@gmail.com", "911");
-        AM.insertActor(resultCapturer);
-        assertFalse(resultCapturer.get().getCond(), "Insert Should Fail if Session has no Current Actor");
+    void testInsertActorNullActor(){
+        Actor actor = null;
+        AM.insertActor(actor, resultCapturer);
+        assertFalse(resultCapturer.get().getCond(), "Insert Should Fail if Actor is null");
     }
     @Test
     void testInsertActorInDatabase(){
         Actor actor = new Actor("123", "john", "myemail@gmail.com", "911");
         testSession.setCurrentActor(actor);
-        AM.insertActor(resultCapturer);
+        AM.insertActor(actor, resultCapturer);
         assertTrue(resultCapturer.get().getCond(), "Insert should work if Session has the Actor and the Database doesn't");
     }
     @Test
@@ -46,23 +46,23 @@ public class ActorManagerTest {
         Actor actor_1 = new Actor("123", "john", "myemail@gmail.com", "911");
         mdb.insertActor(actor_1, r ->{}); // place actor in database
         testSession.setCurrentActor(actor_1); // set our current actor we care about
-        AM.insertActor(resultCapturer); // this will try to insert actor
+        AM.insertActor(actor_1, resultCapturer); // this will try to insert actor
         assertFalse(resultCapturer.get().getCond(), "Insert Should Fail for Duplicate Insertions");
     }
 
     @Test
-    void testDeleteActorNotInSession(){
-        Actor actor = new Actor("123", "john", "myemail@gmail.com", "911");
-        AM.deleteActor(resultCapturer);
-        assertFalse(resultCapturer.get().getCond(), "Delete Should Fail if Session has no Current Actor");
+    void testDeleteNullActor(){
+        Actor actor = null;
+        AM.deleteActor(actor, resultCapturer);
+        assertFalse(resultCapturer.get().getCond(), "Delete Should Fail if we try to delete a null actor");
     }
     @Test
     void testDeleteActorInDatabase(){
         Actor actor = new Actor("123", "john", "myemail@gmail.com", "911");
         testSession.setCurrentActor(actor);
         mdb.insertActor(actor, r ->{}); // place actor in database
-        AM.deleteActor(resultCapturer);
-        assertTrue(resultCapturer.get().getCond(), "Delete should work if Session has the Actor and the Database does too");
+        AM.deleteActor(actor, resultCapturer);
+        assertTrue(resultCapturer.get().getCond(), "Delete should work if actor not null and exists in Database");
     }
 
     @Test
@@ -71,7 +71,7 @@ public class ActorManagerTest {
         mdb.insertActor(actor_1, r ->{}); // place actor in database
         mdb.deleteActor(actor_1, r->{}); // remove actor from database
         testSession.setCurrentActor(actor_1); // place actor into session
-        AM.deleteActor(resultCapturer); // this will try to delete the actor in the session but not in the database
+        AM.deleteActor(actor_1, resultCapturer); // this will try to delete the actor in the session but not in the database
         assertFalse(resultCapturer.get().getCond(), "Delete should fail when actor is not in database");
     }
 

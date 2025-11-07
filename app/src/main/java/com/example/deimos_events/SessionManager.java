@@ -18,6 +18,8 @@ public class SessionManager {
     private  UserInterfaceManager userInterfaceManager;
     private  NotificationManager notificationManager;
 
+    private NavigationManager navigationManager;
+
     private  InvitationManager invitationManager;
 
     private  Session session;
@@ -35,6 +37,7 @@ public class SessionManager {
             this.actorManager = new ActorManager(this);
             this.eventManager = new EventManager(this);
             this.userInterfaceManager = new UserInterfaceManager(this);
+            this.navigationManager = new NavigationManager(this);
             this.invitationManager = new InvitationManager(this);
             this.notificationManager = new NotificationManager(this);
             this.session = new Session(new Database());
@@ -54,6 +57,9 @@ public class SessionManager {
         return checkObjectInitialized("UserInterfaceManager", userInterfaceManager);
     }
 
+    public NavigationManager getNavigationManager() {
+        return checkObjectInitialized("NavigationManager", navigationManager);
+    }
 
     public Session getSession() {
         return checkObjectInitialized("Session", session);

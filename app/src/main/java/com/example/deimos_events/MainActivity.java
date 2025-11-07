@@ -1,11 +1,10 @@
 package com.example.deimos_events;
 
-import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.deimos_events.ui.auth.SignupActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -14,17 +13,19 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.deimos_events.databinding.ActivityMainBinding;
 
 public class MainActivity extends FoundationActivity {
-
+    private SessionManager       SM;
+    private UserInterfaceManager UIM;
+    private NavigationManager NM;
     private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        SM  = ((EventsApp) getApplicationContext()).getSessionManager();
+        NM  = SM.getNavigationManager();
+
         if (!getSharedPreferences("app", MODE_PRIVATE).getBoolean("signed_up", false)) {
-            startActivity(new Intent(
-                    this,
-                    com.example.deimos_events.ui.auth.SignupActivity.class
-            ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
-            finish();
+            NM.goTo(SignupActivity.class, NavigationManager.navFlags.RESET_TO_NEW_ROOT);
             return;
         }
 
