@@ -19,6 +19,11 @@ public class Event {
     Integer participantCap;
     Boolean recordLocation;
     String qrCodeId;
+    String guidelines;
+    String criteria;
+    String time;
+    String location;
+    String date;
 
     public Event(String id, String title, String posterId, String description, String registrationDeadline, Integer participantCap, Boolean recordLocation, String qrCodeId) {
         this.id = id;
@@ -29,7 +34,10 @@ public class Event {
         this.participantCap = participantCap;
         this.recordLocation = recordLocation;
         this.qrCodeId = qrCodeId;
+        this.criteria = criteria;
+        this.guidelines = guidelines;
     }
+    public Event(){}
     public String getTitle() {
         return title;
     }
@@ -92,6 +100,39 @@ public class Event {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setCriteria(String criteria) {
+        this.criteria = criteria;
+    }
+
+    public void setGuidelines(String guidelines) {
+        this.guidelines = guidelines;
+    }
+
+    public String getGuidelines(){return guidelines;}
+    public String getCriteria(){return criteria;}
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getDate() {
+        return date;
+    }
+    public String getLocation() {
+        return location;
+    }
+    public String getTime() {
+        return time;
     }
 }
 

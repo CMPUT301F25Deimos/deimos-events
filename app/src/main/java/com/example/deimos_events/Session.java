@@ -17,6 +17,7 @@ public class Session {
     private IDatabase database;
     private Actor currentActor;
     private Actor selectedActor;
+    private Event selectedEvent;
     private Result result;
 
     private Event currentEvent;
@@ -52,12 +53,14 @@ public class Session {
             this.activity = activity;
         }
 
-    public void setResult(Result result) {
-        this.result = result;
-    }
+        public void setResult(Result result) {
+            this.result = result;
+        }
 
-    public Result getResult() {
-        return result;
-    }
+        public Result getResult() {
+            return result;
+        }
+        public Event getSelectedEvent(){return selectedEvent;}
+        public void setSelectedEvent(Event event){this.selectedEvent = event;}
 }
 
