@@ -10,6 +10,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -317,7 +318,7 @@ public class Database implements IDatabase {
      */
     public void joinEvent(String eventId, Actor actor) {
         db.collection("registrations")
-                .add(new Registration(null, eventId, actor.getDeviceIdentifier(), "Pending"))
+                .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending"))
                 .addOnSuccessListener(documentReference -> {
                     String documentId = documentReference.getId();
                     // id is the its documentId
@@ -352,7 +353,11 @@ public class Database implements IDatabase {
                 .addOnSuccessListener(snapshot -> {
                     List<Event> eventList = new ArrayList<>();
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        eventList.add(doc.toObject(Event.class));
+                        Event event = doc.toObject(Event.class);
+                        if (event != null) {
+                            event.setId(doc.getId());
+                            eventList.add(event);
+                        }
                     }
                     callback.accept(eventList);
                 })
@@ -406,11 +411,15 @@ public class Database implements IDatabase {
         db.collection("registrations")
                 .whereEqualTo("entrantId", actor.getDeviceIdentifier())
                 .get()
-                .addOnSuccessListener(snapshot -> {List<Registration> registrations = new ArrayList<>();
+                .addOnSuccessListener(snapshot -> {
+                    List<Registration> registrations = new ArrayList<>();
                     List<Task<DocumentSnapshot>> eventTasks = new ArrayList<>();
                     for (DocumentSnapshot registerDoc : snapshot.getDocuments()) {
                         Registration register = registerDoc.toObject(Registration.class);
                         if (register != null) {
+                            register.setStatus(registerDoc.getString("status"));
+                            registrations.add(register);
+                            
                             // to be able to display image + description in notification
                             String eventId = register.getEventId();
                             eventTasks.add(db.collection("events").document(eventId).get()
@@ -418,7 +427,7 @@ public class Database implements IDatabase {
                                         if (eventDoc.exists()) {
                                             Event event = eventDoc.toObject(Event.class);
                                             if (event != null) {
-                                                register.setDescription(event.getDescription());
+                                                register.setDescription(event.getTitle());
                                                 register.setImage(event.getPosterId());
                                             }
                                         }
@@ -439,6 +448,25 @@ public class Database implements IDatabase {
         db.collection("registrations")
                 .document(documentId)
                 .update("status", answer);
+    }
+    
+    /**
+     * gets the role of the actor (ie. organizer, entrant, admin)
+     * @param actor
+     * @param callback
+     */
+    public void getActorRole(Actor actor, Consumer<String> callback) {
+        db.collection("actors")
+                .whereEqualTo("deviceIdentifier", actor.getDeviceIdentifier())
+                .get()
+                .addOnSuccessListener(roleSnapshot -> {
+                    String role = "";
+                    for (DocumentSnapshot doc : roleSnapshot.getDocuments()) {
+                        role = doc.getString("role");
+                        break; // already found it so no need to continue
+                    }
+                    callback.accept(role);
+                });
     }
 }
 

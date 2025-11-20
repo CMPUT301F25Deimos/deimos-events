@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
  * Registration class. This represents the registration of an entrant into an event. The status
  * can either be Declined, Not Selected, Pending, or Accepted.
  * Pending is the equivalent of being in a waiting list for an event.
+ * Image will be taken from the events image, and description will be the notification message containing the title of the
+ * event, saying whether the user was accepted or not
  */
 public class Registration {
     private String id;

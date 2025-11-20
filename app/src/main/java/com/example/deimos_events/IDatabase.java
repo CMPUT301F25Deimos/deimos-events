@@ -52,4 +52,5 @@ public interface IDatabase {
     
     public void answerEvent(String documentId, String answer);
     
+    public void getActorRole(Actor actor, Consumer<String> callback);
 }
