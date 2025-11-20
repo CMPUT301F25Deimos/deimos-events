@@ -1,5 +1,6 @@
 package com.example.deimos_events.ui.notifications;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.BitmapFactory;
@@ -40,6 +41,7 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Registration>{
         this.db = db;
     }
     
+    @SuppressLint("SetTextI18n")
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -50,7 +52,7 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Registration>{
         
         if (convertView == null) {
             // sees whether user was kept as a waitlist, or chosen by lottery
-            if (notification.getStatus() != "Not Selected") {
+            if (!notification.getStatus().equals("Not Selected")) {
                 view = LayoutInflater.from(getContext()).inflate(R.layout.listview_content_and_splitbutton, parent, false);
             }
             else {
@@ -63,7 +65,6 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Registration>{
         
         if (notification != null) {
             TextView textView = view.findViewById(R.id.event_text);
-            textView.setText(notification.description);
             
             ImageView imageView = view.findViewById(R.id.event_image);
             String base64Image = notification.image.contains(",") ? notification.image.split(",")[1] : notification.image;
@@ -71,17 +72,20 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Registration>{
             imageView.setImageBitmap(BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length));
             
             // person is not accepted, shows option to be removed from waiting list
-            if (notification.getStatus() == "Not Selected") {
+            if (notification.getStatus().equals("Not Selected")) {
+                // sets notification message for if user was not accepted in the event lottery
+                textView.setText("You were not chosen for the event '" + notification.description + "'. If you don't wish to stay in the waitlist in the case someone rejects their offer, please click the cancel button.");
                 MaterialButton button = view.findViewById(R.id.placeholder_button);
                 Drawable icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.cancel_24dp);
                 ColorStateList button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.decline_red);
                 button.setText("Cancel");
                 button.setIcon(icon_button);
                 button.setBackgroundTintList(button_colour);
-                db.answerEvent(notification.getId(), "Accepted");
             }
             // gives person the choices to accept/decline offer
             else {
+                // sets notification message for if user was not accepted in the event lottery
+                textView.setText("Congratulations! You have been chosen for the event '" + notification.description + "'. Please click the accept or decline button to give your response.");
                 MaterialButtonToggleGroup waitingListAnswer = view.findViewById(R.id.split_button_layout);
                 MaterialButton accept_button = view.findViewById(R.id.accept_button);
                 MaterialButton decline_button = view.findViewById(R.id.decline_button);

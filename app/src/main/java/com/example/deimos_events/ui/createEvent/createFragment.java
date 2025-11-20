@@ -1,4 +1,3 @@
-//https://github.com/Chandrabhanaher/Genertae_qr_code/blob/master/README.md
 //package com.example.deimos_events.ui.createEvent;
 //
 //import android.graphics.Bitmap;
@@ -24,12 +23,12 @@
 //import androidx.navigation.NavOptions;
 //import androidx.navigation.fragment.NavHostFragment;
 //
-//import com.example.deimos_events.Event;
-//import com.example.deimos_events.managers.EventManager;
 //import com.example.deimos_events.EventsApp;
 //import com.example.deimos_events.R;
-//import com.example.deimos_events.managers.SessionManager;
 //import com.example.deimos_events.databinding.FragmentCreateEventBinding;
+//import com.example.deimos_events.managers.EventManager;
+//import com.example.deimos_events.managers.SessionManager;
+//import com.example.deimos_events.ui.createEvent.createViewModel;
 //import com.google.zxing.BarcodeFormat;
 //import com.google.zxing.MultiFormatWriter;
 //import com.google.zxing.WriterException;
@@ -159,7 +158,7 @@
 //
 //                    NavController navController = NavHostFragment.findNavController(this);
 //                    NavOptions navOptions = new NavOptions.Builder()
-//                            .setPopUpTo(R.id.navigation_events, true)
+//                            .setPopUpTo(R.id.navigation_organizers_events, true)
 //                            .build();
 //                    Bundle arg = new Bundle();
 //                    arg.putString("id", uniqueId);
@@ -169,7 +168,7 @@
 //                }
 //            });
 //            NavController navController = NavHostFragment.findNavController(this);
-//            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_events, true).build();
+//            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, true).build();
 //            Bundle arg = new Bundle();
 //            arg.putString("id", uniqueId);
 //            navController.navigate(R.id.navigation_edit, arg, navOptions);
