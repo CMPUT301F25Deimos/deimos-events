@@ -1,5 +1,9 @@
 package com.example.deimos_events;
 
+import android.graphics.Bitmap;
+import android.util.Base64;
+import android.util.Log;
+
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -9,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,11 +82,35 @@ public class Database implements IDatabase {
     }
 
     @Override
-    public void updateImage(String eventId, String posterIdArray) {
+    public void updateImage(String eventId, String posterIdArray,Consumer<Boolean> callback) {
         db.collection("events")
-                .document(eventId)
-                .update("posterIdArray", posterIdArray);
+                .whereEqualTo("id", eventId)
+                .get()
+                .addOnSuccessListener(query -> {
+                    if (!query.isEmpty()) {
+                        DocumentSnapshot doc = query.getDocuments().get(0);
+
+                        doc.getReference().update("posterId", posterIdArray)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("EventManager", "Image updated successfully");
+                                    callback.accept(true);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("EventManager", "Update failed: " + e.getMessage());
+                                    callback.accept(false);
+                                });
+
+                    } else {
+                        Log.e("EventManager", "No document found for eventId: " + eventId);
+                        callback.accept(false);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("EventManager", "Query failed: " + e.getMessage());
+                    callback.accept(false);
+                });
     }
+
 
     @Override
     public void deleteRegistor(String id, Consumer<Boolean> callback) {

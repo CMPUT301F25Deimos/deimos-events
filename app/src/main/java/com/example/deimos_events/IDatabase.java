@@ -24,7 +24,7 @@ public interface IDatabase {
 
     void insertEvent(Event event, Consumer<Boolean> callback);
 
-    void updateImage(String eventId, String posterIdArray);
+    void updateImage(String eventId, String posterIdArray,Consumer<Boolean> callback);
 
     void deleteRegistor(String id, Consumer<Boolean> callback);
 
