@@ -30,6 +30,25 @@ public class ActorManager {
         this.sessionManager = null;
     }
 
+    public void actorExistsByid(String id, Consumer<Actor> callback){
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        if (id == null){
+            callback.accept(null);
+            return;
+        }
+        // Validate the query
+        db.fetchActorByID(id, actor ->{
+            if (actor == null) {
+                callback.accept(null);
+            } else if (actor != null) {
+                callback.accept(actor);
+            } else {
+                callback.accept(null);
+            }
+        });
+    }
+
 
     /**
      * Checks whether an {@link Actor} with the given email exists in the Database

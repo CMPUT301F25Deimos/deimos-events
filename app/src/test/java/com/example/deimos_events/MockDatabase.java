@@ -191,7 +191,7 @@ public class MockDatabase implements IDatabase {
     }
 
     @Override
-    public void updateImage(String eventId, String posterIdArray) {
+    public void updateImage(String eventId, String posterIdArray, Consumer<Boolean> callback) {
         throw new UnsupportedOperationException("Not Implemented yet");
     }
 
@@ -224,6 +224,12 @@ public class MockDatabase implements IDatabase {
 
     public void answerEvent(String documentId, String answer){
         throw new UnsupportedOperationException("Not Implemented yet");
+    }
+
+    @Override
+    public void getActorRole(Actor actor, Consumer<String> callback) {
+        throw new UnsupportedOperationException("Not Implemented yet");
+
     }
 
 

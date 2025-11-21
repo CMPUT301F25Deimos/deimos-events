@@ -9,6 +9,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.deimos_events.Actor;
+import com.example.deimos_events.Event;
 import com.example.deimos_events.managers.ActorManager;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
@@ -19,45 +21,37 @@ import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class EventAdapter extends ArrayAdapter<Registration> {
-    public EventAdapter(Context context, Registration register) {
-        super(context, 0, (List<Registration>) register);
+    public EventAdapter(Context context, List<Registration> register) {
+            super(context, 0, (List<Registration>) register);
     }
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null)
+        if (convertView == null) {
             convertView = LayoutInflater.from(getContext())
                     .inflate(R.layout.fragment_view_and_change_image, parent, false);
-
+        }
         Registration register = getItem(position);
-        if (register == null)
-            return convertView;
-        TextView tv = convertView.findViewById(R.id.name);
-        String Name = register.getEntrantId();
-        SessionManager SM = ((EventsApp)getContext().getApplicationContext()).getSessionManager();
-        ActorManager AM = SM.getActorManager();
-        UserInterfaceManager UIM = SM.getUserInterfaceManager();
-        EventManager EM = SM.getEventManager();
-        Session session = SM.getSession();
-        // going to assume you mean the current entrant
-        // in this case call the session object
+        if (register != null) {
+            TextView tv = convertView.findViewById(R.id.name);
+            SessionManager SM = ((EventsApp) getContext().getApplicationContext()).getSessionManager();
+            ActorManager AM = SM.getActorManager();
+            AM.actorExistsByid(register.getEntrantId(), callback -> {
+                tv.setText(callback.getName());
+            });
+            TextView status = convertView.findViewById(R.id.status);
+            status.setText(register.getStatus());
 
-        AM.fetchActorByID(Name,callback->{
-            if (callback.isSuccess()){
-                tv.setText(UIM.getCurrentActor().getName());
-            }
-        });
-        TextView status = convertView.findViewById(R.id.status);
-        status.setText(register.getStatus());
-
-        ImageButton btn = convertView.findViewById(R.id.x);
-        btn.setOnClickListener(v -> {
-        EM.deleteRegistration(register, callback ->{
-            Toast.makeText(getContext(), "Registration Deleted", Toast.LENGTH_SHORT).show();
-        });
-        });
+            EventManager EM = SM.getEventManager();
+            ImageButton btn = convertView.findViewById(R.id.x);
+            btn.setOnClickListener(v -> {
+                EM.deleteRegistration(register, callback -> {
+                    Toast.makeText(getContext(), "Registration Deleted", Toast.LENGTH_SHORT).show();
+                });
+            });
+        }
 
         return convertView;
     }

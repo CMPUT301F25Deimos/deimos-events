@@ -5,6 +5,8 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.MediaDrm;
+import android.os.Bundle;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.deimos_events.Actor;
 import com.example.deimos_events.IDatabase;
@@ -37,10 +42,12 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
     private Set<String> registeredEventIds;
     private final Actor actor;
     private final SessionManager sm;
+
     
     public EventArrayAdapter(Context context, List<Event> events,
                              Set<String> registeredEventIds, SessionManager sm, Actor actor) {
         super(context, 0, events);
+
         this.sm = sm;
         this.registeredEventIds = new HashSet<>(registeredEventIds);
         this.actor = actor;
@@ -91,6 +98,8 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
                         registeredEventIds.add(event.getId());
                         db.joinEvent(event.getId(), actor);
                     }
+                }else{
+
                 }
                 // TODO: else {// clicking edit event button}
                 

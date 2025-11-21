@@ -1,5 +1,9 @@
 package com.example.deimos_events.managers;
 
+import android.graphics.Bitmap;
+import android.util.Base64;
+import android.util.Log;
+
 import com.example.deimos_events.Actor;
 import com.example.deimos_events.Database;
 import com.example.deimos_events.Event;
@@ -7,8 +11,12 @@ import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.Registration;
 import com.example.deimos_events.Result;
 import com.example.deimos_events.Session;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.zxing.common.BitMatrix;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -29,39 +37,39 @@ public class EventManager {
     }
 
 
-//    /**
-//     * Makes a {@link Event} by encoding a poster {@link Bitmap} and a QR {@link BitMatrix}
-//     * into a form that can be stored in the Database, specifically Base64 strings
-//     * @param id
-//     * @param title
-//     * @param posterId
-//     * @param description
-//     * @param registrationDeadline
-//     * @param participantCap
-//     * @param recordLocation
-//     * @param qrCodeId
-//     * @return  Brand new {@link Event} Object
-//     */
-//    public Event createEvent(String id, String title, Bitmap posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, BitMatrix qrCodeId ){
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        posterId.compress(Bitmap.CompressFormat.PNG, 100, baos);
-//        byte[] imageBytes = baos.toByteArray();
-//        String posterIdArray = Base64.encodeToString(imageBytes, Base64.DEFAULT);
-//
-//        int width = qrCodeId.getWidth();
-//        int height = qrCodeId.getHeight();
-//        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-//        for (int x = 0; x < width; x++) {
-//            for (int y = 0; y < height; y++) {
-//                bmp.setPixel(x, y, qrCodeId.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
-//            }
-//        }
-//        ByteArrayOutputStream out = new ByteArrayOutputStream();
-//        bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-//        byte[] qrBytes = out.toByteArray();
-//        String qrArray = Base64.encodeToString(qrBytes, Base64.DEFAULT);
-//        return new Event(id, title, posterIdArray, description, registrationDeadline.toString(), participantCap.intValue(),recordLocation, qrArray);
-//    }
+    /**
+     * Makes a {@link Event} by encoding a poster {@link Bitmap} and a QR {@link BitMatrix}
+     * into a form that can be stored in the Database, specifically Base64 strings
+     * @param id
+     * @param title
+     * @param posterId
+     * @param description
+     * @param registrationDeadline
+     * @param participantCap
+     * @param recordLocation
+     * @param qrCodeId
+     * @return  Brand new {@link Event} Object
+     */
+    public Event createEvent(String id, String title, Bitmap posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, BitMatrix qrCodeId ){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        posterId.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] imageBytes = baos.toByteArray();
+        String posterIdArray = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+
+        int width = qrCodeId.getWidth();
+        int height = qrCodeId.getHeight();
+        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                bmp.setPixel(x, y, qrCodeId.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
+            }
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+        byte[] qrBytes = out.toByteArray();
+        String qrArray = Base64.encodeToString(qrBytes, Base64.DEFAULT);
+        return new Event(id, title, posterIdArray, description, registrationDeadline.toString(), participantCap.intValue(),recordLocation, qrArray, sessionManager.getSession().getCurrentActor().toString());
+    }
 
 
     /**
@@ -207,6 +215,8 @@ public class EventManager {
         });
     }
 
+
+
     /**
      * Fetches all {@link Registration} objects that are connected to the eventId
      * this method is asynchronous; the return value is given via the callback
@@ -263,55 +273,28 @@ public class EventManager {
         }
         db.addUserToWaitList(eventId, actor, callback);
     }
-//
-//    // below are not used, will maybe implemented
-//    public void getEventById(String eventId, Consumer<Event> callback) {
-//        Session session = sessionManager.getSession();
-//        IDatabase db = session.getDatabase();
-//        DocumentReference docref = db.getEvent(eventId, success -> {
-//            Result r;
-//            if (success) {
-//                r = new Result(Boolean.TRUE, "creating event", "Succeeded on creating Event");
-//            } else {
-//                r = new Result(Boolean.FALSE, "creating event", "Failed to create Event");
-//            }
-//        });
-//        docref.get().addOnSuccessListener(documentSnapshot -> {
-//            if (documentSnapshot.exists()) {
-//                callback.accept(documentSnapshot.toObject(Event.class));
-//            }
-//
-//        });
-//
-//    }
-//    public void getImage(String eventId, Consumer<Event> callback) {
-//        Bitmap image;
-//        Session session = sessionManager.getSession();
-//        IDatabase db = session.getDatabase();
-//        DocumentReference docref = db.getEvent(eventId, event -> {
-//            Result r;
-//            if (event) {
-//                r = new Result(Boolean.TRUE, "creating event", "Succeeded on creating Event");
-//            } else {
-//                r = new Result(Boolean.FALSE, "creating event", "Failed to create Event");
-//            }
-//        });
-//        Event event;
-//        docref.get().addOnSuccessListener(documentSnapshot -> {
-//            if (documentSnapshot.exists()) {
-//                callback.accept(documentSnapshot.toObject(Event.class));
-//            }
-//        });
-//
-//    }
-//    public void updateImage(String eventId, Bitmap imageBit) {
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        imageBit.compress(Bitmap.CompressFormat.PNG, 100, baos);
-//        byte[] imageBytes = baos.toByteArray();
-//        String posterIdArray = Base64.encodeToString(imageBytes, Base64.DEFAULT);
-//        Session session = sessionManager.getSession();
-//        IDatabase db = session.getDatabase();
-//        db.updateImage(eventId, posterIdArray);
-//    }
+
+    public void updateImage(String eventId, Bitmap imageBit,Consumer<Boolean> callback) {
+        if (eventId == null || imageBit == null) {
+            Log.e("EventManager", "updateImage failed: eventId was null or empty.");
+            callback.accept(false);
+            return;
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        imageBit.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] imageBytes = baos.toByteArray();
+        String posterIdArray = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        db.updateImage(eventId, posterIdArray,call->{
+            if (call) {
+            callback.accept(true);
+            } else {
+                callback.accept(false);
+            }
+        });
+
+    }
 
 }

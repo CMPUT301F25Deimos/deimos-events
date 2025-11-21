@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.deimos_events.Actor;
+import com.example.deimos_events.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
@@ -17,18 +18,13 @@ import com.example.deimos_events.Session;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 import com.example.deimos_events.databinding.FragmentOrganizersEventsBinding;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.ListenerRegistration;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
-import android.os.Bundle;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import android.view.View;
+import java.util.Set;
 
 public class EventsOrganizersFragment extends Fragment {
     
@@ -54,15 +50,15 @@ public class EventsOrganizersFragment extends Fragment {
         Session session = SM.getSession();
         IDatabase db = session.getDatabase();
         Actor actor = session.getCurrentActor();
-        
-        
+
+
         db.getEvents(events -> {
             db.getEntrantRegisteredEvents(actor, joinedEventIds -> {
                 if (!isAdded()) return;
                 adapter = new EventArrayAdapter(requireContext(), events, joinedEventIds, SM, actor);
                 listView.setAdapter(adapter);
                 registrationListener = db.listenToRegisteredEvents(actor, (updatedJoinedIds) -> {
-                    adapter.updateJoinedEvents(updatedJoinedIds);
+
                 });
             });
         });
@@ -71,14 +67,23 @@ public class EventsOrganizersFragment extends Fragment {
         binding.addEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                NavHostFragment.findNavController(EventsOrganizersFragment.this).navigate(R.id.action_navigation_events_to_navigation_create);
+                NavHostFragment.findNavController(EventsOrganizersFragment.this).navigate(R.id.navigation_create);
                 
             }
         });
         
         return root;
     }
-    
+    public void edit(Event event){
+        NavController navController = NavHostFragment.findNavController(this);
+        NavOptions navOptions = new NavOptions.Builder()
+                .setPopUpTo(R.id.navigation_organizers_events, true)
+                .build();
+        Bundle arg = new Bundle();
+        arg.putString("id", event.getId());
+        navController.navigate(R.id.navigation_edit, arg, navOptions);
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
