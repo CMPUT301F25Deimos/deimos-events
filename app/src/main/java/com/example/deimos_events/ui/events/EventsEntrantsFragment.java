@@ -46,7 +46,7 @@ public class EventsEntrantsFragment extends Fragment {
         db.getEvents(events -> {
             db.getEntrantRegisteredEvents(actor, joinedEventIds -> {
                 if (getActivity() != null) {
-                    adapter = new EventArrayAdapter(requireContext(), events, joinedEventIds, SM, actor);
+                    adapter = new EventArrayAdapter(requireContext(), events, joinedEventIds, SM, actor, null);
                     listView.setAdapter(adapter);
                     registrationListener = db.listenToRegisteredEvents(actor, (updatedJoinedIds) -> {
                         adapter.updateJoinedEvents(updatedJoinedIds);

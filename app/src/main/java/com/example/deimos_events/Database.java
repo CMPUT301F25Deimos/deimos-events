@@ -71,7 +71,7 @@ public class Database implements IDatabase {
     }
     public void insertEvent(Event event, Consumer<Boolean> callback){
         db.collection("events")
-                .document()
+                .document(event.getId())
                 .set(event)
                 .addOnSuccessListener(e ->{
                     callback.accept(Boolean.TRUE);
