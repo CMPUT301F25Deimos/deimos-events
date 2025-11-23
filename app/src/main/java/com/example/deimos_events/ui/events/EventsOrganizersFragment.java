@@ -55,11 +55,8 @@ public class EventsOrganizersFragment extends Fragment {
         db.getEvents(events -> {
             db.getEntrantRegisteredEvents(actor, joinedEventIds -> {
                 if (!isAdded()) return;
-                adapter = new EventArrayAdapter(requireContext(), events, joinedEventIds, SM, actor);
+                adapter = new EventArrayAdapter(requireContext(), events, joinedEventIds, SM, actor , NavHostFragment.findNavController(this));
                 listView.setAdapter(adapter);
-                registrationListener = db.listenToRegisteredEvents(actor, (updatedJoinedIds) -> {
-
-                });
             });
         });
         
@@ -68,7 +65,6 @@ public class EventsOrganizersFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 NavHostFragment.findNavController(EventsOrganizersFragment.this).navigate(R.id.navigation_create);
-                
             }
         });
         
@@ -88,7 +84,7 @@ public class EventsOrganizersFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-        registrationListener.remove();
+        //registrationListener.remove();
     }
 }
 
