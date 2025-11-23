@@ -112,23 +112,6 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
                     NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, true).build();
                     Bundle arg = new Bundle();
                     arg.putString("id", event.getId());
-                    Class<?> objClass = event.getClass();
-                    Field[] fields = objClass.getDeclaredFields();
-                    for (Field field : fields) {
-                        // Make private fields accessible if using getDeclaredFields()
-                        field.setAccessible(true);
-
-                        String name = field.getName();
-                        Object value = null; // Pass the instance if fields are not static
-                        try {
-                            value = field.get(event);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        System.out.println(name + ": " + value);
-                    }
-                    Log.d(TAG,event.getId()+"  ");
                     sm.getSession().setCurrentEvent(event);
                     navControl.navigate(R.id.navigation_edit, arg, navOptions);
 
