@@ -69,17 +69,29 @@ public class Database implements IDatabase {
                     callback.accept(Boolean.FALSE);
                 });
     }
-    public void insertEvent(Event event, Consumer<Boolean> callback){
-        db.collection("events")
-                .document(event.getId())
-                .set(event)
-                .addOnSuccessListener(e ->{
-                    callback.accept(Boolean.TRUE);
-                })
-                .addOnFailureListener(e ->{
-                    callback.accept(Boolean.FALSE);
-                });
-    }
+//    public void insertEvent(Event event, Consumer<Boolean> callback){
+//        db.collection("events")
+//                .document()
+//                .set(event)
+//                .addOnSuccessListener(e ->{
+//                    callback.accept(Boolean.TRUE);
+//                })
+//                .addOnFailureListener(e ->{
+//                    callback.accept(Boolean.FALSE);
+//                });
+//    }
+public void insertEvent(Event event, Consumer<Boolean> callback) {
+    // Create a new Firestore document reference first
+    DocumentReference ref = db.collection("events").document();
+
+    // Store the Firestore document ID inside the event object
+    event.setId(ref.getId());
+
+    ref.set(event)
+            .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+            .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+}
+
 
     @Override
     public void updateImage(String eventId, String posterIdArray,Consumer<Boolean> callback) {
@@ -212,22 +224,38 @@ public class Database implements IDatabase {
                     callback.accept(null);
                 });
     }
+    public void eventExists(Event event, Consumer<Boolean> callback) {
+        String id = event.getId();
 
-    public void eventExists(Event event, Consumer<Boolean> callback){
-        db.collection("actors")
-                .document(event.getId())
+        // If id is null or empty, clearly the event does not exist yet
+        if (id == null || id.isEmpty()) {
+            callback.accept(Boolean.FALSE);
+            return;
+        }
+
+        db.collection("events")
+                .document(id)
                 .get()
-                .addOnSuccessListener(doc ->{
-                    if (doc.exists()){
-                        callback.accept(Boolean.TRUE);
-                    }else{
-                        callback.accept(Boolean.FALSE);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    callback.accept(null);
-                });
+                .addOnSuccessListener(doc -> callback.accept(doc.exists()))
+                .addOnFailureListener(e -> callback.accept(null));
     }
+
+
+//    public void eventExists(Event event, Consumer<Boolean> callback){
+//        db.collection("actors")
+//                .document(event.getId())
+//                .get()
+//                .addOnSuccessListener(doc ->{
+//                    if (doc.exists()){
+//                        callback.accept(Boolean.TRUE);
+//                    }else{
+//                        callback.accept(Boolean.FALSE);
+//                    }
+//                })
+//                .addOnFailureListener(e -> {
+//                    callback.accept(null);
+//                });
+//    }
 
     public void actorExistsByEmail(String email, Consumer<Boolean> callback) {
         db.collection("actors")
@@ -497,5 +525,34 @@ public class Database implements IDatabase {
                     callback.accept(role);
                 });
     }
+    @Override
+    public void deleteEventCascade(String eventId, java.util.function.Consumer<Boolean> callback) {
+        // 1) Find all registrations for this event
+        db.collection("registrations")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnSuccessListener(regSnap -> {
+                    // 2) Use a batch to delete registrations + the event itself
+                    WriteBatch batch = db.batch();
+
+                    // Delete all registrations tied to this event
+                    for (DocumentSnapshot doc : regSnap.getDocuments()) {
+                        batch.delete(doc.getReference());
+                    }
+
+                    // Delete the event document itself.
+                    // NOTE: eventId is the Firestore document ID (you set it in getEvents()).
+                    batch.delete(db.collection("events").document(eventId));
+
+                    // 3) Commit batch
+                    batch.commit()
+                            .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                            .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                })
+                .addOnFailureListener(e -> {
+                    callback.accept(Boolean.FALSE);
+                });
+    }
+
 }
 

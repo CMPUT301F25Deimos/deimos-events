@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
 
+
 import com.example.deimos_events.Actor;
 import com.example.deimos_events.Database;
 import com.example.deimos_events.Event;
@@ -290,12 +291,54 @@ public class EventManager {
         IDatabase db = session.getDatabase();
         db.updateImage(eventId, posterIdArray,call->{
             if (call) {
-            callback.accept(true);
+                callback.accept(true);
             } else {
                 callback.accept(false);
             }
         });
 
+    }
+
+    public void getAllEvents(Consumer<List<Event>> callback) {
+        // 🔧 FIX: get db from session (db was not defined before)
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+
+        db.getEvents(events -> {
+            if (events == null) {
+                callback.accept(java.util.List.of());
+            } else {
+                callback.accept(events);
+            }
+        });
+    }
+
+    /**
+     * Admin-only delete: removes an event and all of its registrations.
+     * Satisfies US 03.01.01 (admin removes events).
+     *
+     * @param event    the event to delete.
+     * @param callback a Result indicating success or failure.
+     */
+    public void adminDeleteEvent(Event event, Consumer<Result> callback) {
+        if (event == null || event.getId() == null) {
+            callback.accept(new Result(false, "deleteEvent", "Event or event id is null"));
+            return;
+        }
+
+        String eventId = event.getId(); // set in Database.getEvents()
+
+        // 🔧 FIX: get db from session (db was not defined before)
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+
+        db.deleteEventCascade(eventId, ok -> {
+            if (ok == null || !ok) {
+                callback.accept(new Result(false, "deleteEvent", "Database error while deleting event"));
+            } else {
+                callback.accept(new Result(true, "deleteEvent", "Event deleted successfully"));
+            }
+        });
     }
 
 }
