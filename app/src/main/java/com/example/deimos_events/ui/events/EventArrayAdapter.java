@@ -1,13 +1,17 @@
 package com.example.deimos_events.ui.events;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaDrm;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +22,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
@@ -29,6 +34,7 @@ import com.example.deimos_events.R;
 import com.example.deimos_events.managers.SessionManager;
 import com.google.android.material.button.MaterialButton;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,15 +48,17 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
     private Set<String> registeredEventIds;
     private final Actor actor;
     private final SessionManager sm;
+    private final NavController navControl;
 
     
     public EventArrayAdapter(Context context, List<Event> events,
-                             Set<String> registeredEventIds, SessionManager sm, Actor actor) {
+                             Set<String> registeredEventIds, SessionManager sm, Actor actor, NavController navController ) {
         super(context, 0, events);
 
         this.sm = sm;
         this.registeredEventIds = new HashSet<>(registeredEventIds);
         this.actor = actor;
+        this.navControl = navController;
     }
     
     @NonNull
@@ -91,6 +99,7 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
             button.setOnClickListener(v -> {
                 // sees if the current user owns the event or not
                 if (!actor.getDeviceIdentifier().equals(event.getOwnerId())) {
+                    Log.d(TAG, actor.getDeviceIdentifier() +" ownerID"  + event.getOwnerId());
                     if (registeredEventIds.contains(event.getId())) {
                         registeredEventIds.remove(event.getId());
                         db.leaveEvent(event.getId(), actor);
@@ -99,6 +108,12 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
                         db.joinEvent(event.getId(), actor);
                     }
                 }else{
+                    Log.d(TAG, "test");
+                    NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, true).build();
+                    Bundle arg = new Bundle();
+                    arg.putString("id", event.getId());
+                    sm.getSession().setCurrentEvent(event);
+                    navControl.navigate(R.id.navigation_edit, arg, navOptions);
 
                 }
                 // TODO: else {// clicking edit event button}

@@ -69,7 +69,8 @@ public class EventManager {
         bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
         byte[] qrBytes = out.toByteArray();
         String qrArray = Base64.encodeToString(qrBytes, Base64.DEFAULT);
-        return new Event(id, title, posterIdArray, description, registrationDeadline.toString(), participantCap.intValue(),recordLocation, qrArray, sessionManager.getSession().getCurrentActor().toString());
+        Actor actor = sessionManager.getSession().getCurrentActor();
+        return new Event(id, title, posterIdArray, description, registrationDeadline.toString(), participantCap.intValue(),recordLocation, qrArray, actor.getDeviceIdentifier().toString());
     }
 
 
