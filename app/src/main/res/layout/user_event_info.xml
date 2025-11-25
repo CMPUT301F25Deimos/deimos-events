@@ -5,23 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
-
-
-    <TextView
-        android:id="@+id/Header"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="#2B2B2B"
-        android:backgroundTint="#4A4458"
-        android:gravity="center"
-        android:padding="30dp"
-        android:text="Event Information"
-        android:textColor="#FFFFFF"
-        android:textSize="40sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:background="#FFFFFF"
+    tools:context=".ui.events.EventInformationActivity"
+    android:layout_marginTop="25dp">
 
     <TextView
         android:id="@+id/EventTitle"
@@ -33,9 +19,7 @@
         android:textAlignment="center"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Header" />
-
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/imgEvent"
@@ -223,23 +207,4 @@
             android:text="Join"
             android:textColor="#FFFFFF" />
     </LinearLayout>
-
-    <!-- Bottom Navigation -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:menu="@menu/bottom_nav_organizers_menu"
-        app:itemIconTint="@color/text_colour"
-        app:itemTextColor="@color/text_colour"
-        app:itemBackground="@drawable/selected_navigation_bar"
-        app:labelVisibilityMode="labeled" />
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

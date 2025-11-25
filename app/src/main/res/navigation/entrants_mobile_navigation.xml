@@ -9,6 +9,9 @@
         android:name="com.example.deimos_events.ui.events.EventsEntrantsFragment"
         android:label="@string/title_events"
         tools:layout="@layout/fragment_entrants_events" >
+        <action
+            android:id="@+id/action_navigation_entrants_events_to_navigation_event_info"
+            app:destination="@id/navigation_event_info" />
     </fragment>
 
     <fragment
