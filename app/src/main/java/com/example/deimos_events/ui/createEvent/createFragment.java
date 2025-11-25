@@ -2,6 +2,7 @@ package com.example.deimos_events.ui.createEvent;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -133,6 +134,12 @@ public class createFragment extends Fragment {
                 Description.setError("Description cannot be empty");
                 return;
             }
+            Drawable drawable = image.getDrawable();
+            if (!(drawable instanceof BitmapDrawable)) {
+                Toast.makeText(getContext(), "Please upload a valid image", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyyy", Locale.getDefault());
             String dateString = d +" "+ m+" "+ y;
             Date date;
@@ -141,7 +148,8 @@ public class createFragment extends Fragment {
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
-            Bitmap imageBit = ((BitmapDrawable)image.getDrawable()).getBitmap();
+
+            Bitmap imageBit = ((BitmapDrawable) drawable).getBitmap();
             UUID id = UUID.randomUUID();
             String uniqueId = id.toString();
             BitMatrix qr;
