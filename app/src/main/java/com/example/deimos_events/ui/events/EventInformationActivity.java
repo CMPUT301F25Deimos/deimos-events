@@ -1,13 +1,15 @@
 package com.example.deimos_events.ui.events;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.Navigation;
 
 import com.example.deimos_events.Event;
 import com.example.deimos_events.managers.EventManager;
@@ -22,7 +24,7 @@ import com.example.deimos_events.managers.UserInterfaceManager;
  */
 
 public class EventInformationActivity  extends AppCompatActivity {
-    
+
     private TextView EventTitle;
     private TextView description;
     private TextView Guidelines;
@@ -30,61 +32,82 @@ public class EventInformationActivity  extends AppCompatActivity {
     private TextView Location;
     private TextView eventDate;
     private TextView eventTime;
-    private TextView availablespots;
+
     private TextView waitlisted;
     private Button returnButton;
     private Button signUpButton;
+    private ImageView eventPoster;
     private SessionManager SM;
     private UserInterfaceManager UIM;
     private NavigationManager NM;
     private EventManager EM;
-    
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_event_info);
-        
+
+
         returnButton = findViewById(R.id.btnReturn);
         signUpButton = findViewById(R.id.btnJoin);
-        
+
         EventTitle = findViewById(R.id.EventTitle);
         description = findViewById(R.id.DescriptionBody);
         Guidelines = findViewById(R.id.GuidelinesDescription);
         Criteria = findViewById(R.id.Criteria);
-        availablespots = findViewById(R.id.EventAvailableSpots);
         waitlisted = findViewById(R.id.EventWaitlisted);
         Location = findViewById(R.id.EventLocation);
         eventDate = findViewById(R.id.EventDate);
         eventTime = findViewById(R.id.EventTime);
-        
+        eventPoster = findViewById(R.id.imgEvent);
+
+
+
         SM = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
         NM = SM.getNavigationManager();
         EM = SM.getEventManager();
-        
+
         Event currentEvent = UIM.getCurrentEvent();
         //Setting all the elements of the UI
         EventTitle.setText(currentEvent.getTitle());
         description.setText(currentEvent.getDescription());
-        
+
         Guidelines.setText(currentEvent.getGuidelines());
         Criteria.setText(currentEvent.getCriteria());
-        
-        
-        Location.setText("Location: " + currentEvent.getLocation());
-        eventDate.setText("Date: " + currentEvent.getDate());
-        eventTime.setText("Time: " + currentEvent.getTime());
-        
-        availablespots.setText(String.valueOf(currentEvent.getParticipantCap()));//needs to be changed so that is updated
-        
+
+        String Image  = currentEvent.getPosterId();
+
+        if (currentEvent.getLocation() != null){
+            Location.setText("Location: " + currentEvent.getLocation());}
+        else{
+            Location.setText("Location: ");
+        }
+        if (currentEvent.getDate() != null) {
+            eventDate.setText("Date: " + currentEvent.getDate());
+        }else{
+            eventDate.setText("Date: ");
+        }
+        if (currentEvent.getTime() != null) {
+            eventTime.setText("Time: " + currentEvent.getTime());
+        }else{
+            eventTime.setText("Time: ");
+        }
         //Getting the length of the waiting list from the database
         EM.getWaitingListCount(currentEvent.getId(), count->{
             runOnUiThread(()->waitlisted.setText("Waiting List Count: " + count));
         });
-        
-        
+
+        if (Image != null && !Image.isEmpty()) {
+            byte[] decodedBytes = android.util.Base64.decode(Image, android.util.Base64.DEFAULT);
+            Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+            eventPoster.setImageBitmap(decodedBitmap);
+        }
+
         returnButton.setOnClickListener(v-> finish());
-        
+
         //Sign up entrant if they are not on the waiting list
         //If they are, then error message appears
         signUpButton.setOnClickListener(v->{
@@ -96,8 +119,17 @@ public class EventInformationActivity  extends AppCompatActivity {
                         Toast.makeText(this,"Already on waitlist or failed.", Toast.LENGTH_SHORT).show();
                     }
                 });
-                
+
             });
         });
+
+
+
+
+
+
+
+
+
     }
 }
