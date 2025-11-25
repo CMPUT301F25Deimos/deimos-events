@@ -16,7 +16,6 @@
         android:label="Create Events"
         tools:layout="@layout/fragment_create_event"/>
 
-    <!-- NEED TO CHANGE APP:DESTINATION TO PROPER FRAGMENT !!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
     <fragment
         android:id="@+id/navigation_organizers_events"
         android:name="com.example.deimos_events.ui.events.EventsOrganizersFragment"
@@ -24,7 +23,10 @@
         tools:layout="@layout/fragment_organizers_events" >
         <action
             android:id="@+id/action_navigation_events_to_navigation_create"
-            app:destination="@id/navigation_profile" />
+            app:destination="@id/navigation_create" />
+        <action
+            android:id="@+id/action_navigation_organizers_events_to_navigation_event_info"
+            app:destination="@id/navigation_event_info" />
     </fragment>
 
     <fragment
@@ -45,11 +47,9 @@
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
 
-<!--    Click an event from the listview event to direct to event info page
-        need to change android:name to proper fragment file, but Idk where it is-->
-<!--    <fragment-->
-<!--        android:id="@+id/navigation_event_info"-->
-<!--        android:name="com.example.deimos_events.ui.profile.ProfileFragment"-->
-<!--        android:label="@string/title_profile"-->
-<!--        tools:layout="@layout/user_event_info" />-->
+    <activity
+        android:id="@+id/navigation_event_info"
+        android:name="com.example.deimos_events.ui.events.EventInformationActivity"
+        android:label="Event Information"
+        tools:layout="@layout/user_event_info" />
 </navigation>

@@ -94,7 +94,5 @@ public class MainActivity extends FoundationActivity {
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
             NavigationUI.setupWithNavController(binding.navView, navController);
         });
-
-
     }
 }

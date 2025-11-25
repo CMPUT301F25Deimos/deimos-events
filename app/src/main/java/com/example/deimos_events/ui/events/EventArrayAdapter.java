@@ -2,7 +2,10 @@ package com.example.deimos_events.ui.events;
 
 import static android.content.ContentValues.TAG;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,9 +18,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,11 +30,13 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.deimos_events.Actor;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.Event;
+import com.example.deimos_events.MainActivity;
 import com.example.deimos_events.R;
 import com.example.deimos_events.managers.SessionManager;
 import com.google.android.material.button.MaterialButton;
@@ -114,16 +121,20 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
                     arg.putString("id", event.getId());
                     sm.getSession().setCurrentEvent(event);
                     navControl.navigate(R.id.navigation_edit, arg, navOptions);
-
                 }
-                // TODO: else {// clicking edit event button}
                 
                 changeButtonLook(button, event);
             });
         }
         
         // if clicking a Listview item, you select an event
-        view.setOnClickListener(v -> sm.getSession().setCurrentEvent(event));
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sm.getSession().setCurrentEvent(event);
+                Navigation.findNavController(v).navigate(R.id.action_navigation_organizers_events_to_navigation_event_info);
+            }
+        });
         
         return view;
     }
