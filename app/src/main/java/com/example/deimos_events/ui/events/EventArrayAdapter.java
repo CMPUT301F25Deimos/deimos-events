@@ -116,7 +116,7 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
                     }
                 }else{
                     Log.d(TAG, "test");
-                    NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, true).build();
+                    NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
                     Bundle arg = new Bundle();
                     arg.putString("id", event.getId());
                     sm.getSession().setCurrentEvent(event);

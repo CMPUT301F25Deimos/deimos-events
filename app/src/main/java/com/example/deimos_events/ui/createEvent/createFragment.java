@@ -170,7 +170,7 @@ public class createFragment extends Fragment {
                 }
             });
             NavController navController = NavHostFragment.findNavController(this);
-            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, true).build();
+            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
             Bundle arg = new Bundle();
             arg.putString("id", uniqueId);
             SM.getSession().setCurrentEvent(event);
