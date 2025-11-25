@@ -275,9 +275,11 @@ public class EventsOrganizersFragment extends Fragment {
                 return Long.compare(tb, ta);
             });
         }
-        
+
+        NavController navController = NavHostFragment.findNavController(this);
+
         EventArrayAdapter adapter =
-                new EventArrayAdapter(requireContext(), filtered, joinedEventIdsLive, SM, actor, null);
+                new EventArrayAdapter(requireContext(), filtered, joinedEventIdsLive, SM, actor, navController);
         listView.setAdapter(adapter);
         
         if (emptyView != null) {
