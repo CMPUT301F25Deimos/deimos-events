@@ -1,6 +1,5 @@
 package com.example.deimos_events;
 
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
@@ -30,6 +29,8 @@ public interface IDatabase {
 
 
     public void fetchALLRegistrations(String eventId, Consumer<List<Registration>> callback);
+
+    public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback);
 
     public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback);
 
