@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     tools:context=".ui.events.EventInformationActivity"
-    android:layout_marginTop="25dp">
+    android:layout_marginTop="130dp">
 
     <TextView
         android:id="@+id/EventTitle"
@@ -19,7 +19,8 @@
         android:textAlignment="center"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/imgEvent"
@@ -98,19 +99,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/EventTime" />
     <TextView
-        android:id="@+id/EventAvailableSpots"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="8dp"
-        android:text="Available Spots:"
-        android:textSize="14sp"
-        android:gravity="center"
-        android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/EventLocation" />
-    <TextView
         android:id="@+id/EventWaitlisted"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -122,7 +110,7 @@
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/EventAvailableSpots" />
+        app:layout_constraintTop_toBottomOf="@id/EventLocation" />
     <TextView
         android:id="@+id/ParticipationCriteria"
         android:layout_width="0dp"
@@ -182,7 +170,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/nav_view"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Guidelines">
