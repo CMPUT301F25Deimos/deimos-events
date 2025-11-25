@@ -44,4 +44,12 @@
         android:name="com.example.deimos_events.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
+
+<!--    Click an event from the listview event to direct to event info page
+        need to change android:name to proper fragment file, but Idk where it is-->
+<!--    <fragment-->
+<!--        android:id="@+id/navigation_event_info"-->
+<!--        android:name="com.example.deimos_events.ui.profile.ProfileFragment"-->
+<!--        android:label="@string/title_profile"-->
+<!--        tools:layout="@layout/user_event_info" />-->
 </navigation>
