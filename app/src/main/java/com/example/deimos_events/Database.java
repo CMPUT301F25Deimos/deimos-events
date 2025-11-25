@@ -9,6 +9,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.WriteBatch;
@@ -27,12 +28,12 @@ import java.util.function.Consumer;
 public class Database implements IDatabase {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public void insertActor(Actor actor, Consumer<Boolean> callback){
+    public void insertActor(Actor actor, Consumer<Boolean> callback) {
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
                 //.document(actor.getDeviceIdentifier())
                 .set(actor)
-                .addOnSuccessListener(tempVoid ->{
+                .addOnSuccessListener(tempVoid -> {
                     callback.accept(Boolean.TRUE);
                 })
                 .addOnFailureListener(e -> {
@@ -40,7 +41,7 @@ public class Database implements IDatabase {
                 });
     }
 
-    public void updateActor(Actor oldActor, Actor updatedActor, Consumer<Boolean> callback){
+    public void updateActor(Actor oldActor, Actor updatedActor, Consumer<Boolean> callback) {
 
         db.collection("actors")
                 .document(oldActor.getDeviceIdentifier())
@@ -49,27 +50,28 @@ public class Database implements IDatabase {
                         "email", updatedActor.getEmail(),
                         "phoneNumber", updatedActor.getPhoneNumber(),
                         "role", updatedActor.getRole())
-                .addOnSuccessListener(tempVoid->{
+                .addOnSuccessListener(tempVoid -> {
                     callback.accept(Boolean.TRUE);
                 })
-                .addOnFailureListener(e->{
+                .addOnFailureListener(e -> {
                     callback.accept(Boolean.FALSE);
                 });
 
     }
 
-    public void deleteActor(Actor actor, Consumer<Boolean> callback){
+    public void deleteActor(Actor actor, Consumer<Boolean> callback) {
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
                 .delete()
-                .addOnSuccessListener(tempVoid ->{
+                .addOnSuccessListener(tempVoid -> {
                     callback.accept(Boolean.TRUE);
                 })
                 .addOnFailureListener(e -> {
                     callback.accept(Boolean.FALSE);
                 });
     }
-//    public void insertEvent(Event event, Consumer<Boolean> callback){
+
+    //    public void insertEvent(Event event, Consumer<Boolean> callback){
 //        db.collection("events")
 //                .document()
 //                .set(event)
@@ -80,21 +82,21 @@ public class Database implements IDatabase {
 //                    callback.accept(Boolean.FALSE);
 //                });
 //    }
-public void insertEvent(Event event, Consumer<Boolean> callback) {
-    // Create a new Firestore document reference first
-    DocumentReference ref = db.collection("events").document();
+    public void insertEvent(Event event, Consumer<Boolean> callback) {
+        // Create a new Firestore document reference first
+        DocumentReference ref = db.collection("events").document();
 
-    // Store the Firestore document ID inside the event object
-    event.setId(ref.getId());
+        // Store the Firestore document ID inside the event object
+        event.setId(ref.getId());
 
-    ref.set(event)
-            .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
-            .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
-}
+        ref.set(event)
+                .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+    }
 
 
     @Override
-    public void updateImage(String eventId, String posterIdArray,Consumer<Boolean> callback) {
+    public void updateImage(String eventId, String posterIdArray, Consumer<Boolean> callback) {
         db.collection("events")
                 .whereEqualTo("id", eventId)
                 .get()
@@ -126,28 +128,28 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
 
     @Override
     public void deleteRegistor(String id, Consumer<Boolean> callback) {
-         db.collection("registrations")
+        db.collection("registrations")
                 .whereEqualTo("Id", id)
                 .get()
-                 .addOnSuccessListener(querySnapshot -> {
-                    if (querySnapshot.isEmpty()){
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
                         callback.accept(Boolean.FALSE);
                         return;
                     }
-                    for (DocumentSnapshot doc : querySnapshot.getDocuments()){
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         doc.getReference().delete();
                         // technically there should only be one document
                         // but couldn't figure out how to make it work
                     }
                     callback.accept(Boolean.TRUE);
                 })
-                 .addOnFailureListener(e ->{
-                     callback.accept(null);
-                 });
+                .addOnFailureListener(e -> {
+                    callback.accept(null);
+                });
     }
 
     @Override
-    public void fetchALLRegistrations(String eventId, Consumer<List<Registration>> callback){
+    public void fetchALLRegistrations(String eventId, Consumer<List<Registration>> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
                 .get()
@@ -166,18 +168,62 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
     }
 
     @Override
-    public void registrationExists(String id, Consumer<Boolean> callback){
+    public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback) {
+        db.collection("registrations")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnSuccessListener(registrationSnapshot -> {
+                    if (registrationSnapshot.isEmpty()) {
+                        callback.accept(Collections.emptyList());
+                        return;
+                    }
+                    List<String> entrantIds = new ArrayList<>();
+                    for (DocumentSnapshot doc : registrationSnapshot.getDocuments()) {
+                        String entrantId = doc.getString("entrantId");
+                        if (entrantId != null) {
+                            entrantIds.add(entrantId);
+                        }
+                    }
+                    if (entrantIds.isEmpty()) {
+                        callback.accept(Collections.emptyList());
+                        return;
+                    }
+                    db.collection("entrants")
+                            .whereIn(FieldPath.documentId(), entrantIds)
+                            .get()
+                            .addOnSuccessListener(entrantSnapshot -> {
+                                List<Entrant> entrants = new ArrayList<>();
+                                for (DocumentSnapshot doc : entrantSnapshot.getDocuments()) {
+                                    Entrant entrant = doc.toObject(Entrant.class);
+                                    entrants.add(entrant);
+                                }
+                                callback.accept(entrants);
+                            })
+                            .addOnFailureListener(e -> {
+                                System.err.println("Error fetching entrants: " + e.getMessage());
+                                callback.accept(Collections.emptyList());
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    System.err.println("Error getting registrations: " + e.getMessage());
+                    callback.accept(Collections.emptyList());
+                });
+    }
+
+
+    @Override
+    public void registrationExists(String id, Consumer<Boolean> callback) {
         db.collection("registrations")
                 .document(id)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()){
+                    if (documentSnapshot.exists()) {
                         callback.accept(Boolean.TRUE);
                     } else {
                         callback.accept(Boolean.FALSE);
                     }
                 })
-                .addOnFailureListener(e ->{
+                .addOnFailureListener(e -> {
                     callback.accept(null);
                 });
     }
@@ -208,15 +254,15 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                 .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
     }
 
-    public void actorExists(Actor actor, Consumer<Boolean> callback){
+    public void actorExists(Actor actor, Consumer<Boolean> callback) {
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
                 //.document(actor.getDeviceIdentifier())
                 .get()
-                .addOnSuccessListener(doc ->{
-                    if (doc.exists()){
-                       callback.accept(Boolean.TRUE);
-                    }else{
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        callback.accept(Boolean.TRUE);
+                    } else {
                         callback.accept(Boolean.FALSE);
                     }
                 })
@@ -224,6 +270,7 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                     callback.accept(null);
                 });
     }
+
     public void eventExists(Event event, Consumer<Boolean> callback) {
         String id = event.getId();
 
@@ -306,23 +353,24 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                     callback.accept(null);
                 });
     }
-    public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback){
+
+    public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
                 .whereEqualTo("status", "Pending")
                 .get()
-                .addOnSuccessListener(querySnapshot->{
+                .addOnSuccessListener(querySnapshot -> {
                     boolean alreadyExists = false;
-                    for(DocumentSnapshot doc : querySnapshot.getDocuments()){
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         String entrantId = doc.getString("entrantId");
-                        if (entrantId != null && entrantId.equals(actor.getDeviceIdentifier())){
+                        if (entrantId != null && entrantId.equals(actor.getDeviceIdentifier())) {
                             alreadyExists = true;
                             break;
                         }
                     }
-                    if(alreadyExists){
+                    if (alreadyExists) {
                         callback.accept(false);
-                    }else{
+                    } else {
                         Map<String, Object> registrationData = new HashMap<>();
                         registrationData.put("entrantId", actor.getDeviceIdentifier());
                         registrationData.put("eventId", eventId);
@@ -330,30 +378,32 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
 
                         db.collection("registrations")
                                 .add(registrationData)
-                                .addOnSuccessListener(ref-> callback.accept(true))
+                                .addOnSuccessListener(ref -> callback.accept(true))
                                 .addOnFailureListener(e -> callback.accept(false));
 
 
                     }
                 })
-                .addOnFailureListener(e-> callback.accept(false));
+                .addOnFailureListener(e -> callback.accept(false));
     }
-    public void fetchEventById(String eventId, Consumer<Event> callback){
+
+    public void fetchEventById(String eventId, Consumer<Event> callback) {
         db.collection("events")
                 .document(eventId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()){
+                    if (documentSnapshot.exists()) {
                         Event event = documentSnapshot.toObject(Event.class);
                         callback.accept(event);
-                    }else{
+                    } else {
                         callback.accept(null);
                     }
                 })
-                .addOnFailureListener(e->{
+                .addOnFailureListener(e -> {
                     callback.accept(null);
                 });
     }
+
     public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
@@ -367,9 +417,10 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                     callback.accept(0); // return 0 on error
                 });
     }
-    
+
     /**
      * finds the events which an actor have joined
+     *
      * @param eventId
      * @param actor
      */
@@ -382,9 +433,10 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                     documentReference.update("id", documentId);
                 });
     }
-    
+
     /**
      * user's data from the registered collection is deleted if they leave the event
+     *
      * @param actor
      * @param eventId
      */
@@ -399,9 +451,10 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                     }
                 });
     }
-    
+
     /**
      * gets all events info
+     *
      * @param callback
      */
     public void getEvents(Consumer<List<Event>> callback) {
@@ -420,11 +473,12 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                 })
                 .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
     }
-    
+
     /**
      * finds the events which an actor is registered in
      * (for the buttons in the edit event screen)
-     * @param actor: person currently logged in
+     *
+     * @param actor:   person currently logged in
      * @param callback
      */
     public void getEntrantRegisteredEvents(Actor actor, Consumer<Set<String>> callback) {
@@ -439,9 +493,10 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                     callback.accept(registeredEventIds);
                 });
     }
-    
+
     /**
      * listener so that screen updates immediately after the database does
+     *
      * @param callback
      * @return listener
      */
@@ -458,9 +513,10 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                     callback.accept(registeredEventIds);
                 });
     }
-    
+
     /**
      * used so that event image and description can be taken from the events collection and displayed
+     *
      * @param actor
      * @param callback
      */
@@ -476,7 +532,7 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                         if (register != null) {
                             register.setStatus(registerDoc.getString("status"));
                             registrations.add(register);
-                            
+
                             // to be able to display image + description in notification
                             String eventId = register.getEventId();
                             eventTasks.add(db.collection("events").document(eventId).get()
@@ -495,20 +551,22 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                             .addOnSuccessListener(done -> callback.accept(registrations));
                 });
     }
-    
+
     /**
      * gives answer to notifications
+     *
      * @param documentId: the event's documentId
-     * @param answer: "Accepted" or "Declined"
+     * @param answer:     "Accepted" or "Declined"
      */
     public void answerEvent(String documentId, String answer) {
         db.collection("registrations")
                 .document(documentId)
                 .update("status", answer);
     }
-    
+
     /**
      * gets the role of the actor (ie. organizer, entrant, admin)
+     *
      * @param actor
      * @param callback
      */
@@ -525,6 +583,7 @@ public void insertEvent(Event event, Consumer<Boolean> callback) {
                     callback.accept(role);
                 });
     }
+
     @Override
     public void deleteEventCascade(String eventId, java.util.function.Consumer<Boolean> callback) {
         // 1) Find all registrations for this event

@@ -1,8 +1,10 @@
 package com.example.deimos_events.ui.EditEvent;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -18,6 +20,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -29,6 +32,9 @@ import com.example.deimos_events.R;
 import com.example.deimos_events.Registration;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.ui.createEvent.createViewModel;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 public class EditFragment extends Fragment {
 
@@ -76,6 +82,35 @@ public class EditFragment extends Fragment {
 
         eventId = getArguments().getString("eventId");
 
+        Button exportCsv = view.findViewById(R.id.exportCsvButton);
+
+        exportCsv.setOnClickListener(v -> {
+            EM.exportEntrantsCsv(event.getId(), csvData -> {
+                if (csvData == null) {
+                    Toast.makeText(getContext(), "No entrants to export!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                try {
+                    String filename = "entrants_" + event.getId() + ".csv";
+                    File file = new File(getContext().getExternalFilesDir(null), filename);
+
+                    FileOutputStream fos = new FileOutputStream(file);
+                    fos.write(csvData.getBytes());
+                    fos.close();
+
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND).setType("text/csv");
+
+                    Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".provider", file);
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    startActivity(Intent.createChooser(shareIntent, "Export CSV"));
+                } catch (Exception e) {
+                    Toast.makeText(getContext(), "Error exporting CSV", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
 
 
         byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);

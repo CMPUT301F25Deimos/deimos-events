@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.example.deimos_events.Actor;
 import com.example.deimos_events.Database;
+import com.example.deimos_events.Entrant;
 import com.example.deimos_events.Event;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.Registration;
@@ -217,8 +218,6 @@ public class EventManager {
         });
     }
 
-
-
     /**
      * Fetches all {@link Registration} objects that are connected to the eventId
      * this method is asynchronous; the return value is given via the callback
@@ -229,10 +228,10 @@ public class EventManager {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
 
-        db.fetchALLRegistrations(eventId, regList ->{
-            if (regList != null){
+        db.fetchALLRegistrations(eventId, regList -> {
+            if (regList != null) {
                 List<Registration> registrations = new ArrayList<>();
-                for (Registration regSlice : regList){
+                for (Registration regSlice : regList) {
                     registrations.add(regSlice);
                 }
                 callback.accept(registrations);
@@ -240,8 +239,6 @@ public class EventManager {
                 callback.accept(null);
             }
         });
-
-
     }
 
     /**
@@ -341,4 +338,24 @@ public class EventManager {
         });
     }
 
+    public void exportEntrantsCsv(String eventId, Consumer<String> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+
+        db.fetchAllEntrantsEnrolled(eventId, regList ->{
+            if (regList != null){
+                List<Entrant> entrants = new ArrayList<>(regList);
+                StringBuilder csv = new StringBuilder();
+                csv.append("Name,Email,PhoneNo\n");
+                for (Entrant entrant : entrants) {
+                    csv.append(entrant.getName()).append(",")
+                            .append(entrant.getEmail()).append(",")
+                            .append(entrant.getPhoneNumber()).append("\n");
+                }
+                callback.accept(csv.toString());
+            } else {
+                callback.accept(null);
+            }
+        });
+    }
 }
