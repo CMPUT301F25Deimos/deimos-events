@@ -56,5 +56,6 @@ public interface IDatabase {
     public void getActorRole(Actor actor, Consumer<String> callback);
 
     void deleteEventCascade(String eventId, java.util.function.Consumer<Boolean> callback);
-
+    void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback);
 }
+

@@ -14,10 +14,10 @@ public class UsersFragment extends Fragment {
     private FragmentAdministratorsUsersBinding binding;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        
+
         binding = FragmentAdministratorsUsersBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        
+
         return root;
     }
 }
