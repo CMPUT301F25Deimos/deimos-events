@@ -640,6 +640,26 @@ public class Database implements IDatabase {
                     callback.accept(Boolean.FALSE);
                 });
     }
+    @Override
+    public void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback) {
+        db.collection("actors")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    java.util.List<Actor> actors = new java.util.ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        Actor a = doc.toObject(Actor.class);
+                        if (a != null) {
+                            actors.add(a);
+                        }
+                    }
+                    callback.accept(actors);
+                })
+                .addOnFailureListener(e -> {
+                    // On error, just return empty list so UI doesn't crash
+                    callback.accept(java.util.Collections.emptyList());
+                });
+    }
+
 
 }
 
