@@ -29,6 +29,8 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.deimos_events.Event;
+import com.example.deimos_events.MainActivity;
+import com.example.deimos_events.managers.ActorManager;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
@@ -38,6 +40,8 @@ import com.example.deimos_events.ui.createEvent.createViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,36 +66,68 @@ public class EditFragment extends Fragment {
         Button update = view.findViewById(R.id.update);
         Button save = view.findViewById(R.id.saveButton);
         entrants = view.findViewById(R.id.listView);
-
-
+        view.findViewById(R.id.mapFragment).setVisibility(view.INVISIBLE);
+        Button exportCsv = view.findViewById(R.id.exportCsvButton);
+        Button not = view.findViewById(R.id.notify);
+        Button pick = view.findViewById(R.id.pick);
+        Button back = view.findViewById(R.id.back);
+        SessionManager SM = ((EventsApp) getActivity().getApplication()).getSessionManager();
+        ActorManager AM  = SM.getActorManager();
+        this.EM = SM.getEventManager();
+        Event event = SM.getSession().getCurrentEvent();
         Bundle latLon = new Bundle();
         //if true bring up map
         map.setOnClickListener(v -> {
-            Log.d(TAG, "test3");
-            FrameLayout maps = view.findViewById(R.id.maps);
-            view.findViewById(R.id.mapFragment).setVisibility(view.VISIBLE);
-            update.setVisibility(view.GONE);
-            save.setVisibility(view.GONE);
-            map.setVisibility(view.GONE);
 
-            SupportMapFragment map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
-            map.getMapAsync(googleMap -> {
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(53.5462,113.4937),1));
-                googleMap.setOnMapClickListener(press ->{
-                    double latitude = press.latitude;
-                    double longitude = press.longitude;
-                    String lat = String.valueOf(latitude);
-                    String lon = String.valueOf(longitude);
-                    latLon.putString("latitude", lat);
-                    latLon.putString("longitude", lon);
-                    view.findViewById(R.id.mapFragment).setVisibility(view.GONE);
+            if (event.getRecordLocation()) {
+
+                FrameLayout maps = view.findViewById(R.id.maps);
+                view.findViewById(R.id.mapFragment).setVisibility(view.VISIBLE);
+                update.setVisibility(view.GONE);
+                save.setVisibility(view.GONE);
+                map.setVisibility(view.GONE);
+                exportCsv.setVisibility(view.GONE);
+                not.setVisibility(view.GONE);
+                pick.setVisibility(view.GONE);
+                back.setVisibility(view.VISIBLE);
+                SupportMapFragment map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
+                map.getMapAsync(googleMap -> {
+                    googleMap.clear();
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(53.5462, 113.4937), 1));
+                    EM.fetchAllRegistrations(event.getId(), regList -> {
+                        if (regList != null && !regList.isEmpty()) {
+                            for (Registration r : regList) {
+                                AM.actorExistsByid(r.getEntrantId(), callback -> {
+                                    LatLng latlng = new LatLng(Double.valueOf(r.getLatitude()), Double.valueOf(r.getLongitude()));
+                                    MarkerOptions marker = new MarkerOptions()
+                                            .position(latlng)
+                                            .title(callback.getName())
+                                            .snippet("Marker Description");
+                                    Marker myMarker = googleMap.addMarker(marker);
+                                });
+                            }
+                        }
+
+                    });
                 });
-            });
+            }else{
+                Toast.makeText(getContext(), "Location not enabled", Toast.LENGTH_SHORT);
+            }
+        });
+        back.setOnClickListener(v ->{
+            view.findViewById(R.id.mapFragment).setVisibility(view.GONE);
+            update.setVisibility(view.VISIBLE);
+            save.setVisibility(view.VISIBLE);
+            map.setVisibility(view.VISIBLE);
+            exportCsv.setVisibility(view.VISIBLE);
+            not.setVisibility(view.VISIBLE);
+            pick.setVisibility(view.VISIBLE);
+            back.setVisibility(view.INVISIBLE);
+
         });
         super.onCreateView(inflater,container,savedInstanceState);
-        SessionManager SM = ((EventsApp) getActivity().getApplication()).getSessionManager();
-        this.EM = SM.getEventManager();
-        Event event = SM.getSession().getCurrentEvent();
+
+
         final ActivityResultLauncher<String> pickImageLauncher =
                 registerForActivityResult(new ActivityResultContracts.GetContent(),
                         uri -> {
@@ -118,7 +154,7 @@ public class EditFragment extends Fragment {
 
         eventId = getArguments().getString("eventId");
 
-        Button exportCsv = view.findViewById(R.id.exportCsvButton);
+
 
         exportCsv.setOnClickListener(v -> {
             EM.exportEntrantsCsv(event.getId(), csvData -> {
@@ -155,7 +191,6 @@ public class EditFragment extends Fragment {
 
         EM.fetchAllRegistrations(event.getId(), regList ->{
             if (regList != null && !regList.isEmpty()){
-                Log.d("TAG", "This is a debug message");
                     Log.d("TAG", "This is a debug message2");
                     EventAdapter adapter = new EventAdapter(getContext(), regList);
                     entrants.setAdapter(adapter);

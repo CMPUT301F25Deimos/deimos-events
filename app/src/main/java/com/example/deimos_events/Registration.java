@@ -10,6 +10,8 @@ import android.graphics.Bitmap;
  * event, saying whether the user was accepted or not
  */
 public class Registration {
+    public String longitude;
+    public String latitude ;
     private String id;
     private String entrantId;
     private String eventId;
@@ -20,11 +22,13 @@ public class Registration {
     
     public Registration() {}
 
-    public Registration(String id, String entrantId, String eventId, String status) {
+    public Registration(String id, String entrantId, String eventId, String status, String latitude ,String longitude) {
         this.id = id;
         this.entrantId = entrantId;
         this.eventId = eventId;
         this.status = status;
+        this.latitude  = latitude ;
+        this.longitude = longitude;
     }
 
     public String getId() {
@@ -61,4 +65,8 @@ public class Registration {
     
     public void setDescription(String description) { this.description = description; }
     public void setImage(String image) { this.image = image; }
+
+    public String getLongitude() {return this.longitude;
+    }
+    public String getLatitude () {return this.latitude;}
 }

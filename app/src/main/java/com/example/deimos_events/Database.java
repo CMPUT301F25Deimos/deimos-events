@@ -1,9 +1,17 @@
 package com.example.deimos_events;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -424,14 +432,34 @@ public class Database implements IDatabase {
      * @param eventId
      * @param actor
      */
-    public void joinEvent(String eventId, Actor actor) {
-        db.collection("registrations")
-                .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending"))
-                .addOnSuccessListener(documentReference -> {
-                    String documentId = documentReference.getId();
-                    // id is the its documentId
-                    documentReference.update("id", documentId);
+    public void joinEvent(Context context, String eventId, Actor actor) {
+        fetchEventById(eventId,callback->{
+            if (callback.getRecordLocation()){
+                FusedLocationProviderClient loc;
+                loc = LocationServices.getFusedLocationProviderClient(context);
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                loc.getLastLocation().addOnSuccessListener(location->{
+                    db.collection("registrations")
+                            .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending",Double.toString(location.getLatitude()) ,Double.toString(location.getLongitude())))
+                            .addOnSuccessListener(documentReference -> {
+                                String documentId = documentReference.getId();
+                                // id is the its documentId
+                                documentReference.update("id", documentId);
+                            });
                 });
+            }else{
+                  ActivityCompat.requestPermissions((Activity) context,new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},1001);
+                }
+            }else{
+                db.collection("registrations")
+                        .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending",null ,null))
+                        .addOnSuccessListener(documentReference -> {
+                            String documentId = documentReference.getId();
+                            // id is the its documentId
+                            documentReference.update("id", documentId);
+                        });
+            }
+        });
     }
 
     /**

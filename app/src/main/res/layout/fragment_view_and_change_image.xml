@@ -64,16 +64,18 @@
         app:layout_constraintTop_toBottomOf="@+id/listView" />
 
     <Button
-        android:id="@+id/export"
+        android:id="@+id/back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
-        android:text="export"
+        android:text="back"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/pick"
         app:layout_constraintEnd_toStartOf="@+id/map"
         app:layout_constraintStart_toEndOf="@+id/notify"
         app:layout_constraintTop_toBottomOf="@+id/listView"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        />
 
     <Button
         android:id="@+id/map"
