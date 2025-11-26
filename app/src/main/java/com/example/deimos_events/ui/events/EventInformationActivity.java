@@ -122,14 +122,5 @@ public class EventInformationActivity  extends AppCompatActivity {
 
             });
         });
-
-
-
-
-
-
-
-
-
     }
 }
