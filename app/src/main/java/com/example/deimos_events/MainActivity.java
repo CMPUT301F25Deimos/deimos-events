@@ -32,6 +32,7 @@ public class MainActivity extends FoundationActivity {
             return;
         }
 
+
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -97,4 +98,5 @@ public class MainActivity extends FoundationActivity {
 
 
     }
+
 }

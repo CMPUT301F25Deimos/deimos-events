@@ -64,13 +64,11 @@ public class createFragment extends Fragment {
 
 
 
-
-
     @Nullable
     @Override
-     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
-        View view = inflater.inflate(R.layout.fragment_create_event, container,false);
-
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_create_event, container, false);
+        view.findViewById(R.id.mapFragment).setVisibility(view.GONE);
         upload = view.findViewById(R.id.button);
         title = view.findViewById(R.id.title);
         Description = view.findViewById(R.id.editText);
@@ -94,68 +92,68 @@ public class createFragment extends Fragment {
                             }
                         });
         viewModel = new ViewModelProvider(this).get(createViewModel.class);
-        upload.setOnClickListener(v ->{
+        upload.setOnClickListener(v -> {
             pickImageLauncher.launch("image/*");
         });
 
-        create.setOnClickListener(v->{
+        create.setOnClickListener(v -> {
             String name = title.getText().toString();
-            if(name.isEmpty()){
+            if (name.isEmpty()) {
                 title.setError("Title cannot be empty");
                 return;
             }
             String d = day.getText().toString();
-            if(d.isEmpty()){
+            if (d.isEmpty()) {
                 day.setError("Day cannot be empty");
                 return;
             }
             String m = month.getText().toString();
-            if(m.isEmpty()){
+            if (m.isEmpty()) {
                 month.setError("Month cannot be empty");
                 return;
             }
             Integer capacity;
             String c = cap.getText().toString();
-            if(c.isEmpty()){
+            if (c.isEmpty()) {
                 capacity = -1;
-            }else {
+            } else {
                 capacity = Integer.parseInt(cap.getText().toString());
             }
             Boolean loc = location.isChecked();
 
             String y = year.getText().toString();
-            if(y.isEmpty()){
+            if (y.isEmpty()) {
                 year.setError("Year cannot be empty");
                 return;
             }
             String decs = Description.getText().toString();
-            if(decs.isEmpty()){
+            if (decs.isEmpty()) {
                 Description.setError("Description cannot be empty");
                 return;
             }
             SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyyy", Locale.getDefault());
-            String dateString = d +" "+ m+" "+ y;
+            String dateString = d + " " + m + " " + y;
             Date date;
             try {
-                date =  formatter.parse(dateString);
+                date = formatter.parse(dateString);
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
-            Bitmap imageBit = ((BitmapDrawable)image.getDrawable()).getBitmap();
+            Bitmap imageBit = ((BitmapDrawable) image.getDrawable()).getBitmap();
             UUID id = UUID.randomUUID();
             String uniqueId = id.toString();
             BitMatrix qr;
             try {
-               qr = new MultiFormatWriter().encode(uniqueId,BarcodeFormat.QR_CODE, 400,400);
+                qr = new MultiFormatWriter().encode(uniqueId, BarcodeFormat.QR_CODE, 400, 400);
             } catch (WriterException e) {
                 throw new RuntimeException(e);
             }
-            SessionManager SM = ((EventsApp)requireActivity().getApplicationContext()).getSessionManager();
+            SessionManager SM = ((EventsApp) requireActivity().getApplicationContext()).getSessionManager();
             EventManager EM = new EventManager(SM);
-            Event event = EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
+            Event event = EM.createEvent(uniqueId, name, imageBit, decs, date, capacity, loc, qr);
 
             EM.insertEvent(event, result -> {
-                if (result.isSuccess()){
+                if (result.isSuccess()) {
                     Log.i("TAG", "Event created successfully");
                 } else {
                     Log.i("TAG", "Event unsuccessfully created");
@@ -169,7 +167,7 @@ public class createFragment extends Fragment {
             navController.navigate(R.id.navigation_edit, arg, navOptions);
         });
 
-    return view;
+        return view;
 
     }
 
