@@ -18,6 +18,7 @@ public  class Actor {
         this.phoneNumber = phoneNumber;
         this.role = role;
     }
+    public Actor(){}
 
     public Actor (String deviceIdentifier, String name, String email, String phoneNumber) {
        this(deviceIdentifier, name, email, phoneNumber, null);

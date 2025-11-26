@@ -1,5 +1,7 @@
 package com.example.deimos_events;
 
+import android.content.Context;
+
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
@@ -39,7 +41,7 @@ public interface IDatabase {
 
     public void fetchEventById(String eventId, Consumer<Event> callback);
     
-    public void joinEvent(String eventId, Actor actor);
+    public void joinEvent(Context context, String eventId, Actor actor);
     
     public void leaveEvent(String eventId, Actor actor);
     

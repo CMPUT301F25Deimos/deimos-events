@@ -1,5 +1,7 @@
 package com.example.deimos_events;
 
+import android.content.Context;
+
 import com.google.firebase.firestore.DocumentReference;
 
 import org.junit.jupiter.api.Test;
@@ -197,7 +199,7 @@ public class MockDatabase implements IDatabase {
 
 
     @Override
-    public void joinEvent(String eventId, Actor actor) {
+    public void joinEvent(Context context, String eventId, Actor actor) {
         throw new UnsupportedOperationException("Not Implemented yet");
     }
 

@@ -104,7 +104,7 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
                         db.leaveEvent(event.getId(), actor);
                     } else {
                         registeredEventIds.add(event.getId());
-                        db.joinEvent(event.getId(), actor);
+                        db.joinEvent(getContext(),event.getId(), actor);
                     }
                 } else{
                     Log.d(TAG, "test");
