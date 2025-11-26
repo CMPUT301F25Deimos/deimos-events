@@ -9,6 +9,9 @@
         android:name="com.example.deimos_events.ui.events.EventsEntrantsFragment"
         android:label="@string/title_events"
         tools:layout="@layout/fragment_entrants_events" >
+        <action
+            android:id="@+id/action_navigation_entrants_events_to_navigation_event_info"
+            app:destination="@id/navigation_event_info" />
     </fragment>
 
     <fragment
@@ -28,4 +31,10 @@
         android:name="com.example.deimos_events.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
+
+    <activity
+        android:id="@+id/navigation_event_info"
+        android:name="com.example.deimos_events.ui.events.EventInformationActivity"
+        android:label="Event Information"
+        tools:layout="@layout/user_event_info" />
 </navigation>

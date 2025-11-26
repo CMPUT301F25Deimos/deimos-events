@@ -65,12 +65,25 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Registration>{
         
         if (notification != null) {
             TextView textView = view.findViewById(R.id.event_text);
-            
+
             ImageView imageView = view.findViewById(R.id.event_image);
-            String base64Image = notification.image.contains(",") ? notification.image.split(",")[1] : notification.image;
-            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
-            imageView.setImageBitmap(BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length));
-            
+
+            String base64Image = notification.image;
+
+            if (base64Image == null || base64Image.trim().isEmpty() || base64Image.equals("null")) {
+                imageView.setImageResource(R.drawable.ic_events_black_24dp);
+            } else {
+                try {
+                    if (base64Image.contains(",")) {
+                        base64Image = base64Image.split(",")[1];
+                    }
+                    byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+                    imageView.setImageBitmap(BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length));
+                } catch (Exception e) {
+                    imageView.setImageResource(R.drawable.ic_events_black_24dp);
+                }
+            }
+
             // person is not accepted, shows option to be removed from waiting list
             if (notification.getStatus().equals("Not Selected")) {
                 // sets notification message for if user was not accepted in the event lottery

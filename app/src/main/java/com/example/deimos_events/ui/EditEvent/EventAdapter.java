@@ -31,7 +31,7 @@ public class EventAdapter extends ArrayAdapter<Registration> {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext())
-                    .inflate(R.layout.fragment_view_and_change_image, parent, false);
+                    .inflate(R.layout.entrant_view_and_x, parent, false);
         }
         Registration register = getItem(position);
         if (register != null) {
@@ -41,8 +41,8 @@ public class EventAdapter extends ArrayAdapter<Registration> {
             AM.actorExistsByid(register.getEntrantId(), callback -> {
                 tv.setText(callback.getName());
             });
-            TextView status = convertView.findViewById(R.id.status);
-            status.setText(register.getStatus());
+            TextView stat = convertView.findViewById(R.id.status);
+            stat.setText(register.getStatus());
 
             EventManager EM = SM.getEventManager();
             ImageButton btn = convertView.findViewById(R.id.x);

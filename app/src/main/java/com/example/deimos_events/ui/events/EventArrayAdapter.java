@@ -7,8 +7,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.media.MediaDrm;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -22,19 +20,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
-import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.Navigation;
 
 import com.example.deimos_events.Actor;
-import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.Event;
+import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
+import com.example.deimos_events.Session;
 import com.example.deimos_events.managers.SessionManager;
 import com.google.android.material.button.MaterialButton;
 
-import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -76,6 +73,8 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
         
         IDatabase db = sm.getSession().getDatabase();
         
+        Session session = sm.getSession();
+        
         Event event = getItem(position);
         
         if (event != null) {
@@ -107,23 +106,33 @@ public class EventArrayAdapter extends ArrayAdapter<Event>{
                         registeredEventIds.add(event.getId());
                         db.joinEvent(event.getId(), actor);
                     }
-                }else{
+                } else{
                     Log.d(TAG, "test");
-                    NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, true).build();
+                    NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
                     Bundle arg = new Bundle();
                     arg.putString("id", event.getId());
                     sm.getSession().setCurrentEvent(event);
                     navControl.navigate(R.id.navigation_edit, arg, navOptions);
-
                 }
-                // TODO: else {// clicking edit event button}
                 
                 changeButtonLook(button, event);
             });
         }
         
         // if clicking a Listview item, you select an event
-        view.setOnClickListener(v -> sm.getSession().setCurrentEvent(event));
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sm.getSession().setCurrentEvent(event);
+                db.getActorRole(session.getCurrentActor(), actorRole -> {
+                    if (actorRole.equals("Organizer")) {
+                        Navigation.findNavController(v).navigate(R.id.action_navigation_organizers_events_to_navigation_event_info);
+                    } else if (actorRole.equals("Entrant")) {
+                        Navigation.findNavController(v).navigate(R.id.action_navigation_entrants_events_to_navigation_event_info);
+                    }
+                });
+            }
+        });
         
         return view;
     }

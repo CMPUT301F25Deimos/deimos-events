@@ -1,10 +1,12 @@
 package com.example.deimos_events.ui.EditEvent;
 
+import android.content.Intent;
 import static android.content.ContentValues.TAG;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -21,6 +23,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -36,6 +39,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 public class EditFragment extends Fragment {
 
     private Button update;
@@ -49,12 +55,14 @@ public class EditFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater,container,savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_view_and_change_image, container, false);
-        map.findViewById(R.id.map);
+        map = view.findViewById(R.id.map);
         image = view.findViewById(R.id.imageView);
         Button update = view.findViewById(R.id.update);
         Button save = view.findViewById(R.id.saveButton);
         entrants = view.findViewById(R.id.listView);
+
 
         Bundle latLon = new Bundle();
         //if true bring up map
@@ -97,7 +105,6 @@ public class EditFragment extends Fragment {
                 });
 
         viewModel = new ViewModelProvider(this).get(EditViewModel.class);
-
        save.setOnClickListener(v -> {
            Bitmap img =((BitmapDrawable)image.getDrawable()).getBitmap();
            String id = event.getId();
@@ -107,10 +114,39 @@ public class EditFragment extends Fragment {
 //                }
             });
          });
-
+        entrants = view.findViewById(R.id.listView);
 
         eventId = getArguments().getString("eventId");
 
+        Button exportCsv = view.findViewById(R.id.exportCsvButton);
+
+        exportCsv.setOnClickListener(v -> {
+            EM.exportEntrantsCsv(event.getId(), csvData -> {
+                if (csvData == null) {
+                    Toast.makeText(getContext(), "No entrants to export!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                try {
+                    String filename = "entrants_" + event.getId() + ".csv";
+                    File file = new File(getContext().getExternalFilesDir(null), filename);
+
+                    FileOutputStream fos = new FileOutputStream(file);
+                    fos.write(csvData.getBytes());
+                    fos.close();
+
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND).setType("text/csv");
+
+                    Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".provider", file);
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    startActivity(Intent.createChooser(shareIntent, "Export CSV"));
+                } catch (Exception e) {
+                    Toast.makeText(getContext(), "Error exporting CSV", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
 
 
         byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);

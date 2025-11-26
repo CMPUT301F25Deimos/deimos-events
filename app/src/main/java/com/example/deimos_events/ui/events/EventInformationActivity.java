@@ -1,7 +1,11 @@
 package com.example.deimos_events.ui.events;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,10 +32,11 @@ public class EventInformationActivity  extends AppCompatActivity {
     private TextView Location;
     private TextView eventDate;
     private TextView eventTime;
-    private TextView availablespots;
+
     private TextView waitlisted;
     private Button returnButton;
     private Button signUpButton;
+    private ImageView eventPoster;
     private SessionManager SM;
     private UserInterfaceManager UIM;
     private NavigationManager NM;
@@ -52,11 +57,11 @@ public class EventInformationActivity  extends AppCompatActivity {
         description = findViewById(R.id.DescriptionBody);
         Guidelines = findViewById(R.id.GuidelinesDescription);
         Criteria = findViewById(R.id.Criteria);
-        availablespots = findViewById(R.id.EventAvailableSpots);
         waitlisted = findViewById(R.id.EventWaitlisted);
         Location = findViewById(R.id.EventLocation);
         eventDate = findViewById(R.id.EventDate);
         eventTime = findViewById(R.id.EventTime);
+        eventPoster = findViewById(R.id.imgEvent);
 
 
 
@@ -73,18 +78,33 @@ public class EventInformationActivity  extends AppCompatActivity {
         Guidelines.setText(currentEvent.getGuidelines());
         Criteria.setText(currentEvent.getCriteria());
 
+        String Image  = currentEvent.getPosterId();
 
-        Location.setText("Location: " + currentEvent.getLocation());
-        eventDate.setText("Date: " + currentEvent.getDate());
-        eventTime.setText("Time: " + currentEvent.getTime());
-
-        availablespots.setText(String.valueOf(currentEvent.getParticipantCap()));//needs to be changed so that is updated
-
+        if (currentEvent.getLocation() != null){
+            Location.setText("Location: " + currentEvent.getLocation());}
+        else{
+            Location.setText("Location: ");
+        }
+        if (currentEvent.getDate() != null) {
+            eventDate.setText("Date: " + currentEvent.getDate());
+        }else{
+            eventDate.setText("Date: ");
+        }
+        if (currentEvent.getTime() != null) {
+            eventTime.setText("Time: " + currentEvent.getTime());
+        }else{
+            eventTime.setText("Time: ");
+        }
         //Getting the length of the waiting list from the database
         EM.getWaitingListCount(currentEvent.getId(), count->{
             runOnUiThread(()->waitlisted.setText("Waiting List Count: " + count));
         });
 
+        if (Image != null && !Image.isEmpty()) {
+            byte[] decodedBytes = android.util.Base64.decode(Image, android.util.Base64.DEFAULT);
+            Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+            eventPoster.setImageBitmap(decodedBitmap);
+        }
 
         returnButton.setOnClickListener(v-> finish());
 
@@ -102,14 +122,5 @@ public class EventInformationActivity  extends AppCompatActivity {
 
             });
         });
-
-
-
-
-
-
-
-
-
     }
 }

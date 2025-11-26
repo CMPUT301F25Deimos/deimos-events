@@ -5,23 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
-
-
-    <TextView
-        android:id="@+id/Header"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="#2B2B2B"
-        android:backgroundTint="#4A4458"
-        android:gravity="center"
-        android:padding="30dp"
-        android:text="Event Information"
-        android:textColor="#FFFFFF"
-        android:textSize="40sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:background="#FFFFFF"
+    tools:context=".ui.events.EventInformationActivity"
+    android:layout_marginTop="35dp"
+    android:fitsSystemWindows="true">
 
     <TextView
         android:id="@+id/EventTitle"
@@ -34,8 +21,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Header" />
-
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/imgEvent"
@@ -114,19 +100,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/EventTime" />
     <TextView
-        android:id="@+id/EventAvailableSpots"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="8dp"
-        android:text="Available Spots:"
-        android:textSize="14sp"
-        android:gravity="center"
-        android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/EventLocation" />
-    <TextView
         android:id="@+id/EventWaitlisted"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -138,7 +111,7 @@
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/EventAvailableSpots" />
+        app:layout_constraintTop_toBottomOf="@id/EventLocation" />
     <TextView
         android:id="@+id/ParticipationCriteria"
         android:layout_width="0dp"
@@ -198,7 +171,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/nav_view"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Guidelines">
@@ -223,23 +196,4 @@
             android:text="Join"
             android:textColor="#FFFFFF" />
     </LinearLayout>
-
-    <!-- Bottom Navigation -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:menu="@menu/bottom_nav_organizers_menu"
-        app:itemIconTint="@color/text_colour"
-        app:itemTextColor="@color/text_colour"
-        app:itemBackground="@drawable/selected_navigation_bar"
-        app:labelVisibilityMode="labeled" />
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
