@@ -18,16 +18,7 @@ import com.example.deimos_events.R;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Adapter for the Admin "All Events" list.
- * Uses item_admin_event.xml:
- *  - iv_admin_event_image
- *  - tv_admin_event_title
- *  - tv_admin_event_desc
- *  - tv_admin_event_meta
- *
- * NO delete button here – delete is done only by swipe.
- */
+
 public class AdministratorsEventsAdapter
         extends RecyclerView.Adapter<AdministratorsEventsAdapter.AdminEventViewHolder> {
 
