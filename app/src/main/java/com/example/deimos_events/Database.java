@@ -432,6 +432,7 @@ public class Database implements IDatabase {
      * @param eventId
      * @param actor
      */
+
     public void joinEvent(Context context, String eventId, Actor actor) {
         fetchEventById(eventId,callback->{
             if (callback.getRecordLocation()){
@@ -660,6 +661,23 @@ public class Database implements IDatabase {
                 });
     }
 
+    public void getAllUsers(Consumer<List<Actor>> callback) {
+        db.collection("actors")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Actor> userList = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        Actor actor = doc.toObject(Actor.class);
+                        if (actor != null) {
+                            if (actor.getRole() != "Admin") {
+                                userList.add(actor);
+                            }
+                        }
+                    }
+                    callback.accept(userList);
+                })
+                .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
+    }
 
 }
 
