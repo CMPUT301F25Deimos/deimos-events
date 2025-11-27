@@ -358,4 +358,18 @@ public class EventManager {
             }
         });
     }
+    public void deleteEventImage(String eventId,Consumer<Boolean> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+
+        db.deleteEventImage(eventId, bool -> {
+            if (bool == null || !bool) {
+                callback.accept(false);
+            } else {
+                callback.accept(true);
+            }
+
+        });
+    }
+
 }

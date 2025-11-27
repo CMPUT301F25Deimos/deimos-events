@@ -660,6 +660,28 @@ public class Database implements IDatabase {
                     callback.accept(java.util.Collections.emptyList());
                 });
     }
+    @Override
+    public void deleteEventImage(String eventID, Consumer<Boolean> callback){
+        db.collection("events")
+                .whereEqualTo("id", eventID)
+                .get()
+                .addOnSuccessListener(snapshot->{
+                    if(snapshot.isEmpty()){
+                        callback.accept(false);
+                        return;
+                    }
+                    DocumentSnapshot doc = snapshot.getDocuments().get(0);
+
+                    doc.getReference()
+                            .update("posterId", null)
+                            .addOnSuccessListener(unused -> callback.accept(true))
+                            .addOnFailureListener(e-> callback.accept(false));
+
+
+
+                })
+                .addOnFailureListener(e->callback.accept(false));
+    }
 
 }
 
