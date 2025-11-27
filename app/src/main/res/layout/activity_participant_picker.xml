@@ -113,7 +113,7 @@
         android:background="@android:color/darker_gray"
         android:ems="10"
         android:inputType="number"
-        android:textColor="white"
+        android:textColor="@color/white"
         android:text=""
         app:layout_constraintBottom_toTopOf="@+id/select"
         app:layout_constraintEnd_toEndOf="parent"

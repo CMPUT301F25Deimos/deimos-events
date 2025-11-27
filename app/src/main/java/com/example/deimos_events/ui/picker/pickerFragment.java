@@ -1,5 +1,6 @@
 package com.example.deimos_events.ui.picker;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -21,9 +22,12 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.deimos_events.Entrant;
 import com.example.deimos_events.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
+import com.example.deimos_events.managers.ActorManager;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 
 import java.util.ArrayList;
@@ -38,9 +42,11 @@ public class pickerFragment extends Fragment {
     private Button selectButton, backButton;
 
     private Event event;
-    private List<String> attendees;      
-    private List<String> selectedPeople;
+    private List<String> attendees;
+    private List<Entrant> waitingList;
+    private EventManager EM;
 
+    @SuppressLint("SetTextI18n")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -59,32 +65,39 @@ public class pickerFragment extends Fragment {
         selectButton = view.findViewById(R.id.select);
         backButton = view.findViewById(R.id.back);
 
-        SessionManager sm = ((EventsApp) requireActivity().getApplication()).getSessionManager();
-        event = sm.getSession().getCurrentEvent();
-
-        if (event == null) {
-            Toast.makeText(getContext(), "No event found", Toast.LENGTH_SHORT).show();
-            return view;
-        }
+        SessionManager SM = ((EventsApp) getActivity().getApplication()).getSessionManager();
+        event = SM.getSession().getCurrentEvent();
+        ActorManager AM  = SM.getActorManager();
+        this.EM = SM.getEventManager();
 
         byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);
         Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
 
+        attendees = new ArrayList<>();
+        waitingList = new ArrayList<>();
+
         imageView.setImageBitmap(bmp);
         placeholderDescription.setText(event.getDescription());
 
-        spotsFilled.setText("Spots Filled: " + event.getAttendees().size());
-        waitingListNo.setText("Waiting List: " + event.getWaitingList().size());
+        this.EM.getEventAttendees(event.getId(), eventAttendees -> {
+            attendees.clear();
+            for (Entrant e : eventAttendees) {
+                attendees.add(e.getName());
+            }
 
-        attendees = new ArrayList<>();
-        for (String name : event.getAttendees()) {
-            attendees.add(name);
-        }
+            spotsFilled.setText("Spots Filled: "
+                    + attendees.size() + "/" + event.getParticipantCap());
+        });
 
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, attendees);
+        this.EM.getWaitlistEntrants(event.getId(), waitingListEntrants -> {
+            waitingListNo.setText("Waiting List: " + waitingListEntrants.size());
+            waitingList.addAll(waitingListEntrants);
 
-        listView.setAdapter(adapter);
+            ArrayAdapter<Entrant> adapter =
+                    new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, waitingList);
+
+            listView.setAdapter(adapter);
+        });
 
         selectButton.setOnClickListener(v -> {
 
@@ -101,15 +114,15 @@ public class pickerFragment extends Fragment {
                 return;
             }
 
-            if (count > attendees.size()) {
-                Toast.makeText(getContext(), "Not enough attendees", Toast.LENGTH_SHORT).show();
+            if (count > waitingList.size()) {
+                Toast.makeText(getContext(), "Not enough people in waiting list", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            selectedPeople = attendees.subList(0, count);
+            List<Entrant> selectedEntrants = waitingList.subList(0, count);
 
             Toast.makeText(getContext(),
-                    "Selected: " + selectedPeople.size() + " people",
+                    "Selected: " + selectedEntrants.size() + " people",
                     Toast.LENGTH_SHORT).show();
 
             NavController nav = NavHostFragment.findNavController(this);

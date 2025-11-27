@@ -358,4 +358,18 @@ public class EventManager {
             }
         });
     }
+
+    public void getEventAttendees(String eventId, Consumer<List<Entrant>> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+
+        db.fetchEventAttendees(eventId, callback::accept);
+    }
+
+    public void getWaitlistEntrants(String eventId, Consumer<List<Entrant>> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+
+        db.fetchWaitlistEntrants(eventId, callback::accept);
+    }
 }
