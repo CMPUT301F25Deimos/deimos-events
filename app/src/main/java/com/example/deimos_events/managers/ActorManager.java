@@ -375,4 +375,15 @@ public class ActorManager {
             }
         });
     }
+    public void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback){
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        db.getAllActors(actors -> {
+            if (actors == null) {
+                callback.accept(java.util.List.of());
+            } else {
+                callback.accept(actors);
+            }
+        });
+    }
 }

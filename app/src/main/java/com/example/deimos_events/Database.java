@@ -432,6 +432,7 @@ public class Database implements IDatabase {
      * @param eventId
      * @param actor
      */
+
     public void joinEvent(Context context, String eventId, Actor actor) {
         fetchEventById(eventId,callback->{
             if (callback.getRecordLocation()){
@@ -659,7 +660,6 @@ public class Database implements IDatabase {
                     callback.accept(java.util.Collections.emptyList());
                 });
     }
-
 
 }
 
