@@ -661,23 +661,5 @@ public class Database implements IDatabase {
                 });
     }
 
-    public void getAllUsers(Consumer<List<Actor>> callback) {
-        db.collection("actors")
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    List<Actor> userList = new ArrayList<>();
-                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        Actor actor = doc.toObject(Actor.class);
-                        if (actor != null) {
-                            if (actor.getRole() != "Admin") {
-                                userList.add(actor);
-                            }
-                        }
-                    }
-                    callback.accept(userList);
-                })
-                .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
-    }
-
 }
 
