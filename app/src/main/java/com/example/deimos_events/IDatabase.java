@@ -33,6 +33,8 @@ public interface IDatabase {
     public void fetchALLRegistrations(String eventId, Consumer<List<Registration>> callback);
 
     public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback);
+    public void fetchEventAttendees(String eventId, Consumer<List<Entrant>> callback);
+    public void fetchWaitlistEntrants(String eventId, Consumer<List<Entrant>> callback);
 
     public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback);
 

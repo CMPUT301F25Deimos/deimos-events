@@ -27,6 +27,9 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.deimos_events.Event;
 import com.example.deimos_events.MainActivity;
@@ -184,6 +187,10 @@ public class EditFragment extends Fragment {
             });
         });
 
+        pick.setOnClickListener(v -> {
+            NavController navController = NavHostFragment.findNavController(this);
+            navController.navigate(R.id.navigation_picker);
+        });
 
         byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);
         Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
