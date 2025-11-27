@@ -52,4 +52,10 @@
         android:name="com.example.deimos_events.ui.events.EventInformationActivity"
         android:label="Event Information"
         tools:layout="@layout/user_event_info" />
+
+    <fragment
+        android:id="@+id/navigation_picker"
+        android:name="com.example.deimos_events.ui.picker.pickerFragment"
+        android:label="Picker"
+        tools:layout="@layout/activity_participant_picker" />
 </navigation>
