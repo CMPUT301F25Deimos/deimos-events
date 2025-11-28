@@ -58,6 +58,8 @@ public interface IDatabase {
 
     void deleteEventCascade(String eventId, java.util.function.Consumer<Boolean> callback);
     void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback);
+    void deleteEventImage(String eventID, Consumer<Boolean> callback);
+
 
 
 

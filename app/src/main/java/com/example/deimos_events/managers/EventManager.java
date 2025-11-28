@@ -157,6 +157,8 @@ public class EventManager {
      *
      * @see Session
      * @see Registration
+     * @see Database#deleteRegistor(String, Consumer)
+     * @see Database#registrationExists(String, Consumer)
      */
     public void deleteRegistration(String registrationId, Consumer<Result> callback) {
         Session session = sessionManager.getSession();
@@ -355,4 +357,18 @@ public class EventManager {
 
         db.getRegistrationsByStatus(eventId, status, callback::accept);
     }
+    public void deleteEventImage(String eventId,Consumer<Boolean> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+
+        db.deleteEventImage(eventId, bool -> {
+            if (bool == null || !bool) {
+                callback.accept(false);
+            } else {
+                callback.accept(true);
+            }
+
+        });
+    }
+
 }
