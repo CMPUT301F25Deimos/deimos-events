@@ -150,38 +150,23 @@ public class EventManager {
      *  <p>
      *  This operation talks to the database so it is asynchronous
      *
-     * @param register the registration object we seek to delete
+     * @param registrationId the entrant
      * @param callback a Consumer that takes in a {@link Result} which is the outcome
      *                 of the delete attempt. Callback is made even if the database isn't queried
      *
      *
      * @see Session
      * @see Registration
-     * @see Database#deleteRegistor(String, Consumer)
-     * @see Database#registrationExists(String, Consumer)
      */
-    public void deleteRegistration(Registration register, Consumer<Result> callback) {
+    public void deleteRegistration(String registrationId, Consumer<Result> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
 
-        if (register == null){
-            callback.accept(new Result(Boolean.FALSE, "DELETE_REGISTRATION", "No registration given"));
-            return;
-        }
-
-        db.registrationExists(register.getId(), exists ->{
-            if (exists == null){
-                callback.accept(new Result(Boolean.FALSE, "DELETE_REGISTRATION", "Database failed to read"));
-            } else if (exists){
-                db.deleteRegistor(register.getId(), delresult ->{
-                    if (delresult){
-                        callback.accept(new Result(Boolean.TRUE, "DELETE_REGISTRATION", "Success, registration deleted"));
-                    } else {
-                        callback.accept(new Result(Boolean.FALSE, "DELETE_REGISTRATION", "Failed to delete registration"));
-                    }
-                });
+        db.deleteRegistration(registrationId, delresult ->{
+            if (delresult){
+                callback.accept(new Result(Boolean.TRUE, "DELETE_REGISTRATION", "Success, registration deleted"));
             } else {
-                callback.accept(new Result(Boolean.FALSE, "DELETE_REGISTRATION", "Registration does not exist in database"));
+                callback.accept(new Result(Boolean.FALSE, "DELETE_REGISTRATION", "Failed to delete registration"));
             }
         });
     }
@@ -252,6 +237,11 @@ public class EventManager {
         db.getPendingRegistrationsForEvent(eventID, callback);
     }
 
+    public void getActorById(String actorId, Consumer<Actor> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+        db.getActorById(actorId, callback);
+    }
 
     /**
      *  WIll try to place the current {@link Actor} into the waiting list for given event
@@ -359,17 +349,10 @@ public class EventManager {
         });
     }
 
-    public void getEventAttendees(String eventId, Consumer<List<Entrant>> callback) {
+    public void getRegistrationsByStatus(String eventId, String status, Consumer<List<Registration>> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
 
-        db.fetchEventAttendees(eventId, callback::accept);
-    }
-
-    public void getWaitlistEntrants(String eventId, Consumer<List<Entrant>> callback) {
-        Session session = sessionManager.getSession();
-        IDatabase db = session.getDatabase();
-
-        db.fetchWaitlistEntrants(eventId, callback::accept);
+        db.getRegistrationsByStatus(eventId, status, callback::accept);
     }
 }

@@ -55,7 +55,7 @@
 
     <fragment
         android:id="@+id/navigation_picker"
-        android:name="com.example.deimos_events.ui.picker.pickerFragment"
+        android:name="com.example.deimos_events.ui.picker.PickerFragment"
         android:label="Picker"
         tools:layout="@layout/activity_participant_picker" />
 </navigation>

@@ -135,20 +135,11 @@ public class Database implements IDatabase {
 
 
     @Override
-    public void deleteRegistor(String id, Consumer<Boolean> callback) {
+    public void deleteRegistration(String registrationId, Consumer<Boolean> callback) {
         db.collection("registrations")
-                .whereEqualTo("Id", id)
-                .get()
+                .document(registrationId)
+                .delete()
                 .addOnSuccessListener(querySnapshot -> {
-                    if (querySnapshot.isEmpty()) {
-                        callback.accept(Boolean.FALSE);
-                        return;
-                    }
-                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        doc.getReference().delete();
-                        // technically there should only be one document
-                        // but couldn't figure out how to make it work
-                    }
                     callback.accept(Boolean.TRUE);
                 })
                 .addOnFailureListener(e -> {
@@ -176,50 +167,25 @@ public class Database implements IDatabase {
     }
 
     @Override
-    public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback) {
-        db.collection("registrations")
-                .whereEqualTo("eventId", eventId)
+    public void getActorById(String deviceIdentifier, Consumer<Actor> callback) {
+        db.collection("actors")
+                .document(deviceIdentifier)
                 .get()
-                .addOnSuccessListener(registrationSnapshot -> {
-                    if (registrationSnapshot.isEmpty()) {
-                        callback.accept(Collections.emptyList());
-                        return;
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Actor actor = doc.toObject(Actor.class);
+                        callback.accept(actor);
+                    } else {
+                        callback.accept(null);
                     }
-                    List<String> entrantIds = new ArrayList<>();
-                    for (DocumentSnapshot doc : registrationSnapshot.getDocuments()) {
-                        String entrantId = doc.getString("entrantId");
-                        if (entrantId != null) {
-                            entrantIds.add(entrantId);
-                        }
-                    }
-                    if (entrantIds.isEmpty()) {
-                        callback.accept(Collections.emptyList());
-                        return;
-                    }
-                    db.collection("actors")
-                            .whereIn(FieldPath.documentId(), entrantIds)
-                            .get()
-                            .addOnSuccessListener(entrantSnapshot -> {
-                                List<Entrant> entrants = new ArrayList<>();
-                                for (DocumentSnapshot doc : entrantSnapshot.getDocuments()) {
-                                    Entrant entrant = doc.toObject(Entrant.class);
-                                    entrants.add(entrant);
-                                }
-                                callback.accept(entrants);
-                            })
-                            .addOnFailureListener(e -> {
-                                System.err.println("Error fetching entrants: " + e.getMessage());
-                                callback.accept(Collections.emptyList());
-                            });
                 })
                 .addOnFailureListener(e -> {
-                    System.err.println("Error getting registrations: " + e.getMessage());
-                    callback.accept(Collections.emptyList());
+                    callback.accept(null);
                 });
     }
 
     @Override
-    public void fetchEventAttendees(String eventId, Consumer<List<Entrant>> callback) {
+    public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
                 .whereEqualTo("status", "Accepted")
@@ -263,64 +229,29 @@ public class Database implements IDatabase {
     }
 
     @Override
-    public void fetchWaitlistEntrants(String eventId, Consumer<List<Entrant>> callback) {
+    public void getRegistrationsByStatus(String eventId, String status, Consumer<List<Registration>> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
-                .whereEqualTo("status", "Pending")
+                .whereEqualTo("status", status)
                 .get()
                 .addOnSuccessListener(registrationSnapshot -> {
                     if (registrationSnapshot.isEmpty()) {
                         callback.accept(Collections.emptyList());
                         return;
                     }
-                    List<String> entrantIds = new ArrayList<>();
+                    List<Registration> registrations = new ArrayList<>();
                     for (DocumentSnapshot doc : registrationSnapshot.getDocuments()) {
-                        String entrantId = doc.getString("entrantId");
-                        if (entrantId != null) {
-                            entrantIds.add(entrantId);
+                        Registration registration = doc.toObject(Registration.class);
+                        if (registration != null) {
+                            registration.setId(doc.getId()); // <-- set the Firestore document ID
+                            registrations.add(registration);
                         }
                     }
-                    if (entrantIds.isEmpty()) {
-                        callback.accept(Collections.emptyList());
-                        return;
-                    }
-                    db.collection("actors")
-                            .whereIn(FieldPath.documentId(), entrantIds)
-                            .get()
-                            .addOnSuccessListener(entrantSnapshot -> {
-                                List<Entrant> entrants = new ArrayList<>();
-                                for (DocumentSnapshot doc : entrantSnapshot.getDocuments()) {
-                                    Entrant entrant = doc.toObject(Entrant.class);
-                                    entrants.add(entrant);
-                                }
-
-                                callback.accept(entrants);
-                            })
-                            .addOnFailureListener(e -> {
-                                System.err.println("Error fetching entrants: " + e.getMessage());
-                                callback.accept(Collections.emptyList());
-                            });
+                    callback.accept(registrations);
                 })
                 .addOnFailureListener(e -> {
                     System.err.println("Error getting registrations: " + e.getMessage());
                     callback.accept(Collections.emptyList());
-                });
-    }
-
-    @Override
-    public void registrationExists(String id, Consumer<Boolean> callback) {
-        db.collection("registrations")
-                .document(id)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        callback.accept(Boolean.TRUE);
-                    } else {
-                        callback.accept(Boolean.FALSE);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    callback.accept(null);
                 });
     }
 

@@ -1,6 +1,7 @@
 package com.example.deimos_events.ui.EditEvent;
 
 import android.content.Intent;
+
 import static android.content.ContentValues.TAG;
 
 import android.graphics.Bitmap;
@@ -52,7 +53,6 @@ import java.io.FileOutputStream;
 public class EditFragment extends Fragment {
 
     private Button update;
-    private ListView entrants;
     private ImageView image;
     private String eventId;
     private EventManager EM;
@@ -62,20 +62,19 @@ public class EditFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater,container,savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_view_and_change_image, container, false);
         map = view.findViewById(R.id.map);
         image = view.findViewById(R.id.imageView);
         Button update = view.findViewById(R.id.update);
         Button save = view.findViewById(R.id.saveButton);
-        entrants = view.findViewById(R.id.listView);
         view.findViewById(R.id.mapFragment).setVisibility(view.INVISIBLE);
         Button exportCsv = view.findViewById(R.id.exportCsvButton);
         Button not = view.findViewById(R.id.notify);
         Button pick = view.findViewById(R.id.pick);
         Button back = view.findViewById(R.id.back);
         SessionManager SM = ((EventsApp) getActivity().getApplication()).getSessionManager();
-        ActorManager AM  = SM.getActorManager();
+        ActorManager AM = SM.getActorManager();
         this.EM = SM.getEventManager();
         Event event = SM.getSession().getCurrentEvent();
         Bundle latLon = new Bundle();
@@ -113,11 +112,11 @@ public class EditFragment extends Fragment {
 
                     });
                 });
-            }else{
+            } else {
                 Toast.makeText(getContext(), "Location not enabled", Toast.LENGTH_SHORT);
             }
         });
-        back.setOnClickListener(v ->{
+        back.setOnClickListener(v -> {
             view.findViewById(R.id.mapFragment).setVisibility(view.GONE);
             update.setVisibility(view.VISIBLE);
             save.setVisibility(view.VISIBLE);
@@ -128,7 +127,7 @@ public class EditFragment extends Fragment {
             back.setVisibility(view.INVISIBLE);
 
         });
-        super.onCreateView(inflater,container,savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
 
 
         final ActivityResultLauncher<String> pickImageLauncher =
@@ -141,23 +140,17 @@ public class EditFragment extends Fragment {
                         });
         update.setOnClickListener(v -> {
             pickImageLauncher.launch("image/*");
-                });
+        });
 
         viewModel = new ViewModelProvider(this).get(EditViewModel.class);
-       save.setOnClickListener(v -> {
-           Bitmap img =((BitmapDrawable)image.getDrawable()).getBitmap();
-           String id = event.getId();
-            EM.updateImage(id, img,callback ->{
-//                if(callback){
-//                    Log.d("TAG", "updated");
-//                }
+        save.setOnClickListener(v -> {
+            Bitmap img = ((BitmapDrawable) image.getDrawable()).getBitmap();
+            String id = event.getId();
+            EM.updateImage(id, img, callback -> {
             });
-         });
-        entrants = view.findViewById(R.id.listView);
+        });
 
         eventId = getArguments().getString("eventId");
-
-
 
         exportCsv.setOnClickListener(v -> {
             EM.exportEntrantsCsv(event.getId(), csvData -> {
@@ -195,15 +188,6 @@ public class EditFragment extends Fragment {
         byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);
         Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
         image.setImageBitmap(bmp);
-
-        EM.fetchAllRegistrations(event.getId(), regList ->{
-            if (regList != null && !regList.isEmpty()){
-                    Log.d("TAG", "This is a debug message2");
-                    EventAdapter adapter = new EventAdapter(getContext(), regList);
-                    entrants.setAdapter(adapter);
-                }
-
-        });
 
         return view;
     }

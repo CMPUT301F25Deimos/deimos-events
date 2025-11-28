@@ -5,6 +5,46 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/btnInvited"
+            android:layout_width="30dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Invited" />
+
+        <Button
+            android:id="@+id/btnCancelled"
+            android:layout_width="30dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Cancelled" />
+
+        <Button
+            android:id="@+id/btnEnrolled"
+            android:layout_width="30dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Enrolled" />
+
+        <Button
+            android:id="@+id/btnWaitlist"
+            android:layout_width="30dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Waitlist" />
+    </LinearLayout>
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="141dp"
@@ -31,7 +71,7 @@
         android:id="@+id/pick"
         android:layout_width="206dp"
         android:layout_height="48dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="4dp"
         android:gravity="center"
         android:text="Pick Specified Number"
         app:layout_constraintEnd_toEndOf="parent"
@@ -44,6 +84,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="84dp"
+        android:layout_marginBottom="48dp"
         android:text="Select"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -95,7 +136,7 @@
         app:layout_constraintTop_toBottomOf="@+id/placeholder_description" />
 
     <TextView
-        android:id="@+id/waiting_list_no"
+        android:id="@+id/list_info"
         android:layout_width="296dp"
         android:layout_height="38dp"
         android:layout_marginBottom="16dp"
@@ -113,8 +154,8 @@
         android:background="@android:color/darker_gray"
         android:ems="10"
         android:inputType="number"
-        android:textColor="@color/white"
         android:text=""
+        android:textColor="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/select"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
