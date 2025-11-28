@@ -250,11 +250,11 @@ public class EventManager {
      *  <p>
      *  This operation queries the database so it is asynchronous
      *
-     * @param eventId the ID of the event we are trying to join
-     * @param callback is set to true if we are successful in adding the user to the waiting liest,
+     * @param eventID eventID of the event we are trying to join
+     * @param callback is set to true if we are successful in adding the user to the waiting list,
      *                 else false
      */
-    public void addUserToWaitList(String eventId, Consumer<Boolean> callback) {
+    public void addUserToWaitList(String eventID, Consumer<Boolean> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
         Actor actor = session.getCurrentActor();
@@ -262,7 +262,13 @@ public class EventManager {
             callback.accept(false);
             return;
         }
-        db.addUserToWaitList(eventId, actor, callback);
+        Event event = session.getCurrentEvent();
+        if(!actor.getDeviceIdentifier().equals(event.getOwnerId())) {
+            db.addUserToWaitList(eventID, actor, callback);
+        }
+        else{
+            callback.accept(false);
+        }
     }
 
     public void updateImage(String eventId, Bitmap imageBit,Consumer<Boolean> callback) {

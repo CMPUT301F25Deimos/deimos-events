@@ -390,7 +390,7 @@ public class Database implements IDatabase {
                     boolean alreadyExists = false;
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         String entrantId = doc.getString("entrantId");
-                        if (entrantId != null && entrantId.equals(actor.getDeviceIdentifier())) {
+                        if (entrantId != null && entrantId.equals(actor.getDeviceIdentifier() )) {
                             alreadyExists = true;
                             break;
                         }
