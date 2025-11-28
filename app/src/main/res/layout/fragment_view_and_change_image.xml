@@ -17,15 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ListView
-        android:id="@+id/listView"
-        android:layout_width="417dp"
-        android:layout_height="236dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sta" />
-
     <Button
         android:id="@+id/update"
         android:layout_width="wrap_content"
@@ -38,12 +29,12 @@
 
     <Button
         android:id="@+id/pick"
+        android:layout_marginBottom="72dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="Pick contestence"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listView" />
+        android:text="Pick Participants"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/notify"
@@ -51,17 +42,17 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="notification"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listView" />
+        app:layout_constraintBottom_toTopOf="@+id/exportCsvButton"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/exportCsvButton"
+        android:layout_marginBottom="72dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
         android:text="Export Entrants CSV"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listView" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/back"
@@ -72,10 +63,7 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/pick"
         app:layout_constraintEnd_toStartOf="@+id/map"
-        app:layout_constraintStart_toEndOf="@+id/notify"
-        app:layout_constraintTop_toBottomOf="@+id/listView"
-        app:layout_constraintVertical_bias="0.0"
-        />
+        app:layout_constraintStart_toEndOf="@+id/notify" />
 
     <Button
         android:id="@+id/map"
@@ -83,17 +71,16 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:text="map"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listView" />
+        app:layout_constraintBottom_toTopOf="@+id/pick"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/Name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
         android:text="Name"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="346dp" />
 
     <TextView
         android:id="@+id/sta"
@@ -108,10 +95,9 @@
         android:id="@+id/del"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="7dp"
         android:text="remove"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="349dp" />
 
     <Button
         android:id="@+id/saveButton"
@@ -123,17 +109,23 @@
         app:layout_constraintBottom_toTopOf="@+id/del"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/update" />
+
     <FrameLayout
         android:id="@+id/maps"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <fragment
-            android:id="@+id/mapFragment"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+        android:layout_width="114dp"
+        android:layout_height="81dp"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="181dp"
+        tools:layout_editor_absoluteY="650dp">
+
     </FrameLayout>
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="47dp"
+        android:layout_height="82dp"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="649dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

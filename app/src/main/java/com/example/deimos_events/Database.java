@@ -135,20 +135,11 @@ public class Database implements IDatabase {
 
 
     @Override
-    public void deleteRegistor(String id, Consumer<Boolean> callback) {
+    public void deleteRegistration(String registrationId, Consumer<Boolean> callback) {
         db.collection("registrations")
-                .whereEqualTo("Id", id)
-                .get()
+                .document(registrationId)
+                .delete()
                 .addOnSuccessListener(querySnapshot -> {
-                    if (querySnapshot.isEmpty()) {
-                        callback.accept(Boolean.FALSE);
-                        return;
-                    }
-                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        doc.getReference().delete();
-                        // technically there should only be one document
-                        // but couldn't figure out how to make it work
-                    }
                     callback.accept(Boolean.TRUE);
                 })
                 .addOnFailureListener(e -> {
@@ -176,9 +167,28 @@ public class Database implements IDatabase {
     }
 
     @Override
+    public void getActorById(String deviceIdentifier, Consumer<Actor> callback) {
+        db.collection("actors")
+                .document(deviceIdentifier)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Actor actor = doc.toObject(Actor.class);
+                        callback.accept(actor);
+                    } else {
+                        callback.accept(null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    callback.accept(null);
+                });
+    }
+
+    @Override
     public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
+                .whereEqualTo("status", "Accepted")
                 .get()
                 .addOnSuccessListener(registrationSnapshot -> {
                     if (registrationSnapshot.isEmpty()) {
@@ -196,7 +206,7 @@ public class Database implements IDatabase {
                         callback.accept(Collections.emptyList());
                         return;
                     }
-                    db.collection("entrants")
+                    db.collection("actors")
                             .whereIn(FieldPath.documentId(), entrantIds)
                             .get()
                             .addOnSuccessListener(entrantSnapshot -> {
@@ -218,21 +228,30 @@ public class Database implements IDatabase {
                 });
     }
 
-
     @Override
-    public void registrationExists(String id, Consumer<Boolean> callback) {
+    public void getRegistrationsByStatus(String eventId, String status, Consumer<List<Registration>> callback) {
         db.collection("registrations")
-                .document(id)
+                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("status", status)
                 .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        callback.accept(Boolean.TRUE);
-                    } else {
-                        callback.accept(Boolean.FALSE);
+                .addOnSuccessListener(registrationSnapshot -> {
+                    if (registrationSnapshot.isEmpty()) {
+                        callback.accept(Collections.emptyList());
+                        return;
                     }
+                    List<Registration> registrations = new ArrayList<>();
+                    for (DocumentSnapshot doc : registrationSnapshot.getDocuments()) {
+                        Registration registration = doc.toObject(Registration.class);
+                        if (registration != null) {
+                            registration.setId(doc.getId()); // <-- set the Firestore document ID
+                            registrations.add(registration);
+                        }
+                    }
+                    callback.accept(registrations);
                 })
                 .addOnFailureListener(e -> {
-                    callback.accept(null);
+                    System.err.println("Error getting registrations: " + e.getMessage());
+                    callback.accept(Collections.emptyList());
                 });
     }
 

@@ -27,16 +27,15 @@ public interface IDatabase {
 
     void updateImage(String eventId, String posterIdArray,Consumer<Boolean> callback);
 
-    void deleteRegistor(String id, Consumer<Boolean> callback);
-
-
     public void fetchALLRegistrations(String eventId, Consumer<List<Registration>> callback);
 
     public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback);
+    public void getRegistrationsByStatus(String eventId, String status, Consumer<List<Registration>> callback);
 
     public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback);
 
-    public void registrationExists(String Id, Consumer<Boolean> callback);
+    public void getActorById(String deviceIdentifier, Consumer<Actor> callback);
+    public void deleteRegistration(String registrationId, Consumer<Boolean> callback);
     public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback);
 
     public void fetchEventById(String eventId, Consumer<Event> callback);

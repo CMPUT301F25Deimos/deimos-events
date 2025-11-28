@@ -8,7 +8,6 @@
     app:cardElevation="2dp"
     app:cardUseCompatPadding="true">
 
-    <!-- Row like your screenshot: small image on left, text on right -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
