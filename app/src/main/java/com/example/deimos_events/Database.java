@@ -243,7 +243,7 @@ public class Database implements IDatabase {
                     for (DocumentSnapshot doc : registrationSnapshot.getDocuments()) {
                         Registration registration = doc.toObject(Registration.class);
                         if (registration != null) {
-                            registration.setId(doc.getId()); // <-- set the Firestore document ID
+                            registration.setId(doc.getId());
                             registrations.add(registration);
                         }
                     }
@@ -579,21 +579,23 @@ public class Database implements IDatabase {
                 .addOnSuccessListener(snapshot -> {
                     List<Registration> registrations = new ArrayList<>();
                     List<Task<DocumentSnapshot>> eventTasks = new ArrayList<>();
-                    for (DocumentSnapshot registerDoc : snapshot.getDocuments()) {
-                        Registration register = registerDoc.toObject(Registration.class);
-                        if (register != null) {
-                            register.setStatus(registerDoc.getString("status"));
-                            registrations.add(register);
+                    for (DocumentSnapshot registrationDoc : snapshot.getDocuments()) {
+                        Registration registration = registrationDoc.toObject(Registration.class);
+
+                        if (registration != null) {
+                            registration.setStatus(registrationDoc.getString("status"));
+                            registration.setId(registrationDoc.getId());
+                            registrations.add(registration);
 
                             // to be able to display image + description in notification
-                            String eventId = register.getEventId();
+                            String eventId = registration.getEventId();
                             eventTasks.add(db.collection("events").document(eventId).get()
                                     .addOnSuccessListener(eventDoc -> {
                                         if (eventDoc.exists()) {
                                             Event event = eventDoc.toObject(Event.class);
                                             if (event != null) {
-                                                register.setDescription(event.getTitle());
-                                                register.setImage(event.getPosterId());
+                                                registration.setDescription(event.getTitle());
+                                                registration.setImage(event.getPosterId());
                                             }
                                         }
                                     }));

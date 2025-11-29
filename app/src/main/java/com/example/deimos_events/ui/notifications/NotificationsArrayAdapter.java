@@ -177,7 +177,7 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Registration>{
                                 accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
                                 accept_button.setShapeAppearanceModel(original_accept);
                                 
-                                db.answerEvent(notification.getId(), "Declined");
+                                db.answerEvent(notification.getId(), "Cancelled");
                                 // saves their answer as "decline"
                                 notification.setStatus("Declined");
                             }
