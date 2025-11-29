@@ -25,7 +25,10 @@ import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 
 /**
- * Admin screen: shows ALL events with title + description + photo and lets admin delete them.
+ * Fragment for administrators to view and manage all events.
+ * <p>
+ * Displays all events in a {@link RecyclerView} with title, description, and photo,
+ * and allows the admin to delete an event using a swipe-to-delete gesture.
  */
 public class EventsAdministratorsFragment extends Fragment {
 
@@ -36,6 +39,15 @@ public class EventsAdministratorsFragment extends Fragment {
 
     private final Paint swipePaint = new Paint();
 
+    /**
+     * Called to do initial creation of the fragment.
+     * <p>
+     * Initializes the {@link SessionManager} and {@link EventManager} from the application
+     * {@link EventsApp} instance.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     *                           a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +56,20 @@ public class EventsAdministratorsFragment extends Fragment {
         eventManager = sessionManager.getEventManager();
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     * <p>
+     * Sets up the {@link RecyclerView}, attaches the adapter, loads all events from
+     * the {@link EventManager}, and configures swipe-to-delete behavior.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return The root View for the fragment's UI.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -68,16 +94,38 @@ public class EventsAdministratorsFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Creates the {@link ItemTouchHelper.SimpleCallback} used to enable
+     * swipe-to-delete behavior on the admin events list.
+     * <p>
+     * A left swipe draws a red background with a delete icon and removes
+     * the event when the swipe is completed.
+     *
+     * @return a configured {@link ItemTouchHelper.SimpleCallback} for left swipes
+     */
     private ItemTouchHelper.SimpleCallback createSwipeCallback() {
         return new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
+            /**
+             * Drag & drop move handling is disabled for this list.
+             */
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView,
                                   @NonNull RecyclerView.ViewHolder viewHolder,
                                   @NonNull RecyclerView.ViewHolder target) {
-                return false; // no drag & drop
+                return false;
             }
 
+            /**
+             * Called when an item has been swiped left.
+             * <p>
+             * Retrieves the swiped {@link Event} and delegates deletion to
+             * {@link EventManager#adminDeleteEvent(Event, java.util.function.Consumer)}.
+             * On success, removes the item from the adapter and shows a toast.
+             *
+             * @param viewHolder The ViewHolder which has been swiped by the user.
+             * @param direction  The direction to which the ViewHolder is swiped.
+             */
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int pos = viewHolder.getBindingAdapterPosition();
@@ -96,6 +144,19 @@ public class EventsAdministratorsFragment extends Fragment {
                 });
             }
 
+            /**
+             * Called by the {@link ItemTouchHelper} on RecyclerView's onDraw callback.
+             * <p>
+             * Draws the red background and delete icon while the item is being swiped.
+             *
+             * @param c                 Canvas to draw on.
+             * @param recyclerView      The RecyclerView to which ItemTouchHelper is attached.
+             * @param viewHolder        The ViewHolder being interacted by the user.
+             * @param dX                Horizontal displacement caused by the user's action.
+             * @param dY                Vertical displacement caused by the user's action.
+             * @param actionState       Type of interaction on the View.
+             * @param isCurrentlyActive True if the user is currently controlling the item.
+             */
             @Override
             public void onChildDraw(@NonNull Canvas c,
                                     @NonNull RecyclerView recyclerView,
@@ -141,7 +202,11 @@ public class EventsAdministratorsFragment extends Fragment {
             }
         };
     }
-
+    /**
+     * Called when the view hierarchy associated with the fragment is being removed.
+     * <p>
+     * Clears the view binding reference to avoid memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

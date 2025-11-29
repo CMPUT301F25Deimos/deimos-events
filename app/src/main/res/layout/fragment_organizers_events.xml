@@ -185,5 +185,14 @@
         app:shapeAppearanceOverlay="@style/fab_shape"
         app:srcCompat="@drawable/filter_24dp"
         app:tint="@color/text_colour"/>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:text="My history"
+        app:layout_constraintTop_toBottomOf="@id/filters_quick_bar"
+        app:layout_constraintStart_toStartOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
