@@ -390,7 +390,7 @@ public class Database implements IDatabase {
                     boolean alreadyExists = false;
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         String entrantId = doc.getString("entrantId");
-                        if (entrantId != null && entrantId.equals(actor.getDeviceIdentifier() )) {
+                        if (entrantId != null && entrantId.equals(actor.getDeviceIdentifier())) {
                             alreadyExists = true;
                             break;
                         }
@@ -412,6 +412,10 @@ public class Database implements IDatabase {
                     }
                 })
                 .addOnFailureListener(e -> callback.accept(false));
+    }
+
+    public void inviteEntrant(String registrationId, Consumer<Boolean> callback) {
+        callback.accept(true);
     }
 
     public void fetchEventById(String eventId, Consumer<Event> callback) {
@@ -453,26 +457,26 @@ public class Database implements IDatabase {
      */
 
     public void joinEvent(Context context, String eventId, Actor actor) {
-        fetchEventById(eventId,callback->{
-            if (callback.getRecordLocation()){
+        fetchEventById(eventId, callback -> {
+            if (callback.getRecordLocation()) {
                 FusedLocationProviderClient loc;
                 loc = LocationServices.getFusedLocationProviderClient(context);
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                loc.getLastLocation().addOnSuccessListener(location->{
-                    db.collection("registrations")
-                            .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending",Double.toString(location.getLatitude()) ,Double.toString(location.getLongitude())))
-                            .addOnSuccessListener(documentReference -> {
-                                String documentId = documentReference.getId();
-                                // id is the its documentId
-                                documentReference.update("id", documentId);
-                            });
-                });
-            }else{
-                  ActivityCompat.requestPermissions((Activity) context,new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},1001);
+                    loc.getLastLocation().addOnSuccessListener(location -> {
+                        db.collection("registrations")
+                                .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending", Double.toString(location.getLatitude()), Double.toString(location.getLongitude())))
+                                .addOnSuccessListener(documentReference -> {
+                                    String documentId = documentReference.getId();
+                                    // id is the its documentId
+                                    documentReference.update("id", documentId);
+                                });
+                    });
+                } else {
+                    ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
                 }
-            }else{
+            } else {
                 db.collection("registrations")
-                        .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending",null ,null))
+                        .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending", null, null))
                         .addOnSuccessListener(documentReference -> {
                             String documentId = documentReference.getId();
                             // id is the its documentId
@@ -660,6 +664,7 @@ public class Database implements IDatabase {
                     callback.accept(Boolean.FALSE);
                 });
     }
+
     @Override
     public void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback) {
         db.collection("actors")
@@ -679,13 +684,14 @@ public class Database implements IDatabase {
                     callback.accept(java.util.Collections.emptyList());
                 });
     }
+
     @Override
-    public void deleteEventImage(String eventID, Consumer<Boolean> callback){
+    public void deleteEventImage(String eventID, Consumer<Boolean> callback) {
         db.collection("events")
                 .whereEqualTo("id", eventID)
                 .get()
-                .addOnSuccessListener(snapshot->{
-                    if(snapshot.isEmpty()){
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
                         callback.accept(false);
                         return;
                     }
@@ -694,12 +700,11 @@ public class Database implements IDatabase {
                     doc.getReference()
                             .update("posterId", null)
                             .addOnSuccessListener(unused -> callback.accept(true))
-                            .addOnFailureListener(e-> callback.accept(false));
-
+                            .addOnFailureListener(e -> callback.accept(false));
 
 
                 })
-                .addOnFailureListener(e->callback.accept(false));
+                .addOnFailureListener(e -> callback.accept(false));
     }
 
 }

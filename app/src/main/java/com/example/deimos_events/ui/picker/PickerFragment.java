@@ -29,6 +29,7 @@ import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -105,16 +106,21 @@ public class PickerFragment extends Fragment {
                 return;
             }
 
-            if (count > waitingList.size()) {
+            if (!event.getParticipantCap().equals(-1) && count > waitingList.size()) {
                 Toast.makeText(getContext(), "Not enough people in waiting list to sample", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            Collections.shuffle(waitingList);
             List<Registration> selected = waitingList.subList(0, count);
-            Toast.makeText(getContext(), "Selected: " + selected.size() + " people", Toast.LENGTH_SHORT).show();
 
-            NavController nav = NavHostFragment.findNavController(this);
-            nav.navigate(R.id.navigation_organizers_events);
+            for (Registration registration : selected) {
+                EM.inviteEntrant(registration.getId(), result -> {
+                    if (result) {
+                        Toast.makeText(getContext(), "Invited user with id: " + registration.getEntrantId(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         });
 
         backButton.setOnClickListener(v -> {
@@ -140,14 +146,10 @@ public class PickerFragment extends Fragment {
             numberToPick.setVisibility(visibility);
             selectButton.setVisibility(visibility);
 
-            if (isWaitlist) {
-                spotsFilled.setVisibility(View.VISIBLE);
-                spotsFilled.setText("Spots Filled: " + registrations.size() + "/" + event.getParticipantCap());
-            } else {
-                spotsFilled.setVisibility(View.GONE);
-            }
-
             updateListInfo(status);
+        });
+        EM.getRegistrationsByStatus(event.getId(), "Accepted", registrations -> {
+            spotsFilled.setText("Spots Filled: " + registrations.size() + "/" + event.getParticipantCap());
         });
     }
 

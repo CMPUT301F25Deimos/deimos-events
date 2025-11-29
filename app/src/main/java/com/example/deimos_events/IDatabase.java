@@ -60,7 +60,5 @@ public interface IDatabase {
     void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback);
     void deleteEventImage(String eventID, Consumer<Boolean> callback);
 
-
-
-
+    void inviteEntrant(String registrationId, Consumer<Boolean> callback);
 }
