@@ -19,7 +19,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.deimos_events.Actor;
+import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.managers.ActorManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Fragment responsible for rendering and editing the current user's profile.
@@ -52,7 +53,7 @@ import java.util.Set;
  */
 public class ProfileFragment extends Fragment {
 
-    /** ViewBinding for the Profile layout. */
+    /** ViewBinding for the Actor's layout. */
     private FragmentProfileBinding binding;
     /** ViewModel that exposes UI state (title and current {@link Actor}). */
     private ProfileViewModel profileViewModel;
@@ -70,10 +71,8 @@ public class ProfileFragment extends Fragment {
     // Managers and session references (injected via EventsApp/SessionManager)
     private ActorManager AM;
     private SessionManager SM;
-    private Session session;
     private UserInterfaceManager UIM;
     private NavigationManager NaM;
-    private IDatabase db;
 
     /**
      * Inflates the view, wires up managers/view model, restores persisted profile values,
@@ -92,7 +91,6 @@ public class ProfileFragment extends Fragment {
         UIM = SM.getUserInterfaceManager();
         NaM = SM.getNavigationManager();
         AM = SM.getActorManager();
-        db = SM.getSession().getDatabase();
 
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
         binding = FragmentProfileBinding.inflate(inflater, container, false);
@@ -124,7 +122,7 @@ public class ProfileFragment extends Fragment {
                     sp.edit().putBoolean(KEY_NOTIFY, checked).apply());
         }
 
-        // Profile edit and delete actions.
+        // Actor edit and delete actions.
         if (binding.updateButton != null) {
             binding.updateButton.setOnClickListener(v -> showInlineEditDialog());
         }
@@ -201,7 +199,7 @@ public class ProfileFragment extends Fragment {
 
     /**
      * Shows an inline edit dialog for name, email, and phone with basic validation.
-     * On save, updates via {@link ActorManager#updateActor(Actor, Actor, com.example.deimos_events.ResultCallback)}
+     * On save, updates via {@link ActorManager#updateActor(Actor, Actor, Consumer)}
      * and persists the snapshot into {@link SharedPreferences}.
      */
     private void showInlineEditDialog() {
@@ -327,7 +325,7 @@ public class ProfileFragment extends Fragment {
 
     /**
      * Shows a confirmation dialog for account deletion and, if confirmed, delegates the cascade
-     * deletion to {@link ActorManager#deleteEntrantCascade(Actor, com.example.deimos_events.ResultCallback)}.
+     * deletion to {@link ActorManager#deleteEntrantCascade(Actor, Consumer)}.
      * On success, clears local session state and navigates back to {@link SignupActivity}.
      */
     private void showDeleteDialog() {

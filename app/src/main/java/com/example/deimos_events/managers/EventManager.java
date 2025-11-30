@@ -5,15 +5,14 @@ import android.util.Base64;
 import android.util.Log;
 
 
-import com.example.deimos_events.Actor;
+import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.Database;
-import com.example.deimos_events.Entrant;
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Entrant;
+import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.IDatabase;
-import com.example.deimos_events.Registration;
-import com.example.deimos_events.Result;
+import com.example.deimos_events.dataclasses.Registration;
+import com.example.deimos_events.dataclasses.Result;
 import com.example.deimos_events.Session;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.zxing.common.BitMatrix;
 
 import java.io.ByteArrayOutputStream;

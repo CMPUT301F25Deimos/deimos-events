@@ -2,6 +2,10 @@ package com.example.deimos_events;
 
 import android.content.Context;
 
+import com.example.deimos_events.dataclasses.Actor;
+import com.example.deimos_events.dataclasses.Entrant;
+import com.example.deimos_events.dataclasses.Event;
+import com.example.deimos_events.dataclasses.Registration;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;

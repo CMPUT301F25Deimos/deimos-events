@@ -1,4 +1,4 @@
-package com.example.deimos_events;
+package com.example.deimos_events.dataclasses;
 
 /**
  * Invitation class. This simply represents an invite sent from an organizer to an applicant.

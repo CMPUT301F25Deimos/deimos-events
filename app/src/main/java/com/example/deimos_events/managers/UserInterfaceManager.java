@@ -1,39 +1,56 @@
 package com.example.deimos_events.managers;
 
-import android.app.Activity;
-
-import com.example.deimos_events.Actor;
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Actor;
+import com.example.deimos_events.dataclasses.Event;
 
 /**
  * This Manager gives access to UI data stored in the Session object to Activities and Fragments
  * <p>
- *  Acts to isolate User Interface Layer from the Apps data layer.
+ * Acts to isolate User Interface Layer from the Apps data layer.
  * </p>
  */
 public class UserInterfaceManager {
     private final SessionManager sessionManager;
-    public UserInterfaceManager(SessionManager sessionManager){
+
+    public UserInterfaceManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 
 
-    public Actor getCurrentActor(){
+    /**
+     * Returns the currently active {@link Actor} from the session
+     *
+     * @return Actor instance
+     * @see Actor
+     */
+    public Actor getCurrentActor() {
         return sessionManager.getSession().getCurrentActor();
     }
-    public void setCurrentActor(Actor actor){
+
+    /**
+     * Sets the active {@link Actor} in the session.
+     *
+     * @param actor which is the actor to set as the current actor
+     */
+    public void setCurrentActor(Actor actor) {
         sessionManager.getSession().setCurrentActor(actor);
     }
 
-    public void clearCurrentActor(){
+    /**
+     * Clears the current actor from the session.
+     */
+    public void clearCurrentActor() {
         setCurrentActor(null);
     }
-    public Event getCurrentEvent(){
+
+    /**
+     * Returns the currently selecte {@link Event} stored in the session.
+     *
+     * @return Event instance
+     */
+    public Event getCurrentEvent() {
         return sessionManager.getSession().getCurrentEvent();
     }
-
-
-
 
 
 }

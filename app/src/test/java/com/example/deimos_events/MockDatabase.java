@@ -2,15 +2,13 @@ package com.example.deimos_events;
 
 import android.content.Context;
 
-import com.google.firebase.firestore.DocumentReference;
-
-import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.function.Try;
+import com.example.deimos_events.dataclasses.Actor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.google.firebase.firestore.DocumentReference;
+import com.example.deimos_events.dataclasses.Event;
+import com.example.deimos_events.dataclasses.Registration;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;

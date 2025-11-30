@@ -19,7 +19,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
-import com.example.deimos_events.Registration;
+import com.example.deimos_events.dataclasses.Registration;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.shape.CornerFamily;

@@ -1,7 +1,7 @@
 package com.example.deimos_events.managers;
 
 
-import com.example.deimos_events.Notification;
+import com.example.deimos_events.dataclasses.Notification;
 import com.example.deimos_events.Session;
 
 /**

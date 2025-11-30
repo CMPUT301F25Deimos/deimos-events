@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.deimos_events.Actor;
+import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.Roles;
 /**
  * ViewModel for the Profile screen.
@@ -24,10 +24,17 @@ public class ProfileViewModel extends ViewModel {
     /** Observable current actor displayed in the profile card. */
     private final MutableLiveData<Actor> actor = new MutableLiveData<>();
 
-    /** Initializes default UI state (title and a placeholder actor). */
+    /**
+     * Initializes the default UI state for the Profile screen.
+     * <p>
+     * Sets the title text and leaves the actor LiveData unset. The fragment that hosts it
+     * is expected to provide the current signed-in actor by calling {@link #setActor(Actor)}.
+     * </p>
+     */
     public ProfileViewModel() {
         mText.setValue("Profile");
-        actor.setValue(new Actor("tempUserId", "Alex Entrant", "alex.entrant@example.com", "780-555-1212", Roles.ENTRANT));
+        actor.setValue(null);
+        //actor.setValue(new Actor("tempUserId", "Alex Entrant", "alex.entrant@example.com", "780-555-1212", Roles.ENTRANT));
     }
 
     /** @return live title text for the Profile screen */
@@ -54,8 +61,16 @@ public class ProfileViewModel extends ViewModel {
      */
     public void updateActor(String name, String email, String phone) {
         Actor cur = actor.getValue();
-        String uid = (cur == null) ? "tempUserId" : cur.getDeviceIdentifier();
-        String role = (cur == null) ? Roles.ENTRANT : cur.getRole();
-        actor.setValue(new Actor(uid, name, email, phone, role));
+        if (cur == null){
+            // no actor found.
+            return;
+        }
+        actor.setValue(new Actor(
+                cur.getDeviceIdentifier(),
+                name,
+                email,
+                phone,
+                cur.getRole()
+        ));
     }
 }

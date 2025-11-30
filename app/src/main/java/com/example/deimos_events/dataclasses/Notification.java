@@ -1,4 +1,4 @@
-package com.example.deimos_events;
+package com.example.deimos_events.dataclasses;
 
 /**
  * Notification class. These get created assuming that the intended recipient has not opted

@@ -2,6 +2,9 @@ package com.example.deimos_events;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.example.deimos_events.dataclasses.Actor;
+import com.example.deimos_events.dataclasses.Event;
+import com.example.deimos_events.dataclasses.Registration;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 
