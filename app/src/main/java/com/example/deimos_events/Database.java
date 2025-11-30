@@ -322,22 +322,6 @@ public class Database implements IDatabase {
     }
 
 
-//    public void eventExists(Event event, Consumer<Boolean> callback){
-//        db.collection("actors")
-//                .document(event.getId())
-//                .get()
-//                .addOnSuccessListener(doc ->{
-//                    if (doc.exists()){
-//                        callback.accept(Boolean.TRUE);
-//                    }else{
-//                        callback.accept(Boolean.FALSE);
-//                    }
-//                })
-//                .addOnFailureListener(e -> {
-//                    callback.accept(null);
-//                });
-//    }
-
     public void actorExistsByEmail(String email, Consumer<Boolean> callback) {
         db.collection("actors")
                 .whereEqualTo("email", email)

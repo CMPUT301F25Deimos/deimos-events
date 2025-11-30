@@ -161,18 +161,29 @@ public class CreateFragment extends Fragment {
             EventManager EM = new EventManager(SM);
             Event event = EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
 
+            
             EM.insertEvent(event, result -> {
                 if (result.isSuccess()){
                     Log.i("TAG", "Event created successfully");
+
+                    if (!isAdded()){
+                        return;
+                    }
+                    NavController navController = NavHostFragment.findNavController(this);
+                    NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
+                    Bundle arg = new Bundle();
+                    arg.putString("id", uniqueId);
+                    SM.getSession().setCurrentEvent(event);
+                    navController.navigate(R.id.navigation_edit, arg, navOptions);
+
+
                 } else {
                     Log.i("TAG", "Event unsuccessfully created");
+                    if (isAdded()){
+                        Toast.makeText(requireContext(), "Failed to create event. Try again", Toast.LENGTH_LONG).show();
+                    }
                 }
             });
-            NavController navController = NavHostFragment.findNavController(this);
-            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
-            Bundle arg = new Bundle();
-            arg.putString("id", uniqueId);
-            navController.navigate(R.id.navigation_edit, arg, navOptions);
         });
 
     return view;
