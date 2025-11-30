@@ -22,16 +22,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.deimos_events.Event;
-import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
-import com.example.deimos_events.Registration;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
-import com.example.deimos_events.ui.createEvent.createViewModel;
+import com.example.deimos_events.ui.notifications.SendNotificationsFragment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,6 +42,7 @@ public class EditFragment extends Fragment {
     private String eventId;
     private EventManager EM;
     private EditViewModel viewModel;
+    private Button notify;
 
     @Nullable
     @Override
@@ -125,6 +124,15 @@ public class EditFragment extends Fragment {
                     entrants.setAdapter(adapter);
                 }
 
+        });
+        
+        // clicking on the notification button button
+        notify = view.findViewById(R.id.notify);
+        notify.setOnClickListener(v -> {
+            SM.getSession().setCurrentEvent(event);
+            
+            SendNotificationsFragment dialog = new SendNotificationsFragment();
+            dialog.show(getParentFragmentManager(), "MessageDialog");
         });
 
         return view;

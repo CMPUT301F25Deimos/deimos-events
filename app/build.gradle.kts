@@ -72,4 +72,6 @@ dependencies {
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation(libs.flexbox)
+
 }

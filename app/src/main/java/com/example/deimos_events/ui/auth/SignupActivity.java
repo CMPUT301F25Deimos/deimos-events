@@ -109,9 +109,10 @@ public class SignupActivity extends FoundationActivity {
             String email  = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("email", null);
             String phone  = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("phone", "");
             String role   = getSharedPreferences("entrant_profile", MODE_PRIVATE).getString("role", Roles.ENTRANT);
+            Boolean notificationsPreference   = getSharedPreferences("entrant_profile", MODE_PRIVATE).getBoolean("notificationsPreference", true);
 
             if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(name) && !TextUtils.isEmpty(email)) {
-                Actor restored = createActorByRole(userId, name, email, phone == null ? "" : phone, role);
+                Actor restored = createActorByRole(userId, name, email, phone == null ? "" : phone, role, notificationsPreference);
                 UIM.setCurrentActor(restored);
                 NM.goTo(MainActivity.class, NavigationManager.navFlags.RETURN_TO_TASK);
                 return;
@@ -167,6 +168,7 @@ public class SignupActivity extends FoundationActivity {
         String email    = txt(etEmail);
         String phone    = txt(etPhone);
         String role     = etRole.getText() == null ? "" : etRole.getText().toString().trim();
+        Boolean notificationsPreference = true;
 
         boolean ok = true;
         if (deviceId.isEmpty()) { tilDeviceId.setError("Device ID required"); ok = false; }
@@ -187,7 +189,7 @@ public class SignupActivity extends FoundationActivity {
 
         btnSignup.setEnabled(false);
 
-        Actor actor = createActorByRole(deviceId, name, email, phone, role);
+        Actor actor = createActorByRole(deviceId, name, email, phone, role, notificationsPreference);
 
         AM.insertActor(actor, res -> {
             btnSignup.setEnabled(true);
@@ -210,6 +212,7 @@ public class SignupActivity extends FoundationActivity {
                         .putString("email", email)
                         .putString("phone", phone)
                         .putString("role", role)
+                        .putBoolean("notificationsPreference", true)
                         .apply();
 
                 getSharedPreferences("app", MODE_PRIVATE)
@@ -233,10 +236,10 @@ public class SignupActivity extends FoundationActivity {
      * @param role role selection (Entrant, Organizer, Admin).
      * @return a new {@link Actor} instance matching the selected role.
      */
-    private Actor createActorByRole(String id, String name, String email, String phone, String role) {
-        if (Roles.ORGANIZER.equals(role)) return new Organizer(id, name, email, phone);
-        if (Roles.ADMIN.equals(role))     return new Administrator(id, name, email, phone);
-        return new Entrant(id, name, email, phone, false);
+    private Actor createActorByRole(String id, String name, String email, String phone, String role, Boolean notificationsPreference) {
+        if (Roles.ORGANIZER.equals(role)) return new Organizer(id, name, email, phone, notificationsPreference);
+        if (Roles.ADMIN.equals(role))     return new Administrator(id, name, email, phone, notificationsPreference);
+        return new Entrant(id, name, email, phone, true);
     }
 
     /** Clears all validation error messages from input fields. */

@@ -10,17 +10,19 @@ public  class Actor {
     private String name;
     private String email;
     private String phoneNumber;
+    private Boolean notificationsPreference;
     @Nullable private String role;
-    public Actor (String deviceIdentifier, String name, String email, String phoneNumber, @Nullable String role) {
+    public Actor (String deviceIdentifier, String name, String email, String phoneNumber, @Nullable String role, Boolean notificationsPreference) {
         this.deviceIdentifier = deviceIdentifier;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.role = role;
+        this.notificationsPreference = notificationsPreference;
     }
 
-    public Actor (String deviceIdentifier, String name, String email, String phoneNumber) {
-       this(deviceIdentifier, name, email, phoneNumber, null);
+    public Actor (String deviceIdentifier, String name, String email, String phoneNumber, Boolean notificationsPreference) {
+       this(deviceIdentifier, name, email, phoneNumber, null, true);
     }
 
 
@@ -38,5 +40,9 @@ public  class Actor {
     }
     public String getRole(){
         return role;
+    }
+    
+    public Boolean getNotificationsPreference() {
+        return notificationsPreference;
     }
 }
