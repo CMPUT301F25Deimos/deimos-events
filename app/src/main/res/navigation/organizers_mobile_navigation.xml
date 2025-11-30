@@ -12,7 +12,7 @@
 
     <fragment
         android:id="@+id/navigation_create"
-        android:name="com.example.deimos_events.ui.createEvent.createFragment"
+        android:name="com.example.deimos_events.ui.createEvent.CreateFragment"
         android:label="Create Events"
         tools:layout="@layout/fragment_create_event"/>
 

@@ -75,13 +75,13 @@ public class ProfileFragment extends Fragment {
     private NavigationManager NaM;
 
     /**
-     * Inflates the view, wires up managers/view model, restores persisted profile values,
+     * Inflates the fragment view, wires up managers/view model, restores persisted profile values,
      * and sets click handlers for update/delete and the notification toggle.
      *
-     * @param inflater  layout inflater
-     * @param container parent view group
+     * @param inflater  layout inflater used to inflate the fragment's view
+     * @param container optional parent view to attach the fragment's UI to
      * @param savedInstanceState saved state bundle, if any
-     * @return the root view for this fragment
+     * @return the root view for this fragment's layout
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,

@@ -309,8 +309,16 @@ public class Database implements IDatabase {
         db.collection("events")
                 .document(id)
                 .get()
-                .addOnSuccessListener(doc -> callback.accept(doc.exists()))
-                .addOnFailureListener(e -> callback.accept(null));
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()){
+                        callback.accept(Boolean.TRUE);
+                    } else {
+                        callback.accept(Boolean.FALSE);
+                    }
+                })
+                .addOnFailureListener(e ->{
+                    callback.accept(null);
+                });
     }
 
 

@@ -42,10 +42,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
-public class createFragment extends Fragment {
+public class CreateFragment extends Fragment {
     private FragmentCreateEventBinding binding;
 
-    private createViewModel viewModel;
+    private CreateViewModel viewModel;
     private Button upload;
     private ImageView image;
     private EditText title;
@@ -93,7 +93,7 @@ public class createFragment extends Fragment {
                                 image.setImageURI(uri);
                             }
                         });
-        viewModel = new ViewModelProvider(this).get(createViewModel.class);
+        viewModel = new ViewModelProvider(this).get(CreateViewModel.class);
         upload.setOnClickListener(v ->{
             pickImageLauncher.launch("image/*");
         });
@@ -172,7 +172,6 @@ public class createFragment extends Fragment {
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
             Bundle arg = new Bundle();
             arg.putString("id", uniqueId);
-            SM.getSession().setCurrentEvent(event);
             navController.navigate(R.id.navigation_edit, arg, navOptions);
         });
 

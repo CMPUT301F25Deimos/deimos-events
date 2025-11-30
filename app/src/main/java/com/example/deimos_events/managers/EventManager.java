@@ -154,7 +154,7 @@ public class EventManager {
      *                       of the delete attempt. Callback is made even if the database isn't queried
      * @see Session
      * @see Registration
-     * @see Database#deleteRegistor(String, Consumer)
+     * @see Database#deleteRegistration(String, Consumer) (String, Consumer)
      * @see Database#registrationExists(String, Consumer)
      */
     public void deleteRegistration(String registrationId, Consumer<Result> callback) {
