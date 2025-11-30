@@ -20,7 +20,8 @@ import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 
 /**
- * Shows the event information for an event (Entrant Side)
+ * Shows the event information for an event
+ * Activity allows signing up for the event
  */
 
 public class EventInformationActivity  extends AppCompatActivity {
@@ -39,7 +40,6 @@ public class EventInformationActivity  extends AppCompatActivity {
     private ImageView eventPoster;
     private SessionManager SM;
     private UserInterfaceManager UIM;
-    private NavigationManager NM;
     private EventManager EM;
 
 
@@ -49,7 +49,7 @@ public class EventInformationActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_event_info);
 
-
+        //Initializing all buttons and textViews
         returnButton = findViewById(R.id.btnReturn);
         signUpButton = findViewById(R.id.btnJoin);
 
@@ -64,10 +64,9 @@ public class EventInformationActivity  extends AppCompatActivity {
         eventPoster = findViewById(R.id.imgEvent);
 
 
-
+        //Grabbing all the needed managers
         SM = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
-        NM = SM.getNavigationManager();
         EM = SM.getEventManager();
 
         Event currentEvent = UIM.getCurrentEvent();

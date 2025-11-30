@@ -667,6 +667,11 @@ public class Database implements IDatabase {
                 });
     }
 
+    /**
+     * Gets all the actors that are currently signed up
+     * @param callback
+     */
+
     @Override
     public void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback) {
         db.collection("actors")
@@ -687,6 +692,11 @@ public class Database implements IDatabase {
                 });
     }
 
+    /**
+     * Deletes the Event Poster of a given event 
+     * @param eventID
+     * @param callback
+     */
     @Override
     public void deleteEventImage(String eventID, Consumer<Boolean> callback) {
         db.collection("events")
