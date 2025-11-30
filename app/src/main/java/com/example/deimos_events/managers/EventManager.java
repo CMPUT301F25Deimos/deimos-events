@@ -362,6 +362,11 @@ public class EventManager {
         db.getRegistrationsByStatus(eventId, status, callback::accept);
     }
 
+    /**
+     *Deletes the event image from the database
+     * @param eventId The ID of the event image that needs to be deleted
+     * @param callback A boolean value indicating success or failure
+     */
     public void deleteEventImage(String eventId, Consumer<Boolean> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
