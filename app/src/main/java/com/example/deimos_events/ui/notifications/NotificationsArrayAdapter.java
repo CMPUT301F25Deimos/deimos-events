@@ -31,9 +31,7 @@ import java.util.ArrayList;
 
 /**
  * Array adapter for the notifications
- * - Designs buttons depending on whether user was accepted, or if they accepted/declined their offer
- * - TODO: As of right now, user automatically gets a notification right after entering an event because
- * - TODO: event lottery logic has yet to be implemented
+ * - Designs buttons depending on whether user was accepted to the waiting list, or if they accepted/declined their offer
  */
 public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
     private IDatabase db;
@@ -63,7 +61,7 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
             if (status.equals("Waiting")) {
                 view = LayoutInflater.from(getContext()).inflate(R.layout.listview_content_no_button, parent, false);
             }
-            else if (!status.equals("Waitlisted")) {
+            else if (!status.equals("Waitlisted") && !status.equals("Rejected Waitlist")) {
                 view = LayoutInflater.from(getContext()).inflate(R.layout.listview_content_and_splitbutton, parent, false);
             }
             else {
@@ -99,18 +97,66 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                 textView.setText(notification.message);
             }
             // person is not accepted, shows option to be removed from waiting list
-            else if (status.equals("Waitlisted")) {
+            else if (status.equals("Waitlisted") || status.equals("Rejected Waitlist") ) {
                 // sets notification message for if user was not accepted in the event lottery
                 textView.setText(notification.message);
                 MaterialButton button = view.findViewById(R.id.placeholder_button);
-                Drawable icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.cancel_24dp);
-                ColorStateList button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.decline_red);
-                button.setText("Cancel");
+                Drawable icon_button;
+                ColorStateList button_colour;
+                String button_text;
+                
+                if (status.equals("Waitlisted")) {
+                    icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.cancel_24dp);
+                    button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.decline_red);
+                    button_text = "Cancel";
+                    
+                }
+                else {
+                    icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.join_sticker_24dp);
+                    button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.title_colour);
+                    button_text = "Join";
+                }
+                
+                button.setText(button_text);
                 button.setIcon(icon_button);
                 button.setBackgroundTintList(button_colour);
                 
                 button.setOnClickListener(v -> {
-                    db.leaveEvent(notification.getEventId(), actor);
+                    Drawable changed_icon_button;
+                    ColorStateList changed_button_colour;
+                    String changed_button_text;
+                    
+                    Snackbar snackbar;
+                    if (button.getText().equals("Cancel")) {
+                        // (changed it from leaveEvent so that it's still part of user's joined events history)
+                        db.answerEvent(notification.getEventId(), "Rejected Waitlist");
+                        db.setRegistrationStatus(notification.getRegistrationId(), "Rejected Waitlist");
+                        
+                        // OPtion to join the event once again after leaving
+                        changed_icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.join_sticker_24dp);
+                        changed_button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.title_colour);
+                        changed_button_text = "Join";
+                        
+                        snackbar = Snackbar.make(view, "You have cancelled the offer to be part of the waitlist for the event, '" + notification.title + "'.", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT);
+                    }
+                    else {
+                        // join waiting list once again
+                        db.answerEvent(notification.getEventId(), "Waitlisted");
+                        db.setRegistrationStatus(notification.getRegistrationId(), "Waitlisted");
+                        
+                        // Reverts it back to its prevoius state
+                        changed_icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.cancel_24dp);
+                        changed_button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.decline_red);
+                        changed_button_text = "Cancel";
+                        
+                        snackbar = Snackbar.make(view, "You have once again joined the second waitlist for the event, '" + notification.title + "'.", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT);
+                    }
+                    
+                    button.setText(changed_button_text);
+                    button.setIcon(changed_icon_button);
+                    button.setBackgroundTintList(changed_button_colour);
+                    snackbar.getView().setTranslationY(-260);
+                    snackbar.show();
                 });
             }
             // gives person the choices to accept/decline offer
@@ -218,7 +264,7 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                         
                         // puts snackbar notification higher
                         if (snackbar != null) {
-                            snackbar.getView().setTranslationY(-220);
+                            snackbar.getView().setTranslationY(-260);
                             snackbar.show();
                         }
                     }

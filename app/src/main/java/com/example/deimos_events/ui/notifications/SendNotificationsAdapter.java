@@ -14,6 +14,10 @@ import com.example.deimos_events.R;
 
 import java.util.List;
 
+/**
+ * ArrayAdapter for the dropdown for sending notifications
+ * Basically, the adapter for the people that the sender can send to
+ */
 public class SendNotificationsAdapter extends ArrayAdapter<String> {
     private final LayoutInflater inflater;
     

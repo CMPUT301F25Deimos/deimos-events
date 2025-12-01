@@ -3,7 +3,8 @@ package com.example.deimos_events;
 import java.util.Date;
 
 /**
- * Class for notifications and what they include
+ * Class for notifications and what they include, including the message, the event to notify for, and etc
+ * Contains time to be able to sort notifications when displaying to user
  */
 public class Notifications {
     String id;

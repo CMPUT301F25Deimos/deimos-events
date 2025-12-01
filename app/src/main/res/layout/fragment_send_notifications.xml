@@ -81,7 +81,7 @@
                     android:background="@null"
                     android:dropDownWidth="225dp"
                     android:dropDownVerticalOffset="10dp"
-                    android:hint="Type a tag"
+                    android:hint="Type a tag..."
                     android:inputType="text"
                     android:minWidth="50dp"
                     android:textSize="13sp" />
