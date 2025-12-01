@@ -2,13 +2,16 @@ package com.example.deimos_events;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+import com.example.deimos_events.dataclasses.Actor;
+
 import org.junit.jupiter.api.BeforeEach;
 
 public class ActorTest {
     private Actor testActor;
     @BeforeEach
     void init(){
-       testActor = new Actor("Zero", "John", "johnsemail@gmail.com", "778-112-9821");
+       testActor = new Actor("Zero", "John", "johnsemail@gmail.com", "778-112-9821", false);
     }
 
     @Test

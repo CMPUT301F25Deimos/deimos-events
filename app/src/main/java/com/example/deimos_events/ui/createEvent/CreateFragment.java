@@ -1,5 +1,6 @@
 package com.example.deimos_events.ui.createEvent;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -25,13 +26,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
 import com.example.deimos_events.databinding.FragmentCreateEventBinding;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
-import com.example.deimos_events.ui.createEvent.createViewModel;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -42,11 +42,31 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
+/**
+ * Fragment responsible for allowing organizers to create new events.
+ *
+ * <p>This fragment provides input fields for title, description, date,
+ * capacity, participation criteria, guidelines, location requirement,
+ * and an event image. It validates all user inputs before attempting
+ * to create and insert an {@link Event} into the database via
+ * the {@link EventManager}.</p>
+ *
+ * <p>Upon successful creation, the fragment navigates to the event editing
+ * screen while passing the newly created event's ID.</p>
+ *
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *     <li>Collect and validate event creation input.</li>
+ *     <li>Handle image selection from device storage.</li>
+ *     <li>Generate a unique event ID and corresponding QR code.</li>
+ *     <li>Create an {@link Event} instance and save it using {@link EventManager}.</li>
+ *     <li>Navigate to the event editing screen on success.</li>
+ * </ul>
+ */
 
-public class createFragment extends Fragment {
+public class CreateFragment extends Fragment {
     private FragmentCreateEventBinding binding;
-
-    private createViewModel viewModel;
+    private CreateViewModel viewModel;
     private Button upload;
     private ImageView image;
     private EditText title;
@@ -62,16 +82,36 @@ public class createFragment extends Fragment {
     private Switch location;
     private Button create;
     private EditText year;
-
-
-
-
-
+    private EditText guide;
+    private EditText criteria;
+    /**
+     * Inflates the UI for creating an event, initializes all form fields,
+     * configures the image picker, and sets up validation + submission logic.
+     *
+     * <p>The method also builds the event creation workflow including:
+     * <ul>
+     *     <li>Image selection using {@link ActivityResultLauncher}</li>
+     *     <li>Date parsing and validation</li>
+     *     <li>QR code generation for the event</li>
+     *     <li>Submitting the created event to the database</li>
+     *     <li>Navigating to the edit screen after success</li>
+     * </ul>
+     * </p>
+     *
+     * @param inflater LayoutInflater used to inflate the fragment layout
+     * @param container optional parent view
+     * @param savedInstanceState previously saved state, if any
+     * @return the inflated root view for this fragment
+     */
+    @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
      public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_create_event, container,false);
 
+
+        guide = view.findViewById(R.id.Guidelines);
+        criteria = view.findViewById(R.id.editText2);
         upload = view.findViewById(R.id.button);
         title = view.findViewById(R.id.title);
         Description = view.findViewById(R.id.editText);
@@ -87,6 +127,7 @@ public class createFragment extends Fragment {
         year = view.findViewById(R.id.year);
         create = view.findViewById(R.id.create);
         image = view.findViewById(R.id.imageView);
+
         final ActivityResultLauncher<String> pickImageLauncher =
                 registerForActivityResult(new ActivityResultContracts.GetContent(),
                         uri -> {
@@ -94,12 +135,22 @@ public class createFragment extends Fragment {
                                 image.setImageURI(uri);
                             }
                         });
-        viewModel = new ViewModelProvider(this).get(createViewModel.class);
+        viewModel = new ViewModelProvider(this).get(CreateViewModel.class);
         upload.setOnClickListener(v ->{
             pickImageLauncher.launch("image/*");
         });
 
         create.setOnClickListener(v->{
+            String guidelines = guide.getText().toString();
+            if(guidelines.isEmpty()){
+                guide.setError("Guide cannot be empty");
+                return;
+            }
+            String participation = criteria.getText().toString();
+            if(participation.isEmpty()){
+                criteria.setError("Participation criteria cannot be empty");
+                return;
+            }
             String name = title.getText().toString();
             if(name.isEmpty()){
                 title.setError("Title cannot be empty");
@@ -139,7 +190,6 @@ public class createFragment extends Fragment {
                 Toast.makeText(getContext(), "Please upload a valid image", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyyy", Locale.getDefault());
             String dateString = d +" "+ m+" "+ y;
             Date date;
@@ -159,28 +209,38 @@ public class createFragment extends Fragment {
                 throw new RuntimeException(e);
             }
             SessionManager SM = ((EventsApp)requireActivity().getApplicationContext()).getSessionManager();
-            EventManager EM = new EventManager(SM);
-            Event event = EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
+            EventManager EM = SM.getEventManager();
+            Event event = EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr,criteria.getText().toString(), guide.getText().toString());
+
 
             EM.insertEvent(event, result -> {
                 if (result.isSuccess()){
                     Log.i("TAG", "Event created successfully");
+
+                    if (!isAdded()){
+                        return;
+                    }
+                    NavController navController = NavHostFragment.findNavController(this);
+                    NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
+                    Bundle arg = new Bundle();
+                    arg.putString("id", uniqueId);
+                    navController.navigate(R.id.navigation_edit, arg, navOptions);
+
+
                 } else {
                     Log.i("TAG", "Event unsuccessfully created");
+                    if (isAdded()){
+                        Toast.makeText(requireContext(), "Failed to create event. Try again", Toast.LENGTH_LONG).show();
+                    }
                 }
             });
-            NavController navController = NavHostFragment.findNavController(this);
-            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
-            Bundle arg = new Bundle();
-            arg.putString("id", uniqueId);
-            SM.getSession().setCurrentEvent(event);
-            navController.navigate(R.id.navigation_edit, arg, navOptions);
         });
-
     return view;
-
     }
-
+    /**
+     * Cleans up references to the view binding when the fragment's view is destroyed.
+     * This prevents memory leaks and follows recommended Fragment lifecycle practices.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

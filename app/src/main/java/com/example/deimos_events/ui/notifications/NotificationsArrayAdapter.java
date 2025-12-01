@@ -17,16 +17,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.example.deimos_events.Actor;
+import com.example.deimos_events.EventsApp;
+import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.IDatabase;
-import com.example.deimos_events.Notifications;
+import com.example.deimos_events.dataclasses.Notifications;
 import com.example.deimos_events.R;
+import com.example.deimos_events.dataclasses.Registration;
+import com.example.deimos_events.managers.EventManager;
+import com.example.deimos_events.managers.SessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 
 /**
@@ -36,26 +41,78 @@ import java.util.ArrayList;
 public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
     private IDatabase db;
     private Actor actor;
+    private SessionManager SM;
+    private EventManager EM;
+    /**
+     * Creates a new {@link NotificationsArrayAdapter} for displaying entrant-facing
+     * notifications related to waitlists and lottery results.
+     *
+     * <p>This adapter:
+     * <ul>
+     *     <li>Displays notification messages and associated images</li>
+     *     <li>Shows different layouts depending on notification status
+     *         (pure info, waitlisted/rejected, or accepted/declined)</li>
+     *     <li>Allows users to accept/decline offers or rejoin/leave a waitlist</li>
+     *     <li>Uses {@link EventManager} to update event and registration status in the backend</li>
+     * </ul>
+     *
+     * @param context the context used to inflate views and access the application
+     * @param events  the list of {@link Notifications} to display
+     * @param db      database interface used to support notification-related operations
+     * @param actor   the current logged-in {@link Actor} receiving these notifications
+     */
+
     public NotificationsArrayAdapter(Context context, ArrayList<Notifications> events, IDatabase db, Actor actor) {
         super(context, 0, events);
         this.db = db;
         this.actor = actor;
+        EventsApp app = (EventsApp) context.getApplicationContext();
+        SM = app.getSessionManager();
+        EM = SM.getEventManager();
     }
-    
+    /**
+     * Returns a fully bound view representing a single notification row.
+     *
+     * <p>Behavior:</p>
+     * <ul>
+     *     <li>Inflates different layouts based on the notification status:
+     *         <ul>
+     *             <li>{@code "Waiting"} → informational only (no actions)</li>
+     *             <li>{@code "Waitlisted"} / {@code "Rejected Waitlist"} → single action button
+     *                 (join/cancel waitlist)</li>
+     *             <li>Other statuses (e.g., accepted offer) → split accept/decline button group</li>
+     *         </ul>
+     *     </li>
+     *     <li>Binds the notification message and image (Base64-decoded or fallback icon)</li>
+     *     <li>Configures click listeners for:
+     *         <ul>
+     *             <li>Joining/leaving the waitlist for waitlist-related notifications</li>
+     *             <li>Accepting or declining an event offer for lottery results</li>
+     *         </ul>
+     *     </li>
+     *     <li>Updates event/registration status through {@link EventManager}</li>
+     *     <li>Shows feedback via {@link Snackbar}</li>
+     * </ul>
+     *
+     * @param position    the position of the item in the data set
+     * @param convertView a recycled view to reuse, or {@code null} to inflate a new one
+     * @param parent      the parent that this view will eventually be attached to
+     * @return a view representing the notification at the given position
+     */
     @SuppressLint("SetTextI18n")
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view;
-        
+
         Notifications notification = getItem(position);
         
         String status = notification.getStatus();
-        
+
         if (status == null) {
             status = "Waiting";
         }
-        
+
         if (convertView == null) {
             // sees whether user was kept as a waitlist, or chosen by lottery
             if (status.equals("Waiting")) {
@@ -74,11 +131,11 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
         
         if (notification != null) {
             TextView textView = view.findViewById(R.id.event_text);
-            
+
             ImageView imageView = view.findViewById(R.id.event_image);
-            
+
             String base64Image = notification.image;
-            
+
             if (base64Image == null || base64Image.trim().isEmpty() || base64Image.equals("null")) {
                 imageView.setImageResource(R.drawable.ic_events_black_24dp);
             } else {
@@ -104,54 +161,72 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                 Drawable icon_button;
                 ColorStateList button_colour;
                 String button_text;
-                
+
                 if (status.equals("Waitlisted")) {
                     icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.cancel_24dp);
                     button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.decline_red);
                     button_text = "Cancel";
-                    
+
                 }
                 else {
                     icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.join_sticker_24dp);
                     button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.title_colour);
                     button_text = "Join";
                 }
-                
+
                 button.setText(button_text);
                 button.setIcon(icon_button);
                 button.setBackgroundTintList(button_colour);
-                
+
                 button.setOnClickListener(v -> {
                     Drawable changed_icon_button;
                     ColorStateList changed_button_colour;
                     String changed_button_text;
-                    
+
                     Snackbar snackbar;
                     if (button.getText().equals("Cancel")) {
                         // (changed it from leaveEvent so that it's still part of user's joined events history)
-                        db.answerEvent(notification.getEventId(), "Rejected Waitlist");
-                        db.setRegistrationStatus(notification.getRegistrationId(), "Rejected Waitlist");
-                        
+                        EM.answerEvent(notification.getId(), "Rejected Waitlist", result ->{
+                            if (!result.isSuccess()){
+                                Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+                        });
+                        EM.setRegistrationStatus(notification.getRegistrationId(), "Rejected Waitlist", result ->{
+                            if (!result.isSuccess()){
+                                Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+                        });
+
+
                         // OPtion to join the event once again after leaving
                         changed_icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.join_sticker_24dp);
                         changed_button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.title_colour);
                         changed_button_text = "Join";
-                        
+
                         snackbar = Snackbar.make(view, "You have cancelled the offer to be part of the waitlist for the event, '" + notification.title + "'.", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT);
                     }
                     else {
                         // join waiting list once again
-                        db.answerEvent(notification.getEventId(), "Waitlisted");
-                        db.setRegistrationStatus(notification.getRegistrationId(), "Waitlisted");
-                        
+                        EM.answerEvent(notification.getId(), "Waitlisted", result ->{
+                            if (!result.isSuccess()){
+                                Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+                        });
+                        EM.setRegistrationStatus(notification.getRegistrationId(), "Waitlisted", result ->{
+                            if (!result.isSuccess()){
+                                Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+                        });
+
+
                         // Reverts it back to its prevoius state
                         changed_icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.cancel_24dp);
                         changed_button_colour = ContextCompat.getColorStateList(this.getContext(), R.color.decline_red);
                         changed_button_text = "Cancel";
-                        
+
                         snackbar = Snackbar.make(view, "You have once again joined the second waitlist for the event, '" + notification.title + "'.", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT);
                     }
-                    
+
                     button.setText(changed_button_text);
                     button.setIcon(changed_icon_button);
                     button.setBackgroundTintList(changed_button_colour);
@@ -183,12 +258,12 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                         .setBottomRightCorner(CornerFamily.ROUNDED, 35f)
                         .setTopRightCorner(CornerFamily.ROUNDED, 35f)
                         .build();
-                
+
                 // chosen button shape
                 ShapeAppearanceModel circle_button = ShapeAppearanceModel.builder()
                         .setAllCorners(CornerFamily.ROUNDED, 100f)
                         .build();
-                
+
                 
                 if (status.equals("Accepted")) {
                     // changes selected button to circle and to its proper colour
@@ -215,7 +290,7 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                     accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
                     decline_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
                 }
-                
+
                 waitingListAnswer.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
                     @Override
                     public void onButtonChecked(MaterialButtonToggleGroup materialButtonToggleGroup, int i, boolean b) {
@@ -229,26 +304,43 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                                 snackbar = Snackbar.make(view, "You have accepted your offer.", Snackbar.LENGTH_SHORT);
                                 choice = accept_button;
                                 button_colour = ContextCompat.getColorStateList(getContext(), R.color.accept_green);
-                                
+
                                 // if person had previously answered, then only keeps the most recently clicked button (accept)
                                 decline_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
                                 decline_button.setShapeAppearanceModel(original_decline);
                                 
-                                db.answerEvent(notification.getId(), "Accepted");
+                                EM.answerEvent(notification.getId(), "Accepted", result ->{
+                                    if (!result.isSuccess()){
+                                        Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                });
                                 // saves their answer as "accept"
-                                db.setRegistrationStatus(notification.getRegistrationId(), "Accepted");
+                                EM.setRegistrationStatus(notification.getRegistrationId(), "Accepted", result ->{
+                                    if (!result.isSuccess()){
+                                        Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                });
                             } else if (i == R.id.decline_button) { // declined button was clicked
                                 snackbar = Snackbar.make(view, "You have declined your offer.", Snackbar.LENGTH_SHORT);
                                 choice = decline_button;
                                 button_colour = ContextCompat.getColorStateList(getContext(), R.color.decline_red);
-                                
+
                                 // if person had previously answered, then only keeps the most recently clicked button (decline)
                                 accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
                                 accept_button.setShapeAppearanceModel(original_accept);
                                 
-                                db.answerEvent(notification.getId(), "Declined");
+                                EM.answerEvent(notification.getId(), "Declined",  result ->{
+                                    if (!result.isSuccess()){
+                                        Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                });
+
                                 // saves their answer as "decline"
-                                db.setRegistrationStatus(notification.getRegistrationId(), "Declined");
+                                EM.setRegistrationStatus(notification.getRegistrationId(), "Declined", result ->{
+                                    if (!result.isSuccess()){
+                                        Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                             
                             // makes chosen button into a circle, and colours it
@@ -274,5 +366,5 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
         }
         return view;
     }
-    
+
 }

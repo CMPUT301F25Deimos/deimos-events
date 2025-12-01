@@ -26,22 +26,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.MainActivity;
-import com.example.deimos_events.Registration;
 import com.example.deimos_events.managers.ActorManager;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
+import com.example.deimos_events.dataclasses.Registration;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.ui.notifications.SendNotificationsFragment;
-import com.example.deimos_events.ui.createEvent.createViewModel;
+import com.example.deimos_events.ui.createEvent.CreateViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -50,7 +51,24 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.File;
 import java.io.FileOutputStream;
-
+/**
+ * Fragment used for editing an existing {@link Event}. It allows organizers to:
+ * <ul>
+ *     <li>Update the event's poster image</li>
+ *     <li>Navigate to a map view if location tracking is enabled</li>
+ *     <li>Export entrant information as a CSV file</li>
+ *     <li>Select additional content through the picker screen</li>
+ *     <li>Open the notification dialog to send messages to entrants</li>
+ * </ul>
+ *
+ * <p>The fragment loads the current event from the shared {@link SessionManager}
+ * and updates the UI accordingly, including loading an existing poster image
+ * if available. Organizers can then modify event details such as the poster,
+ * or perform admin tasks like exporting CSV participant data.</p>
+ *
+ * <p>This fragment is always opened with a valid event stored in the session,
+ * and requires the parent activity to provide an initialized {@link EventManager}.</p>
+ */
 public class EditFragment extends Fragment {
 
     private Button update;
@@ -60,6 +78,24 @@ public class EditFragment extends Fragment {
     private EditViewModel viewModel;
     private Button notify;
     private Button map;
+    /**
+     * Inflates and initializes the edit-event user interface.
+     *
+     * <p>This method performs several tasks:</p>
+     * <ul>
+     *     <li>Loads the current event from the {@link SessionManager}</li>
+     *     <li>Displays the existing event poster image if available</li>
+     *     <li>Sets up the map navigation button (if event uses geolocation)</li>
+     *     <li>Registers an image picker for updating the event poster</li>
+     *     <li>Initializes CSV export functionality for entrant lists</li>
+     *     <li>Initializes “Send Notifications” dialog launching</li>
+     * </ul>
+     *
+     * @param inflater  LayoutInflater used to inflate the layout
+     * @param container Optional parent view
+     * @param savedInstanceState previous saved state (unused)
+     * @return The root view for this fragment
+     */
 
     @Nullable
     @Override
@@ -82,8 +118,9 @@ public class EditFragment extends Fragment {
         Bundle latLon = new Bundle();
         //if true bring up map
         map.setOnClickListener(v -> {
-
             if (event.getRecordLocation()) {
+                NavController navController = NavHostFragment.findNavController(this);
+                navController.navigate(R.id.action_editFragment_to_mapFragment);
 
                 FrameLayout maps = view.findViewById(R.id.maps);
                 view.findViewById(R.id.mapFragment).setVisibility(view.VISIBLE);
@@ -94,26 +131,7 @@ public class EditFragment extends Fragment {
                 not.setVisibility(view.GONE);
                 pick.setVisibility(view.GONE);
                 back.setVisibility(view.VISIBLE);
-                SupportMapFragment map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
-                map.getMapAsync(googleMap -> {
-                    googleMap.clear();
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(53.5462, 113.4937), 1));
-                    EM.fetchAllRegistrations(event.getId(), regList -> {
-                        if (regList != null && !regList.isEmpty()) {
-                            for (Registration r : regList) {
-                                AM.actorExistsByid(r.getEntrantId(), callback -> {
-                                    LatLng latlng = new LatLng(Double.valueOf(r.getLatitude()), Double.valueOf(r.getLongitude()));
-                                    MarkerOptions marker = new MarkerOptions()
-                                            .position(latlng)
-                                            .title(callback.getName())
-                                            .snippet("Marker Description");
-                                    Marker myMarker = googleMap.addMarker(marker);
-                                });
-                            }
-                        }
 
-                    });
-                });
             } else {
                 Toast.makeText(getContext(), "Location not enabled", Toast.LENGTH_SHORT);
             }
@@ -186,16 +204,16 @@ public class EditFragment extends Fragment {
             NavController navController = NavHostFragment.findNavController(this);
             navController.navigate(R.id.navigation_picker);
         });
+        if(event.getPosterId()!= null) {
+            byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);
+            Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+            image.setImageBitmap(bmp);
+        }
 
-        byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);
-        Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-        image.setImageBitmap(bmp);
-
-        // clicking on the notification button button
         notify = view.findViewById(R.id.notify);
         notify.setOnClickListener(v -> {
             SM.getSession().setCurrentEvent(event);
-            
+
             SendNotificationsFragment dialog = new SendNotificationsFragment();
             dialog.show(getParentFragmentManager(), "MessageDialog");
         });

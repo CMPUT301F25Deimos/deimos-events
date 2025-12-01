@@ -12,10 +12,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
-import com.example.deimos_events.Registration;
+import com.example.deimos_events.dataclasses.Registration;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 

@@ -17,13 +17,16 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.deimos_events.Actor;
+import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
-import com.example.deimos_events.Registration;
+import com.example.deimos_events.dataclasses.Registration;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.databinding.FragmentEntrantsEventsBinding;
+import com.example.deimos_events.dataclasses.Event;
+import com.example.deimos_events.dataclasses.Registration;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 import com.google.android.material.button.MaterialButton;
@@ -58,6 +61,7 @@ public class EventsEntrantsFragment extends Fragment {
     private EventArrayAdapter adapter;
     private ListenerRegistration registrationListener;
     private SessionManager SM;
+    private EventManager EM;
     private UserInterfaceManager UIM;
     private ListView listView;
 
@@ -70,7 +74,7 @@ public class EventsEntrantsFragment extends Fragment {
     /**
      * Live list of all events retrieved from the database.
      */
-    private final List<com.example.deimos_events.Event> allEventsLive = new ArrayList<>();
+    private final List<Event> allEventsLive = new ArrayList<>();
 
     /**
      * Set of event IDs that the entrant is currently joined to.
@@ -80,17 +84,17 @@ public class EventsEntrantsFragment extends Fragment {
     /**
      * Map of event to "day type" (e.g., "Weekdays" or "Weekends") for filtering.
      */
-    private final Map<com.example.deimos_events.Event, String> dayTypeByEvent = new HashMap<>();
+    private final Map<Event, String> dayTypeByEvent = new HashMap<>();
 
     /**
      * Map of event to category (e.g., "Swimming", "Sports") for interest filtering.
      */
-    private final Map<com.example.deimos_events.Event, String> categoryByEvent = new HashMap<>();
+    private final Map<Event, String> categoryByEvent = new HashMap<>();
 
     /**
      * Map of event to timestamp (milliseconds) for ordering in history view.
      */
-    private final Map<com.example.deimos_events.Event, Long> timeByEvent = new HashMap<>();
+    private final Map<Event, Long> timeByEvent = new HashMap<>();
 
     /**
      * Map of eventId to registration status string for the current entrant
@@ -175,6 +179,7 @@ public class EventsEntrantsFragment extends Fragment {
         EventsApp app = (EventsApp) requireActivity().getApplicationContext();
         SM = app.getSessionManager();
         Session session = SM.getSession();
+        EM = SM.getEventManager();
         IDatabase db = session.getDatabase();
         Actor actor = session.getCurrentActor();
 
@@ -190,18 +195,16 @@ public class EventsEntrantsFragment extends Fragment {
             });
         }
 
-        db.getEvents(events -> {
+        EM.fetchEvents(events -> {
             allEventsLive.clear();
-            if (events != null) allEventsLive.addAll(events);
+            allEventsLive.addAll(events);
             assignSidecarTagsForRealEvents(allEventsLive);
 
-            db.getEntrantRegisteredEvents(actor, joinedEventIds -> {
-                joinedEventIdsLive = (joinedEventIds == null)
-                        ? new HashSet<>()
-                        : new HashSet<>(joinedEventIds);
+            EM.fetchEntrantRegisteredEvents(actor, joinedEventIds -> {
+                joinedEventIdsLive = new HashSet<>(joinedEventIds);
 
                 registrationStatusByEventId.clear();
-                db.getNotificationEventInfo(actor, registrations -> {
+                EM.fetchNotificationEventInfo(actor, registrations -> {
                     for (Registration r : registrations) {
                         if (r.getEventId() != null && r.getStatus() != null) {
                             registrationStatusByEventId.put(r.getEventId(), r.getStatus());
@@ -210,13 +213,11 @@ public class EventsEntrantsFragment extends Fragment {
                     renderWithFilters(listView, actor);
                 });
 
-                registrationListener = db.listenToRegisteredEvents(actor, (updatedJoinedIds) -> {
-                    joinedEventIdsLive = (updatedJoinedIds == null)
-                            ? new HashSet<>()
-                            : new HashSet<>(updatedJoinedIds);
+                registrationListener = EM.listenToRegisteredEvents(actor, (updatedJoinedIds) -> {
+                    joinedEventIdsLive = new HashSet<>(updatedJoinedIds);
 
                     registrationStatusByEventId.clear();
-                    db.getNotificationEventInfo(actor, registrations -> {
+                    EM.fetchNotificationEventInfo(actor, registrations -> {
                         for (Registration r : registrations) {
                             if (r.getEventId() != null && r.getStatus() != null) {
                                 registrationStatusByEventId.put(r.getEventId(), r.getStatus());
@@ -294,14 +295,14 @@ public class EventsEntrantsFragment extends Fragment {
      *
      * @param events list of events retrieved from the database
      */
-    private void assignSidecarTagsForRealEvents(List<com.example.deimos_events.Event> events) {
+    private void assignSidecarTagsForRealEvents(List<Event> events) {
         dayTypeByEvent.clear();
         categoryByEvent.clear();
         timeByEvent.clear();
 
         Calendar base = Calendar.getInstance();
         for (int i = 0; i < events.size(); i++) {
-            com.example.deimos_events.Event e = events.get(i);
+            Event e = events.get(i);
 
             String day = (i % 2 == 0) ? "Weekdays" : "Weekends";
             dayTypeByEvent.put(e, day);
@@ -333,8 +334,8 @@ public class EventsEntrantsFragment extends Fragment {
      * @param actor    the current entrant actor
      */
     private void renderWithFilters(ListView listView, Actor actor) {
-        List<com.example.deimos_events.Event> filtered = new ArrayList<>();
-        for (com.example.deimos_events.Event e : allEventsLive) {
+        List<Event> filtered = new ArrayList<>();
+        for (Event e : allEventsLive) {
             if (!matchesStatus(e)) continue;
             if (!matchesAvailability(e)) continue;
             if (!matchesCategory(e)) continue;
@@ -378,7 +379,7 @@ public class EventsEntrantsFragment extends Fragment {
      * @param e the event to test
      * @return true if the event passes the status filter, false otherwise
      */
-    private boolean matchesStatus(com.example.deimos_events.Event e) {
+    private boolean matchesStatus(Event e) {
         String status = registrationStatusByEventId.get(e.getId());
         String norm = (status == null) ? "" : status.toUpperCase();
 
@@ -392,7 +393,7 @@ public class EventsEntrantsFragment extends Fragment {
                 return joined;
 
             case WAITLISTED:
-                return "WAITLISTED".equals(norm);
+                return "WAITING".equals(norm);
 
             case SELECTED:
                 return "ACCEPTED".equals(norm) || "SELECTED".equals(norm);
@@ -414,7 +415,7 @@ public class EventsEntrantsFragment extends Fragment {
      * @param e the event to test
      * @return true if the event passes the availability filter, false otherwise
      */
-    private boolean matchesAvailability(com.example.deimos_events.Event e) {
+    private boolean matchesAvailability(Event e) {
         if (selectedDayTypes.isEmpty()) return true;
         String day = dayTypeByEvent.get(e);
         return day != null && selectedDayTypes.contains(day);
@@ -426,7 +427,7 @@ public class EventsEntrantsFragment extends Fragment {
      * @param e the event to test
      * @return true if the event passes the category filter, false otherwise
      */
-    private boolean matchesCategory(com.example.deimos_events.Event e) {
+    private boolean matchesCategory(Event e) {
         if (selectedCategories.isEmpty()) return true;
         String cat = categoryByEvent.get(e);
         return cat != null && selectedCategories.contains(cat);

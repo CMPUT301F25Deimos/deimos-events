@@ -1,6 +1,6 @@
 package com.example.deimos_events.managers;
 
-import com.example.deimos_events.Invitation;
+import com.example.deimos_events.dataclasses.Invitation;
 import com.example.deimos_events.Session;
 
 /**
@@ -14,7 +14,14 @@ import com.example.deimos_events.Session;
  */
 public class InvitationManager {
     private final SessionManager sessionManager;
-
+    /**
+     * Constructs a new {@code InvitationManager} with the provided
+     * {@link SessionManager}.
+     *
+     * @param sessionManager the session manager responsible for storing
+     *                       and retrieving session-level data related
+     *                       to invitations
+     */
     public InvitationManager(SessionManager sessionManager){
         this.sessionManager = sessionManager;
     }

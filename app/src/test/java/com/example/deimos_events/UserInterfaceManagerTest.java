@@ -1,5 +1,7 @@
 package com.example.deimos_events;
 
+import com.example.deimos_events.dataclasses.Actor;
+import com.example.deimos_events.dataclasses.Result;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 
@@ -16,7 +18,7 @@ public class UserInterfaceManagerTest {
 
     private ResultCapturer resultCapturer;
 
-    private Actor testActor = new Actor("912312","jack", "email@gmail.com", "1231231234", Roles.ENTRANT);
+    private Actor testActor = new Actor("912312","jack", "email@gmail.com", "1231231234", Boolean.TRUE);
 
     private final Consumer<Result> NO_OP = result -> {};
 

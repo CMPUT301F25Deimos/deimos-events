@@ -8,11 +8,21 @@
         android:id="@+id/navigation_edit"
         android:label="Edit"
         android:name="com.example.deimos_events.ui.EditEvent.EditFragment"
-        tools:layout="@layout/fragment_view_and_change_image"/>
+        tools:layout="@layout/fragment_view_and_change_image">
+        <action
+            android:id="@+id/action_editFragment_to_mapFragment"
+            app:destination="@id/navigation_map" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_map"
+        android:label="Map"
+        android:name="com.example.deimos_events.ui.map.map"
+        tools:layout="@layout/fragment_maps"
+        />
 
     <fragment
         android:id="@+id/navigation_create"
-        android:name="com.example.deimos_events.ui.createEvent.createFragment"
+        android:name="com.example.deimos_events.ui.createEvent.CreateFragment"
         android:label="Create Events"
         tools:layout="@layout/fragment_create_event"/>
 

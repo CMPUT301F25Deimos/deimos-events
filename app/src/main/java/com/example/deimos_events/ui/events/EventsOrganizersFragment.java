@@ -18,14 +18,15 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.deimos_events.Actor;
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Actor;
+import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Registration;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.databinding.FragmentOrganizersEventsBinding;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 import com.google.android.material.button.MaterialButton;
@@ -42,7 +43,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+/**
+ * Fragment that displays and manages the organizer's event list with rich filtering options.
+ * <p>Features include:</p>
+ * <ul>
+ *     <li>Viewing all events relevant to the current organizer or entrant</li>
+ *     <li>Filtering by join status (all, joined, not joined, etc.)</li>
+ *     <li>Filtering by availability (weekdays / weekends)</li>
+ *     <li>Filtering by interest categories using chips</li>
+ *     <li>Navigating to create-event and edit-event screens</li>
+ *     <li>Listening to live updates of joined events via Firestore</li>
+ * </ul>
+ */
 public class EventsOrganizersFragment extends Fragment {
     private FragmentOrganizersEventsBinding binding;
     private EventArrayAdapter adapter;
@@ -119,6 +131,7 @@ public class EventsOrganizersFragment extends Fragment {
 
         EventsApp app = (EventsApp) requireActivity().getApplicationContext();
         SM = app.getSessionManager();
+        EventManager EM = SM.getEventManager();
         Session session = SM.getSession();
         IDatabase db = session.getDatabase();
         Actor actor = session.getCurrentActor();
@@ -137,7 +150,7 @@ public class EventsOrganizersFragment extends Fragment {
         
         db.getEvents(events -> {
             allEventsLive.clear();
-            if (events != null) allEventsLive.addAll(events);
+            allEventsLive.addAll(events);
             assignSidecarTagsForRealEvents(allEventsLive);
             
             db.getEntrantRegisteredEvents(actor, joinedEventIds -> {
@@ -261,7 +274,7 @@ public class EventsOrganizersFragment extends Fragment {
 
         Calendar base = Calendar.getInstance();
         for (int i = 0; i < events.size(); i++) {
-            com.example.deimos_events.Event e = events.get(i);
+            Event e = events.get(i);
 
             String day = (i % 2 == 0) ? "Weekdays" : "Weekends";
             dayTypeByEvent.put(e, day);
@@ -292,8 +305,8 @@ public class EventsOrganizersFragment extends Fragment {
      * @param actor    current actor for contextual filtering
      */
     private void renderWithFilters(ListView listView, Actor actor) {
-        List<com.example.deimos_events.Event> filtered = new ArrayList<>();
-        for (com.example.deimos_events.Event e : allEventsLive) {
+        List<Event> filtered = new ArrayList<>();
+        for (Event e : allEventsLive) {
             if (!matchesStatus(e)) continue;
             if (!matchesAvailability(e)) continue;
             if (!matchesCategory(e)) continue;
@@ -335,7 +348,7 @@ public class EventsOrganizersFragment extends Fragment {
     /**
      * Checks whether an event matches the currently selected status filter.
      */
-    private boolean matchesStatus(com.example.deimos_events.Event e) {
+    private boolean matchesStatus(Event e) {
         if (currentStatus == Status.ALL) return true;
 
         boolean joined = joinedEventIdsLive.contains(e.getId());
@@ -355,7 +368,7 @@ public class EventsOrganizersFragment extends Fragment {
     /**
      * Checks whether an event matches the currently selected availability constraints.
      */
-    private boolean matchesAvailability(com.example.deimos_events.Event e) {
+    private boolean matchesAvailability(Event e) {
         if (selectedDayTypes.isEmpty()) return true;
         String day = dayTypeByEvent.get(e);
         return day != null && selectedDayTypes.contains(day);
@@ -364,7 +377,7 @@ public class EventsOrganizersFragment extends Fragment {
     /**
      * Checks whether an event matches the currently selected category constraints.
      */
-    private boolean matchesCategory(com.example.deimos_events.Event e) {
+    private boolean matchesCategory(Event e) {
         if (selectedCategories.isEmpty()) return true;
         String cat = categoryByEvent.get(e);
         return cat != null && selectedCategories.contains(cat);

@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,13 +20,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.deimos_events.Actor;
+import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.managers.ActorManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.managers.NavigationManager;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Session;
+import com.example.deimos_events.managers.NotificationManager;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 import com.example.deimos_events.databinding.FragmentProfileBinding;
@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Fragment responsible for rendering and editing the current user's profile.
@@ -54,7 +55,7 @@ import java.util.Set;
  */
 public class ProfileFragment extends Fragment {
 
-    /** ViewBinding for the Profile layout. */
+    /** ViewBinding for the Actor's layout. */
     private FragmentProfileBinding binding;
     /** ViewModel that exposes UI state (title and current {@link Actor}). */
     private ProfileViewModel profileViewModel;
@@ -72,19 +73,21 @@ public class ProfileFragment extends Fragment {
     // Managers and session references (injected via EventsApp/SessionManager)
     private ActorManager AM;
     private SessionManager SM;
-    private Session session;
     private UserInterfaceManager UIM;
     private NavigationManager NaM;
+
+    private NotificationManager NM;
     private IDatabase db;
+    private Session session;
 
     /**
-     * Inflates the view, wires up managers/view model, restores persisted profile values,
+     * Inflates the fragment view, wires up managers/view model, restores persisted profile values,
      * and sets click handlers for update/delete and the notification toggle.
      *
-     * @param inflater  layout inflater
-     * @param container parent view group
+     * @param inflater  layout inflater used to inflate the fragment's view
+     * @param container optional parent view to attach the fragment's UI to
      * @param savedInstanceState saved state bundle, if any
-     * @return the root view for this fragment
+     * @return the root view for this fragment's layout
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -93,6 +96,7 @@ public class ProfileFragment extends Fragment {
         SM = ((EventsApp) requireActivity().getApplication()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
         NaM = SM.getNavigationManager();
+        NM = SM.getNotificationManager();
         AM = SM.getActorManager();
         session = SM.getSession();
         db = session.getDatabase();
@@ -128,7 +132,7 @@ public class ProfileFragment extends Fragment {
                     sp.edit().putBoolean(KEY_NOTIFY, checked).apply());
         }
 
-        // Profile edit and delete actions.
+        // Actor edit and delete actions.
         if (binding.updateButton != null) {
             binding.updateButton.setOnClickListener(v -> showInlineEditDialog());
         }
@@ -139,24 +143,30 @@ public class ProfileFragment extends Fragment {
         if (binding.joinedText != null) {
             binding.joinedText.setText("Joined: " + DateFormat.getDateInstance().format(new Date()));
         }
-        
+
         // shows whether the switch is turned on or turned off (AKA its state)
-        db.getNotificationsPreference(session.getCurrentActor(), notificationPref -> {
+        NM.fetchNotificationsPreference(session.getCurrentActor(), notificationPref -> {
             if (notificationPref != null)
                 binding.notifySwitch.setChecked(notificationPref);
             else
                 binding.notifySwitch.setChecked(false);
         });
-        
+
         // changes preferences
         binding.notifySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
-                db.setNotificationsPreference(session.getCurrentActor(), isChecked);
+                NM.insertNotificationsPreference(session.getCurrentActor(), isChecked, result -> {
+                    if (!result.isSuccess() && isAdded()) {
+                        Toast.makeText(requireContext(),
+                                result.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
-        
-        
+
+
         return root;
     }
 
@@ -222,7 +232,7 @@ public class ProfileFragment extends Fragment {
 
     /**
      * Shows an inline edit dialog for name, email, and phone with basic validation.
-     * On save, updates via {@link ActorManager#updateActor(Actor, Actor, com.example.deimos_events.ResultCallback)}
+     * On save, updates via {@link ActorManager#updateActor(Actor, Actor, Consumer)}
      * and persists the snapshot into {@link SharedPreferences}.
      */
     private void showInlineEditDialog() {
@@ -348,7 +358,7 @@ public class ProfileFragment extends Fragment {
 
     /**
      * Shows a confirmation dialog for account deletion and, if confirmed, delegates the cascade
-     * deletion to {@link ActorManager#deleteEntrantCascade(Actor, com.example.deimos_events.ResultCallback)}.
+     * deletion to {@link ActorManager#deleteEntrantCascade(Actor, Consumer)}.
      * On success, clears local session state and navigates back to {@link SignupActivity}.
      */
     private void showDeleteDialog() {
