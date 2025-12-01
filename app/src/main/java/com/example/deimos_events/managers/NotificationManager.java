@@ -30,7 +30,21 @@ public class NotificationManager {
     public NotificationManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
-
+    /**
+     * Inserts a new {@link Notifications} entry into the database.
+     *
+     * <p>This method validates all required fields before delegating the
+     * operation to the database. The result of the insertion is returned
+     * asynchronously through the provided callback.</p>
+     *
+     * @param sender         The ID of the actor sending the notification.
+     * @param recipientId    The ID of the actor who should receive the notification.
+     * @param message        The message body of the notification.
+     * @param eventId        The ID of the event related to this notification.
+     * @param registrationId The ID of the registration associated with this notification.
+     * @param callback       Callback receiving a {@link Result} indicating success,
+     *                       failure, or database connection issues.
+     */
     public void insertNotifications(String sender, String recipientId, String message, String eventId, String registrationId, Consumer<Result> callback) {
 
         Session session = sessionManager.getSession();
@@ -74,7 +88,18 @@ public class NotificationManager {
             }
         });
     }
-
+    /**
+     * Fetches all notifications associated with the given {@link Actor}.
+     *
+     * <p>This method delegates directly to the database to populate
+     * the provided list and update the corresponding adapter.
+     * If the actor is null, the list is cleared and the adapter updated
+     * to reflect the empty state.</p>
+     *
+     * @param actor             The actor whose notifications should be retrieved.
+     * @param notificationsList The list to populate with fetched notifications.
+     * @param adapter           The adapter that will be notified of data changes.
+     */
     public void fetchNotifications(Actor actor,ArrayList<Notifications> notificationsList, NotificationsArrayAdapter adapter){
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
@@ -112,7 +137,18 @@ public class NotificationManager {
                 callback.accept(receivers);
             });
         }
-
+    /**
+     * Updates the notification preference for the given {@link Actor}.
+     *
+     * <p>This method saves whether the actor wishes to receive notifications.
+     * The result of the update is returned asynchronously through the callback.</p>
+     *
+     * @param actor      The actor whose notification preference should be updated.
+     * @param preference {@code true} if notifications are enabled,
+     *                   {@code false} otherwise.
+     * @param callback   Callback receiving a {@link Result} indicating success,
+     *                   failure, or connection issues.
+     */
     public void insertNotificationsPreference(Actor actor, boolean preference, Consumer<Result> callback) {
 
         Session session = sessionManager.getSession();
@@ -133,6 +169,16 @@ public class NotificationManager {
             }
         });
     }
+    /**
+     * Retrieves the notification preference for the given {@link Actor}.
+     *
+     * <p>The result is returned asynchronously using the provided callback.
+     * If the actor is null, {@code false} is returned by default.</p>
+     *
+     * @param actor    The actor whose notification preference should be fetched.
+     * @param callback Callback receiving {@code true} if notifications are enabled,
+     *                 {@code false} otherwise.
+     */
     public void fetchNotificationsPreference(Actor actor, Consumer<Boolean> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
