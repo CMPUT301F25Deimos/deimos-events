@@ -407,7 +407,7 @@ public class Database implements IDatabase {
                         Map<String, Object> registrationData = new HashMap<>();
                         registrationData.put("entrantId", actor.getDeviceIdentifier());
                         registrationData.put("eventId", eventId);
-                        registrationData.put("status", "Pending");
+                        registrationData.put("status", "Waiting");
 
                         db.collection("registrations")
                                 .add(registrationData)
@@ -418,10 +418,6 @@ public class Database implements IDatabase {
                     }
                 })
                 .addOnFailureListener(e -> callback.accept(false));
-    }
-
-    public void inviteEntrant(String registrationId, Consumer<Boolean> callback) {
-        callback.accept(true);
     }
 
     public void fetchEventById(String eventId, Consumer<Event> callback) {
@@ -470,7 +466,7 @@ public class Database implements IDatabase {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     loc.getLastLocation().addOnSuccessListener(location -> {
                         db.collection("registrations")
-                                .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending", Double.toString(location.getLatitude()), Double.toString(location.getLongitude())))
+                                .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Waiting", Double.toString(location.getLatitude()), Double.toString(location.getLongitude())))
                                 .addOnSuccessListener(documentReference -> {
                                     String documentId = documentReference.getId();
                                     // id is the its documentId
@@ -482,7 +478,7 @@ public class Database implements IDatabase {
                 }
             } else {
                 db.collection("registrations")
-                        .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending", null, null))
+                        .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Waiting", null, null))
                         .addOnSuccessListener(documentReference -> {
                             String documentId = documentReference.getId();
                             // id is the its documentId

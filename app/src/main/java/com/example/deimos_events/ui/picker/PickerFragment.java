@@ -21,8 +21,10 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.deimos_events.Actor;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.Event;
+import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Registration;
 import com.example.deimos_events.managers.EventManager;
@@ -38,7 +40,7 @@ public class PickerFragment extends Fragment {
     private ImageView imageView;
     private TextView descriptionView, placeholderDescription, spotsFilled, listInfo, pick;
     private ListView listView;
-    private Button btnInvited, btnCancelled, btnEnrolled, btnWaitlist;
+    private Button btnPending, btnDeclined, btnWaiting,  btnRejectedWaitlist, btnAccepted, btnWaitlist;
     private EditText numberToPick;
     private Button selectButton, backButton;
 
@@ -69,14 +71,18 @@ public class PickerFragment extends Fragment {
         backButton = view.findViewById(R.id.back);
 
         listView = view.findViewById(R.id.listView);
-        btnInvited = view.findViewById(R.id.btnInvited);
-        btnCancelled = view.findViewById(R.id.btnCancelled);
-        btnEnrolled = view.findViewById(R.id.btnEnrolled);
+        btnPending = view.findViewById(R.id.btnPending);
+        btnDeclined = view.findViewById(R.id.btnDeclined);
+        btnWaiting = view.findViewById(R.id.btnWaiting);
+        btnRejectedWaitlist = view.findViewById(R.id.btnRejectedWaitlist);
+        btnAccepted = view.findViewById(R.id.btnAccepted);
         btnWaitlist = view.findViewById(R.id.btnWaitlist);
 
         SessionManager SM = ((EventsApp) getActivity().getApplication()).getSessionManager();
         EM = SM.getEventManager();
         event = SM.getSession().getCurrentEvent();
+        Actor actor = SM.getSession().getCurrentActor();
+        IDatabase db = SM.getSession().getDatabase();
 
         byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);
         Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
@@ -85,12 +91,21 @@ public class PickerFragment extends Fragment {
         placeholderDescription.setText(event.getDescription());
         registrationAdapter = new RegistrationAdapter(getContext(), registrationList, this::loadList);
         listView.setAdapter(registrationAdapter);
-        btnInvited.setOnClickListener(v -> loadList("Invited"));
-        btnCancelled.setOnClickListener(v -> loadList("Cancelled"));
-        btnEnrolled.setOnClickListener(v -> loadList("Accepted"));
-        btnWaitlist.setOnClickListener(v -> loadList("Pending"));
+        btnPending = view.findViewById(R.id.btnPending);
+        btnDeclined = view.findViewById(R.id.btnDeclined);
+        btnWaiting = view.findViewById(R.id.btnWaiting);
+        btnRejectedWaitlist = view.findViewById(R.id.btnRejectedWaitlist);
+        btnAccepted = view.findViewById(R.id.btnAccepted);
+        btnWaitlist = view.findViewById(R.id.btnWaitlist);
 
-        loadList("Pending");
+        btnPending.setOnClickListener(v -> loadList("Pending"));
+        btnDeclined.setOnClickListener(v -> loadList("Declined"));
+        btnWaiting.setOnClickListener(v -> loadList("Waiting"));
+        btnRejectedWaitlist.setOnClickListener(v -> loadList("Rejected Waitlist"));
+        btnAccepted.setOnClickListener(v -> loadList("Accepted"));
+        btnWaitlist.setOnClickListener(v -> loadList("Waitlisted"));
+
+        loadList("Waiting");
 
         selectButton.setOnClickListener(v -> {
             String numText = numberToPick.getText().toString().trim();
@@ -101,12 +116,20 @@ public class PickerFragment extends Fragment {
 
             int count = Integer.parseInt(numText);
 
+            int cap = event.getParticipantCap().intValue();
+
             if (count <= 0) {
                 Toast.makeText(getContext(), "Number must be greater than 0", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (!event.getParticipantCap().equals(-1) && count > waitingList.size()) {
+            if (cap > 0) {
+                if (count > cap) {
+                    Toast.makeText(getContext(), "You cannot select more than the participant cap", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            if (count > waitingList.size()) {
                 Toast.makeText(getContext(), "Not enough people in waiting list to sample", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -115,11 +138,10 @@ public class PickerFragment extends Fragment {
             List<Registration> selected = waitingList.subList(0, count);
 
             for (Registration registration : selected) {
-                EM.inviteEntrant(registration.getId(), result -> {
-                    if (result) {
-                        Toast.makeText(getContext(), "Invited user with id: " + registration.getEntrantId(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                EM.setNotifications(actor.getDeviceIdentifier(), registration.getEntrantId(), "You have won the lottery!", event.getId(), registration.getId());
+                Toast.makeText(getContext(), "Sampled user with id " + registration.getEntrantId(), Toast.LENGTH_SHORT).show();
+                db.setRegistrationStatus(registration.getId(), "Pending");
+                loadList("Waiting");
             }
         });
 
@@ -138,33 +160,46 @@ public class PickerFragment extends Fragment {
             registrationAdapter.notifyDataSetChanged();
 
             waitingList.clear();
-            boolean isWaitlist = "Pending".equals(status);
+            boolean isWaiting = "Waiting".equals(status);
             waitingList.addAll(registrations);
 
-            int visibility = isWaitlist ? View.VISIBLE : View.GONE;
+            int visibility = isWaiting ? View.VISIBLE : View.GONE;
             pick.setVisibility(visibility);
             numberToPick.setVisibility(visibility);
             selectButton.setVisibility(visibility);
 
             updateListInfo(status);
         });
-        EM.getRegistrationsByStatus(event.getId(), "Accepted", registrations -> {
-            spotsFilled.setText("Spots Filled: " + registrations.size() + "/" + event.getParticipantCap());
-        });
+        if (event.getParticipantCap().intValue() > 0) {
+            EM.getRegistrationsByStatus(event.getId(), "Accepted", registrations -> {
+                spotsFilled.setText("Spots Filled: " + registrations.size() + "/" + event.getParticipantCap());
+            });
+        } else {
+            spotsFilled.setText("");
+        }
     }
 
     private void updateListInfo(String status) {
         if (Objects.equals(status, "Pending")) {
-            listInfo.setText("Waitlist: " + waitingList.size());
+            listInfo.setText("Pending List: " + waitingList.size());
         }
-        if (Objects.equals(status, "Cancelled")) {
-            listInfo.setText("Cancelled List: " + waitingList.size());
+        if (Objects.equals(status, "Declined")) {
+            listInfo.setText("Declined List: " + waitingList.size());
+        }
+        if (Objects.equals(status, "Waiting")) {
+            listInfo.setText("Waiting List: " + waitingList.size());
+        }
+        if (Objects.equals(status, "Rejected Waitlist")) {
+            listInfo.setText("Rejected Waitlist List: " + waitingList.size());
         }
         if (Objects.equals(status, "Accepted")) {
             listInfo.setText("Accepted List: " + waitingList.size());
         }
-        if (Objects.equals(status, "Invited")) {
-            listInfo.setText("Invited List: " + waitingList.size());
+        if (Objects.equals(status, "Waitlisted")) {
+            listInfo.setText("Waitlisted List: " + waitingList.size());
         }
+
+
+
     }
 }

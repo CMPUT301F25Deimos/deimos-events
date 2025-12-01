@@ -263,10 +263,10 @@ public class EventManager {
         db.addUserToWaitList(eventID, actor, callback);
     }
 
-    public void inviteEntrant(String registrationId, Consumer<Boolean> callback) {
+    public void setNotifications(String sender, String recipientId, String message, String eventId, String registrationId) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
-        db.inviteEntrant(registrationId, callback);
+        db.setNotifications(sender, recipientId, message, eventId, registrationId);
     }
 
     public void updateImage(String eventId, Bitmap imageBit, Consumer<Boolean> callback) {
