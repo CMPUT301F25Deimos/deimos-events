@@ -386,7 +386,7 @@ public class Database implements IDatabase {
     public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
-                .whereEqualTo("status", "Pending")
+                .whereEqualTo("status", "Waiting")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     boolean alreadyExists = false;
@@ -403,7 +403,7 @@ public class Database implements IDatabase {
                         Map<String, Object> registrationData = new HashMap<>();
                         registrationData.put("entrantId", actor.getDeviceIdentifier());
                         registrationData.put("eventId", eventId);
-                        registrationData.put("status", "Pending");
+                        registrationData.put("status", "Waiting");
 
                         db.collection("registrations")
                                 .add(registrationData)
@@ -897,9 +897,9 @@ public class Database implements IDatabase {
 
     /**
      * Gets notifications from database
-     * @param actor
-     * @param notificationsList
-     * @param adapter
+     * @param actor: actor whose notification is being found
+     * @param notificationsList: notifications list
+     * @param adapter: adapter of notification list
      */
     public void getNotifications(Actor actor, ArrayList<Notifications> notificationsList, NotificationsArrayAdapter adapter) {
 

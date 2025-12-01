@@ -279,11 +279,11 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                                 choice = decline_button;
                                 button_colour = ContextCompat.getColorStateList(getContext(), R.color.decline_red);
 
-                                    // if person had previously answered, then only keeps the most recently clicked button (decline)
+                                // if person had previously answered, then only keeps the most recently clicked button (decline)
                                 accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
                                 accept_button.setShapeAppearanceModel(original_accept);
                                 
-                                EM.answerEvent(notification.getId(), "Cancelled",  result ->{
+                                EM.answerEvent(notification.getId(), "Declined",  result ->{
                                     if (!result.isSuccess()){
                                         Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
                                     }
