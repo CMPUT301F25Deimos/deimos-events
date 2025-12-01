@@ -23,7 +23,7 @@ import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
-import com.example.deimos_events.Registration;
+import com.example.deimos_events.dataclasses.Registration;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.databinding.FragmentOrganizersEventsBinding;
 import com.example.deimos_events.managers.EventManager;
@@ -63,12 +63,12 @@ public class EventsOrganizersFragment extends Fragment {
     private UserInterfaceManager UIM;
     private ListView listView;
     private boolean historyMode = false;
-    private final List<com.example.deimos_events.Event> allEventsLive = new ArrayList<>();
+    private final List<com.example.deimos_events.dataclasses.Event> allEventsLive = new ArrayList<>();
     private Set<String> joinedEventIdsLive = new HashSet<>();
 
     private final Map<Event, String> dayTypeByEvent = new HashMap<>();
-    private final Map<com.example.deimos_events.Event, String> categoryByEvent = new HashMap<>();
-    private final Map<com.example.deimos_events.Event, Long> timeByEvent = new HashMap<>();
+    private final Map<com.example.deimos_events.dataclasses.Event, String> categoryByEvent = new HashMap<>();
+    private final Map<com.example.deimos_events.dataclasses.Event, Long> timeByEvent = new HashMap<>();
     private final Map<String, String> registrationStatusByEventId = new HashMap<>();
     /**
      * Filterable status options for the event list.
