@@ -59,7 +59,7 @@ public class ProfileViewModel extends ViewModel {
      * @param email new email address
      * @param phone new phone number (may be empty)
      */
-    public void updateActor(String name, String email, String phone) {
+    public void updateActor(String name, String email, String phone, Boolean notificationsPreference) {
         Actor cur = actor.getValue();
         if (cur == null){
             // no actor found.
@@ -70,7 +70,8 @@ public class ProfileViewModel extends ViewModel {
                 name,
                 email,
                 phone,
-                cur.getRole()
+                cur.getRole(),
+                notificationsPreference
         ));
     }
 }

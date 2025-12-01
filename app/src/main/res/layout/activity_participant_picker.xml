@@ -9,7 +9,6 @@
         android:id="@+id/buttonContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -17,30 +16,71 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
-            android:id="@+id/btnInvited"
+            android:id="@+id/btnPending"
+            android:textSize="12sp"
             android:layout_width="30dp"
-            android:layout_height="48dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
-            android:text="Invited" />
+            android:text="Pending" />
 
         <Button
-            android:id="@+id/btnCancelled"
+            android:id="@+id/btnDeclined"
+            android:textSize="12sp"
             android:layout_width="30dp"
-            android:layout_height="48dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
-            android:text="Cancelled" />
+            android:text="Declined" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/button2Container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonContainer">
+        <Button
+            android:id="@+id/btnWaiting"
+            android:textSize="12sp"
+            android:layout_width="30dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Waiting" />
 
         <Button
-            android:id="@+id/btnEnrolled"
+            android:id="@+id/btnRejectedWaitlist"
+            android:textSize="12sp"
             android:layout_width="30dp"
-            android:layout_height="48dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
-            android:text="Enrolled" />
+            android:text="Rejected Waitlist" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/button3Container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button2Container">
+        <Button
+            android:id="@+id/btnAccepted"
+            android:textSize="12sp"
+            android:layout_width="30dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Accepted" />
 
         <Button
             android:id="@+id/btnWaitlist"
+            android:textSize="12sp"
             android:layout_width="30dp"
-            android:layout_height="48dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
             android:text="Waitlist" />
     </LinearLayout>
@@ -49,29 +89,24 @@
         android:id="@+id/imageView"
         android:layout_width="141dp"
         android:layout_height="146dp"
-        android:layout_marginTop="60dp"
         android:contentDescription="Selected Image"
         android:src="@drawable/ic_launcher_foreground"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/button3Container" />
 
     <ListView
         android:id="@+id/listView"
         android:layout_width="339dp"
         android:layout_height="136dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintVertical_bias="0.502"></ListView>
+        app:layout_constraintTop_toBottomOf="@+id/list_info"></ListView>
 
     <TextView
         android:id="@+id/pick"
-        android:layout_width="206dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="4dp"
+        android:layout_width="201dp"
+        android:layout_height="36dp"
         android:gravity="center"
         android:text="Pick Specified Number"
         app:layout_constraintEnd_toEndOf="parent"
@@ -83,13 +118,13 @@
         android:id="@+id/select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="84dp"
         android:layout_marginBottom="48dp"
         android:text="Select"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listView" />
+        app:layout_constraintTop_toBottomOf="@+id/number" />
 
     <Button
         android:id="@+id/back"
@@ -139,28 +174,25 @@
         android:id="@+id/list_info"
         android:layout_width="296dp"
         android:layout_height="38dp"
-        android:layout_marginBottom="16dp"
         android:gravity="center"
         android:text="WaitingListNumberPlaceholder"
-        app:layout_constraintBottom_toTopOf="@+id/listView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spots_filled" />
 
     <EditText
         android:id="@+id/number"
-        android:layout_width="158dp"
-        android:layout_height="45dp"
+        android:layout_width="162dp"
+        android:layout_height="32dp"
         android:background="@android:color/darker_gray"
         android:ems="10"
         android:inputType="number"
         android:text=""
         android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/select"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pick"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/pick" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

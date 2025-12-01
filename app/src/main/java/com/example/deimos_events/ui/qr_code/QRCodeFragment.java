@@ -50,6 +50,11 @@ public class QRCodeFragment extends Fragment {
 
         return view;
     }
+
+    /**
+     * Launches the QR code scanner using IntentIntergrator
+     * Opens the camera interface allowing the user to scan event QR
+     */
     private void startQrScanner() {
         IntentIntegrator integrator = IntentIntegrator.forSupportFragment(this);
         integrator.setPrompt("Scan a QR code");
@@ -58,6 +63,18 @@ public class QRCodeFragment extends Fragment {
         integrator.setCaptureActivity(CaptureActivity.class);
         integrator.initiateScan();
     }
+
+    /**
+     * Handles the resulting information from scanning the QR scanning activity
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode The integer result code returned by the child activity
+     *                   through its setResult().
+     * @param data An Intent, which can return result data to the caller
+     *               (various data can be attached to Intent "extras").
+     *
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
         super.onActivityResult(requestCode, resultCode, data);

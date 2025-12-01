@@ -262,10 +262,10 @@ public class EventManager {
         db.addUserToWaitList(eventID, actor, callback);
     }
 
-    public void inviteEntrant(String registrationId, Consumer<Boolean> callback) {
+    public void setNotifications(String sender, String recipientId, String message, String eventId, String registrationId) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
-        db.inviteEntrant(registrationId, callback);
+        db.setNotifications(sender, recipientId, message, eventId, registrationId);
     }
 
     public void updateImage(String eventId, Bitmap imageBit, Consumer<Boolean> callback) {
@@ -361,6 +361,11 @@ public class EventManager {
         db.getRegistrationsByStatus(eventId, status, callback::accept);
     }
 
+    /**
+     *Deletes the event image from the database
+     * @param eventId The ID of the event image that needs to be deleted
+     * @param callback A boolean value indicating success or failure
+     */
     public void deleteEventImage(String eventId, Consumer<Boolean> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();

@@ -375,6 +375,15 @@ public class ActorManager {
             }
         });
     }
+
+    /**
+     *Gets all the actors from the database and returns them
+     * <p>
+     *  If the database returns {@code null}, the callback is invoked with an empty list instead.
+     *  Therefore, the callers do not have to deal with a null result
+     * </p>
+     * @param callback a {@link Consumer} that receives a list of {@link Actor} objects.
+     */
     public void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback){
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();

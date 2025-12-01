@@ -6,15 +6,9 @@ import com.example.deimos_events.Roles;
  * Class for entrants. This also contains methods for getting data related to registrations and events.
  */
 public class Entrant extends Actor {
-    Boolean receiveNotifications;
 
-    public Entrant() {}
-    public Entrant(String deviceIdentifier, String name, String email, String phoneNumber, Boolean receiveNotifications) {
-        super(deviceIdentifier, name, email, phoneNumber, Roles.ENTRANT);
-        this.receiveNotifications = receiveNotifications;
+    public Entrant(String deviceIdentifier, String name, String email, String phoneNumber, Boolean notificationsPreference) {
+        super(deviceIdentifier, name, email, phoneNumber, Roles.ENTRANT, notificationsPreference);
     }
-
-    public boolean getReceiveNotifications() {
-        return this.receiveNotifications;
-    }
+    
 }

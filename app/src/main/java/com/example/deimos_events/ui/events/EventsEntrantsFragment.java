@@ -21,6 +21,7 @@ import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
+import com.example.deimos_events.Registration;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.databinding.FragmentEntrantsEventsBinding;
 import com.example.deimos_events.dataclasses.Event;

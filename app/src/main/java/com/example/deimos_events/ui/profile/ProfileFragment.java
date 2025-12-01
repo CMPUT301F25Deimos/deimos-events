@@ -9,8 +9,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +75,8 @@ public class ProfileFragment extends Fragment {
     private SessionManager SM;
     private UserInterfaceManager UIM;
     private NavigationManager NaM;
+    private IDatabase db;
+    private Session session;
 
     /**
      * Inflates the fragment view, wires up managers/view model, restores persisted profile values,
@@ -91,6 +95,8 @@ public class ProfileFragment extends Fragment {
         UIM = SM.getUserInterfaceManager();
         NaM = SM.getNavigationManager();
         AM = SM.getActorManager();
+        session = SM.getSession();
+        db = session.getDatabase();
 
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
         binding = FragmentProfileBinding.inflate(inflater, container, false);
@@ -107,9 +113,10 @@ public class ProfileFragment extends Fragment {
         String savedPhone = prof.getString("phone", null);
         String savedId    = prof.getString("userId", "tempUserId");
         String savedRole  = prof.getString("role", "Entrant");
+        Boolean savedNotificationsPreference  = prof.getBoolean("notificationsPreference", true);
 
         if (!TextUtils.isEmpty(savedEmail) && !TextUtils.isEmpty(savedName)) {
-            profileViewModel.setActor(new Actor(savedId, savedName, savedEmail, savedPhone == null ? "" : savedPhone, savedRole));
+            profileViewModel.setActor(new Actor(savedId, savedName, savedEmail, savedPhone == null ? "" : savedPhone, savedRole, savedNotificationsPreference));
         }
         if (binding.roleText != null) binding.roleText.setText("Role: " + savedRole);
 
@@ -133,6 +140,23 @@ public class ProfileFragment extends Fragment {
         if (binding.joinedText != null) {
             binding.joinedText.setText("Joined: " + DateFormat.getDateInstance().format(new Date()));
         }
+
+        // shows whether the switch is turned on or turned off (AKA its state)
+        db.getNotificationsPreference(session.getCurrentActor(), notificationPref -> {
+            if (notificationPref != null)
+                binding.notifySwitch.setChecked(notificationPref);
+            else
+                binding.notifySwitch.setChecked(false);
+        });
+
+        // changes preferences
+        binding.notifySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
+                db.setNotificationsPreference(session.getCurrentActor(), isChecked);
+            }
+        });
+
 
         return root;
     }
@@ -256,13 +280,13 @@ public class ProfileFragment extends Fragment {
                                     Toast.makeText(requireContext(), "Email already exists", Toast.LENGTH_SHORT).show();
                                     return;
                                 } else {
-                                    performProfileSave(name, email, phone, currentRole);
+                                    performProfileSave(name, email, phone, currentRole, true);
                                 }
                             } else {
                                 Toast.makeText(requireContext(), "Network error. Try again.", Toast.LENGTH_SHORT).show();
                             }});
                     } else {
-                        performProfileSave(name, email, phone, currentRole);
+                        performProfileSave(name, email, phone, currentRole, true);
                     }
                 })
                 .setNegativeButton("Cancel", null)
@@ -278,14 +302,14 @@ public class ProfileFragment extends Fragment {
      * @param phone new phone number (may be empty)
      * @param role  unchanged role to persist alongside the snapshot
      */
-    private void performProfileSave(String name, String email, String phone, String role) {
+    private void performProfileSave(String name, String email, String phone, String role, Boolean notificationsPreference) {
         Actor cur = profileViewModel.getActor().getValue();
         if (cur == null) {
             Toast.makeText(requireContext(), "No profile loaded", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Actor actor = new Actor(cur.getDeviceIdentifier(), name, email, phone, cur.getRole());
+        Actor actor = new Actor(cur.getDeviceIdentifier(), name, email, phone, cur.getRole(), notificationsPreference);
         AM.updateActor(cur, actor, res->{
             if (res.isSuccess()){
                 requireContext().getSharedPreferences("entrant_profile", Context.MODE_PRIVATE)
@@ -296,7 +320,7 @@ public class ProfileFragment extends Fragment {
                         .putString("phone", phone)
                         .putString("role", role)
                         .apply();
-                profileViewModel.updateActor(name, email, phone);
+                profileViewModel.updateActor(name, email, phone, notificationsPreference);
                 Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(requireContext(), res.getMessage(), Toast.LENGTH_SHORT).show();

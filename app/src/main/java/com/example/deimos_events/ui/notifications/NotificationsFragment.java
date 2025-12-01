@@ -8,13 +8,14 @@ import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
+import com.example.deimos_events.Actor;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
+import com.example.deimos_events.Notifications;
 import com.example.deimos_events.Session;
-import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.databinding.FragmentNotificationsBinding;
+import com.example.deimos_events.managers.SessionManager;
 
 import java.util.ArrayList;
 
@@ -39,15 +40,14 @@ public class NotificationsFragment extends Fragment {
         // gets data
         Session session = SM.getSession();
         IDatabase db = session.getDatabase();
+        Actor actor = session.getCurrentActor();
         
-        db.getNotificationEventInfo(session.getCurrentActor(), registrations -> {
-                    NotificationsArrayAdapter adapter = new NotificationsArrayAdapter(
-                            requireContext(),
-                            new ArrayList<>(registrations),
-                            db
-                    );
-            listView.setAdapter(adapter);
-                });
+        ArrayList<Notifications> notificationsList = new ArrayList<>();
+        NotificationsArrayAdapter adapter = new NotificationsArrayAdapter(requireContext(), notificationsList, db, actor);
+        listView.setAdapter(adapter);
+        
+        db.getNotifications(actor, notificationsList, adapter);
+        
         return root;
     }
     

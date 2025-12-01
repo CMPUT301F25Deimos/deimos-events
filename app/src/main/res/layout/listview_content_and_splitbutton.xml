@@ -9,8 +9,8 @@
 
     <ImageView
         android:id="@+id/event_image"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_width="3dp"
+        android:layout_height="65dp"
         android:layout_weight="0.53"
         android:layout_margin="10dp"
         android:background="@drawable/square_image"
@@ -46,7 +46,7 @@
             android:minWidth="0dp"
             android:minHeight="0dp"
             android:paddingHorizontal="12dp"
-            />
+            app:cornerRadius="3dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/decline_button"

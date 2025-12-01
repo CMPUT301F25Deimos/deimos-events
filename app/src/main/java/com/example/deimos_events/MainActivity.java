@@ -101,12 +101,13 @@ public class MainActivity extends FoundationActivity {
             navController.setGraph(R.navigation.administrators_mobile_navigation);
             navView.inflateMenu(R.menu.bottom_nav_administrators_menu);
 
-            appBarConfiguration = new AppBarConfiguration.Builder(
-                    R.id.navigation_administrators_events,
-                    R.id.navigation_images,
-                    R.id.navigation_users,
-                    R.id.navigation_profile
-            ).build();
+                appBarConfiguration = new AppBarConfiguration.Builder(
+                        R.id.navigation_administrators_events,
+                        R.id.navigation_images,
+                        R.id.navigation_users,
+                        R.id.navigation_profile,
+                        R.id.navigation_notifications
+                ).build();
 
         } else if (role.equals("Organizer")) {
             // sets navigation layout for organizers

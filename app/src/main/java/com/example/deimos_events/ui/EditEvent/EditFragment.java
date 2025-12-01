@@ -2,18 +2,22 @@ package com.example.deimos_events.ui.EditEvent;
 
 import android.content.Intent;
 
+import static android.content.ContentValues.TAG;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,17 +26,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.deimos_events.dataclasses.Event;
+import com.example.deimos_events.MainActivity;
 import com.example.deimos_events.managers.ActorManager;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
 import com.example.deimos_events.dataclasses.Registration;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
+import com.example.deimos_events.ui.notifications.SendNotificationsFragment;
+import com.example.deimos_events.ui.createEvent.createViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -49,6 +59,7 @@ public class EditFragment extends Fragment {
     private String eventId;
     private EventManager EM;
     private EditViewModel viewModel;
+    private Button notify;
     private Button map;
 
     @Nullable
@@ -180,6 +191,15 @@ public class EditFragment extends Fragment {
         byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);
         Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
         image.setImageBitmap(bmp);
+
+        // clicking on the notification button button
+        notify = view.findViewById(R.id.notify);
+        notify.setOnClickListener(v -> {
+            SM.getSession().setCurrentEvent(event);
+
+            SendNotificationsFragment dialog = new SendNotificationsFragment();
+            dialog.show(getParentFragmentManager(), "MessageDialog");
+        });
 
         return view;
     }
