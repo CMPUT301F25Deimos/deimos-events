@@ -13,12 +13,11 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.databinding.FragmentAdministratorsImagesBinding;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
-import com.example.deimos_events.ui.users.UsersAdapter;
 
 /**
  * Fragment that admins use to view and manage the images uploaded

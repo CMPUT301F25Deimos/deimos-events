@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,11 +25,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
-import com.example.deimos_events.Actor;
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Actor;
+import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Session;
+import com.example.deimos_events.managers.ActorManager;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 import com.google.android.material.button.MaterialButton;
 
@@ -47,6 +50,9 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
     private Set<String> registeredEventIds;
     private final Actor actor;
     private final SessionManager sm;
+    private final EventManager EM;
+
+    private final ActorManager AM;
     private final NavController navControl;
 
     /** Mapping of eventId -> registration status string */
@@ -100,6 +106,8 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
         super(context, 0, events);
 
         this.sm = sm;
+        this.AM = sm.getActorManager();
+        this.EM = sm.getEventManager();
         this.registeredEventIds = new HashSet<>(registeredEventIds);
         this.registrationStatuses = (registrationStatuses != null)
                 ? registrationStatuses
@@ -195,10 +203,18 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
                         Log.d(TAG, actor.getDeviceIdentifier() + " ownerID" + event.getOwnerId());
                         if (registeredEventIds.contains(event.getId())) {
                             registeredEventIds.remove(event.getId());
-                            db.leaveEvent(event.getId(), actor);
+                            EM.leaveEvent(event.getId(), actor, result -> {
+                                if (!result.isSuccess()){
+                                    Toast.makeText(v.getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         } else {
                             registeredEventIds.add(event.getId());
-                            db.joinEvent(getContext(), event.getId(), actor);
+                            EM.joinEvent(getContext(), event.getId(), actor, result ->{
+                                if (!result.isSuccess()) {
+                                    Toast.makeText(v.getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     } else {
                         NavOptions navOptions = new NavOptions.Builder()
@@ -219,11 +235,19 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
 
         view.setOnClickListener(v -> {
             sm.getSession().setCurrentEvent(event);
-            db.getActorRole(session.getCurrentActor(), actorRole -> {
-                if ("Organizer".equals(actorRole)) {
+            AM.fetchActorRole(session.getCurrentActor(), result -> {
+                if (!result.isSuccess()) {
+                    // Optional fallback
+                    Toast.makeText(v.getContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String role = result.getMessage();
+
+                if ("Organizer".equals(role)) {
                     Navigation.findNavController(v)
                             .navigate(R.id.action_navigation_organizers_events_to_navigation_event_info);
-                } else if ("Entrant".equals(actorRole)) {
+                } else if ("Entrant".equals(role)) {
                     Navigation.findNavController(v)
                             .navigate(R.id.action_navigation_entrants_events_to_navigation_event_info);
                 }

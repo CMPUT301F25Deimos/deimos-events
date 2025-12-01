@@ -1,5 +1,9 @@
 package com.example.deimos_events;
 
+/**
+ * Defines string constants which represented the different kind of user roles within the application.
+ *
+ */
 public final class Roles {
     private Roles() {}
     public static final String ENTRANT   = "Entrant";

@@ -8,14 +8,19 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import com.example.deimos_events.dataclasses.Actor;
+import com.example.deimos_events.dataclasses.Entrant;
+import com.example.deimos_events.dataclasses.Event;
+import com.example.deimos_events.dataclasses.Notifications;
+import com.example.deimos_events.dataclasses.Registration;
 import com.example.deimos_events.ui.notifications.NotificationsAdminArrayAdapter;
 import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -100,8 +105,12 @@ public class Database implements IDatabase {
         event.setId(ref.getId());
 
         ref.set(event)
-                .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
-                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                .addOnSuccessListener(v -> {
+                    callback.accept(Boolean.TRUE);
+                })
+                .addOnFailureListener(e -> {
+                    callback.accept(Boolean.FALSE);
+                });
     }
 
 
@@ -312,26 +321,18 @@ public class Database implements IDatabase {
         db.collection("events")
                 .document(id)
                 .get()
-                .addOnSuccessListener(doc -> callback.accept(doc.exists()))
-                .addOnFailureListener(e -> callback.accept(null));
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()){
+                        callback.accept(Boolean.TRUE);
+                    } else {
+                        callback.accept(Boolean.FALSE);
+                    }
+                })
+                .addOnFailureListener(e ->{
+                    callback.accept(null);
+                });
     }
 
-
-//    public void eventExists(Event event, Consumer<Boolean> callback){
-//        db.collection("actors")
-//                .document(event.getId())
-//                .get()
-//                .addOnSuccessListener(doc ->{
-//                    if (doc.exists()){
-//                        callback.accept(Boolean.TRUE);
-//                    }else{
-//                        callback.accept(Boolean.FALSE);
-//                    }
-//                })
-//                .addOnFailureListener(e -> {
-//                    callback.accept(null);
-//                });
-//    }
 
     public void actorExistsByEmail(String email, Consumer<Boolean> callback) {
         db.collection("actors")
@@ -416,6 +417,8 @@ public class Database implements IDatabase {
                 .addOnFailureListener(e -> callback.accept(false));
     }
 
+
+
     public void fetchEventById(String eventId, Consumer<Event> callback) {
         db.collection("events")
                 .document(eventId)
@@ -446,28 +449,46 @@ public class Database implements IDatabase {
                     callback.accept(0); // return 0 on error
                 });
     }
-    
+
     /**
      * finds the events which an actor have joined
      *
      * @param eventId the id of the event
      * @param actor the actor who is joining the event
      */
-    public void joinEvent(Context context, String eventId, Actor actor) {
-        fetchEventById(eventId, callback -> {
-            if (callback.getRecordLocation()) {
+
+    public void joinEvent(Context context, String eventId, Actor actor, Consumer<Boolean> callback) {
+        fetchEventById(eventId, event -> {
+
+            if (event == null){
+                callback.accept(Boolean.FALSE);
+                return;
+            }
+
+            if (event.getRecordLocation()) {
                 FusedLocationProviderClient loc;
                 loc = LocationServices.getFusedLocationProviderClient(context);
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    loc.getLastLocation().addOnSuccessListener(location -> {
-                        db.collection("registrations")
-                                .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Waiting", Double.toString(location.getLatitude()), Double.toString(location.getLongitude())))
-                                .addOnSuccessListener(documentReference -> {
-                                    String documentId = documentReference.getId();
-                                    // id is the its documentId
-                                    documentReference.update("id", documentId);
-                                });
-                    });
+                    loc.getLastLocation()
+                            .addOnSuccessListener(location -> {
+                                if (location == null){
+                                    callback.accept(Boolean.FALSE);
+                                    return;
+                                }
+
+                                db.collection("registrations")
+                                            .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Waiting", Double.toString(location.getLatitude()), Double.toString(location.getLongitude())))
+                                            .addOnSuccessListener(documentReference -> {
+                                                String documentId = documentReference.getId();
+                                                // id is the its documentId
+                                                documentReference.update("id", documentId)
+                                                        .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                                                        .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                                            })
+                                        .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+
+                    })
+                            .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
                 } else {
                     ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
                 }
@@ -477,30 +498,47 @@ public class Database implements IDatabase {
                         .addOnSuccessListener(documentReference -> {
                             String documentId = documentReference.getId();
                             // id is the its documentId
-                            documentReference.update("id", documentId);
-                        });
+                            documentReference.update("id", documentId)
+                                    .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                                    .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                        })
+                        .addOnFailureListener(e-> callback.accept(Boolean.FALSE));
             }
         });
     }
-    
+
     /**
      * user's data from the registered collection is deleted if they leave the event
      *
-     * @param actor: The actor who is leaving the event
-     * @param eventId: the id of the event the actor is leaving
+     * @param actor
+     * @param eventId
      */
-    public void leaveEvent(String eventId, Actor actor) {
+    public void leaveEvent(String eventId, Actor actor, Consumer<Boolean> callback) {
         db.collection("registrations")
                 .whereEqualTo("entrantId", actor.getDeviceIdentifier())
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnSuccessListener(snapshot -> {
+                    List<Task<Void>> deleteTask = new ArrayList<>();
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        doc.getReference().delete();
+                        deleteTask.add(doc.getReference().delete());
                     }
-                });
+
+                    if (deleteTask.isEmpty()){
+                        // We treat there having been
+                        // nothing to delete as a success
+                        callback.accept(Boolean.TRUE);
+                        return;
+                    }
+                    Tasks.whenAllComplete(deleteTask) // all the task have been completed
+                            .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                            .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                })
+                // initial query failed
+                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+
     }
-    
+
     /**
      * gets all events info
      *
@@ -522,7 +560,7 @@ public class Database implements IDatabase {
                 })
                 .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
     }
-    
+
     /**
      * finds the events which an actor is registered in
      * (for the buttons in the edit event screen)
@@ -540,11 +578,12 @@ public class Database implements IDatabase {
                         registeredEventIds.add(doc.getString("eventId"));
                     }
                     callback.accept(registeredEventIds);
-                });
+                })
+                .addOnFailureListener(e -> callback.accept(null));
     }
-    
+
     /**
-     * listener for events so that screen updates immediately after the database does
+     * listener so that screen updates immediately after the database does
      *
      * @param callback
      * @return listener
@@ -553,6 +592,20 @@ public class Database implements IDatabase {
         return db.collection("registrations")
                 .whereEqualTo("entrantId", actor.getDeviceIdentifier())
                 .addSnapshotListener((snapshot, e) -> {
+
+                    if (e != null){
+                        // database failed
+                        callback.accept(null);
+                        return;
+                    }
+
+                    // no snapshot case
+                    if (snapshot == null){
+                        callback.accept(null);
+                        return;
+                    }
+
+
                     Set<String> registeredEventIds = new HashSet<>();
                     if (snapshot != null) {
                         for (DocumentSnapshot doc : snapshot.getDocuments()) {
@@ -562,7 +615,7 @@ public class Database implements IDatabase {
                     callback.accept(registeredEventIds);
                 });
     }
-    
+
     /**
      * used so that event image and description can be taken from the events collection and displayed
      *
@@ -578,42 +631,59 @@ public class Database implements IDatabase {
                     List<Task<DocumentSnapshot>> eventTasks = new ArrayList<>();
                     for (DocumentSnapshot registrationDoc : snapshot.getDocuments()) {
                         Registration registration = registrationDoc.toObject(Registration.class);
-                        
+
                         if (registration != null) {
                             registration.setStatus(registrationDoc.getString("status"));
                             registration.setId(registrationDoc.getId());
                             registrations.add(registration);
-                            
+
                             // to be able to display image + description in notification
                             String eventId = registration.getEventId();
-                            eventTasks.add(db.collection("events").document(eventId).get()
-                                    .addOnSuccessListener(eventDoc -> {
-                                        if (eventDoc.exists()) {
-                                            Event event = eventDoc.toObject(Event.class);
-                                            if (event != null) {
-                                                registration.setImage(event.getPosterId());
-                                            }
-                                        }
-                                    }));
+                            Task<DocumentSnapshot> eventTask =
+                                    db.collection("events")
+                                            .document(eventId)
+                                            .get()
+                                            .addOnSuccessListener(eventDoc -> {
+                                                if (eventDoc.exists()) {
+                                                    Event event = eventDoc.toObject(Event.class);
+                                                    if (event != null) {
+                                                        registration.setTitle(event.getTitle());
+                                                        registration.setImage(event.getPosterId());
+                                                    }
+                                                }
+                                            });
+                            eventTasks.add(eventTask);
                         }
                     }
+                    // handles the case where there are no events found
+                    if (eventTasks.isEmpty()){
+                        callback.accept(registrations);
+                        return;
+                    }
                     Tasks.whenAllComplete(eventTasks)
-                            .addOnSuccessListener(done -> callback.accept(registrations));
-                });
+                            .addOnSuccessListener(done -> callback.accept(registrations))
+                            .addOnFailureListener(e-> callback.accept(registrations));
+                })
+                // initial database query failed
+                .addOnFailureListener(e->callback.accept(null));
     }
-    
+
     /**
      * gives answer to notifications
      *
      * @param documentId: the event's documentId
      * @param answer:     "Accepted" or "Declined"
      */
-    public void answerEvent(String documentId, String answer) {
+
+    public void answerEvent(String documentId, String answer, Consumer<Boolean> callback){
         db.collection("registrations")
                 .document(documentId)
-                .update("status", answer);
+                .update("status", answer)
+                .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+
     }
-    
+
     /**
      * gets the role of the actor (ie. organizer, entrant, admin)
      *
@@ -631,9 +701,12 @@ public class Database implements IDatabase {
                         break; // already found it so no need to continue
                     }
                     callback.accept(role);
+                })
+                .addOnFailureListener(e -> {
+                    callback.accept(null);
                 });
     }
-    
+
     /**
      * Gets the notification preferences of the actor (ie. whether they want to be notified or not)
      *
@@ -651,20 +724,25 @@ public class Database implements IDatabase {
                         break; // already found it so no need to continue
                     }
                     callback.accept(notification);
+                })
+                .addOnFailureListener(e -> {
+                    callback.accept(null);
                 });
     }
-    
+
     /**
      * Changes their notification preference
      * @param actor: the user whose notification preferences will be changed
      * @param notificationsPreference: whether the user wants to be able to receive notifications or not
      */
-    public void setNotificationsPreference(Actor actor, Boolean notificationsPreference) {
+    public void setNotificationsPreference(Actor actor, Boolean notificationsPreference, Consumer<Boolean> callback) {
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
-                .update("notificationsPreference", notificationsPreference);
+                .update("notificationsPreference", notificationsPreference)
+                .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
     }
-    
+
     /**
      * Gets the names of the people that will be messaged by the organizer
      * (eg. rejected, waitinglist, declined, "Jane Doe", etc.) into all names instead of including "Waitinglist", etc.
@@ -674,30 +752,30 @@ public class Database implements IDatabase {
      * @param callback
      */
     public void getNotificationReceivers(String eventId, List<String> recipients, Consumer<List<Map<String, String>>> callback) {
-        // FInal people list (b/c given list could have "Accepted", "Waitlisted", etc, and this expands on that
+        // Final people list (b/c given list could have "Accepted", "Waitlisted", etc, and this expands on that
         // and also looks for people part of those groups)
         List<Map<String, String>> fullRecipients = new ArrayList<>();
         Set<String> found = new HashSet<>(); // to avoid duplicates
         List<String> statuses = Arrays.asList("Everyone", "Waitlisted", "Pending", "Accepted", "Cancelled", "Rejected Waitlist");
-        
+
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
                 .get()
                 .addOnSuccessListener(eventDocs -> {
-                    
+
                     List<String> groupUserIds = new ArrayList<>(); // everyone
                     Map<String, String> registrationMap = new HashMap<>(); // finds entrantId and registrationId of people
-                    
+
                     for (DocumentSnapshot doc : eventDocs) {
                         String entrantId = doc.getString("entrantId");
                         String regId = doc.getId();
-                        
+
                         if (entrantId != null) {
                             groupUserIds.add(entrantId);
                             registrationMap.put(entrantId, regId);
                         }
                     }
-                    
+
                     // keeps if status is part of the list above
                     List<String> filteredRecipients = new ArrayList<>();
                     for (String recipient : recipients) {
@@ -705,7 +783,7 @@ public class Database implements IDatabase {
                             filteredRecipients.add(recipient);
                         }
                     }
-                    
+
                     List<Task<QuerySnapshot>> tasks = new ArrayList<>();
                     if (filteredRecipients.contains("Everyone") && !groupUserIds.isEmpty()) {
                         tasks.add(
@@ -715,7 +793,7 @@ public class Database implements IDatabase {
                                         .get()
                         );
                     }
-                    
+
                     // finds names of people from list
                     List<String> nameFilters = new ArrayList<>();
                     for (String filter : filteredRecipients) {
@@ -723,7 +801,7 @@ public class Database implements IDatabase {
                             nameFilters.add(filter);
                         }
                     }
-                    
+
                     if (!nameFilters.isEmpty() && !groupUserIds.isEmpty()) {
                         tasks.add(
                                 db.collection("actors")
@@ -733,7 +811,7 @@ public class Database implements IDatabase {
                                         .get()
                         );
                     }
-                    
+
                     // finds people whose registration status are part of the above list
                     if (!filteredRecipients.isEmpty()) {
                         tasks.add(
@@ -742,20 +820,20 @@ public class Database implements IDatabase {
                                         .get()
                         );
                     }
-                    
+
                     if (tasks.isEmpty()) {
                         callback.accept(fullRecipients);
                         return;
                     }
-                    
+
                     Tasks.whenAllSuccess(tasks).addOnSuccessListener(results -> {
-                        
+
                         Map<String, String> actorMap = new HashMap<>();
                         Set<String> idsFromGroups = new HashSet<>();
-                        
+
                         for (Object result : results) {
                             QuerySnapshot snapshots = (QuerySnapshot) result;
-                            
+
                             // finds people from registrations with above status
                             if (!snapshots.isEmpty() && snapshots.getDocuments().get(0).contains("status")) {
                                 for (DocumentSnapshot doc : snapshots.getDocuments()) {
@@ -768,7 +846,7 @@ public class Database implements IDatabase {
                                 }
                             }
                         }
-                        
+
                         // combine both result
                         // add people with given status(es)
                         for (String actorId : idsFromGroups) {
@@ -780,7 +858,7 @@ public class Database implements IDatabase {
                                 fullRecipients.add(entry);
                             }
                         }
-                        
+
                         for (String actorId : actorMap.keySet()) {
                             if (registrationMap.containsKey(actorId) && found.add(actorId)) {
                                 Map<String, String> entry = new HashMap<>();
@@ -792,9 +870,10 @@ public class Database implements IDatabase {
                         }
                         callback.accept(fullRecipients);
                     });
-                });
+                })
+                .addOnFailureListener(e -> callback.accept(null));
     }
-    
+
     /**
      * Saves notifications in database
      * @param sender: id of the person sending a message
@@ -803,17 +882,20 @@ public class Database implements IDatabase {
      * @param eventId: the id of the event which the sender is notifying a recipient about
      * @param registrationId: the id of the recipient's registration for the aforementioned event
      */
-    public void setNotifications(String sender, String recipientId, String message, String eventId, String registrationId) {
+    public void setNotifications(String sender, String recipientId, String message, String eventId, String registrationId, Consumer<Boolean> callback) {
         // TODO: get the notification from the sender
         db.collection("notifications")
                 .add(new Notifications(null, eventId, message, sender, recipientId, registrationId))
                 .addOnSuccessListener(documentReference -> {
                     String documentId = documentReference.getId();
                     // id is the its documentId
-                    documentReference.update("id", documentId);
-                });
+                    documentReference.update("id", documentId)
+                            .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                            .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                })
+                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
     }
-    
+
     /**
      * Gets notifications from database
      * @param actor: actor whose notification is being found
@@ -821,28 +903,35 @@ public class Database implements IDatabase {
      * @param adapter: adapter of notification list
      */
     public void getNotifications(Actor actor, ArrayList<Notifications> notificationsList, NotificationsArrayAdapter adapter) {
+
+        if (actor == null){
+            notificationsList.clear();
+            adapter.notifyDataSetChanged();
+            return;
+        }
+
         db.collection("notifications")
                 .whereEqualTo("recipientId", actor.getDeviceIdentifier())
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     notificationsList.clear();
                     List<Task<?>> allTasks = new ArrayList<>();
-                    
+
                     for (DocumentSnapshot notifyDoc : snapshot.getDocuments()) {
                         Notifications notify = notifyDoc.toObject(Notifications.class);
                         if (notify == null) {
                             continue;
                         }
-                        
+
                         // set registrationId in notifications
                         notify.setRegistrationId(notifyDoc.getString("registrationId"));
-                        
+
                         // set time of notification
                         Timestamp time = notifyDoc.getTimestamp("time");
                         notify.setTime(time != null ? time.toDate() : new Date());
-                        
+
                         notificationsList.add(notify);
-                        
+
                         // gets event image
                         Task<DocumentSnapshot> eventTask = db.collection("events")
                                 .document(notify.getEventId())
@@ -857,7 +946,7 @@ public class Database implements IDatabase {
                                     }
                                 });
                         allTasks.add(eventTask);
-                        
+
                         // gets status
                         Task<Void> statusTask = db.collection("notifications")
                                 .document(notify.getId())
@@ -866,7 +955,7 @@ public class Database implements IDatabase {
                                     DocumentSnapshot notificationDoc = notificationSnapTask.getResult();
                                     if (notificationDoc != null && notificationDoc.exists()) {
                                         String currentStatus = notificationDoc.getString("status");
-                                        
+
                                         // if "Waiting" is not the current status, be able to change status between notif and register collection parallelly (to answer)
                                         if (!"Waiting".equals(currentStatus)) {
                                             String registrationId = notify.getRegistrationId();
@@ -891,30 +980,58 @@ public class Database implements IDatabase {
                                 });
                         allTasks.add(statusTask);
                     }
-                    
-                    Tasks.whenAll(allTasks).addOnSuccessListener(v -> {
-                        // sort to most recent notif
+                    // Handle the case where no notifications are found
+                    if (allTasks.isEmpty()) {
                         notificationsList.sort((n1, n2) -> {
                             Date t1 = n1.getTime();
                             Date t2 = n2.getTime();
                             return t2.compareTo(t1);
                         });
                         adapter.notifyDataSetChanged();
-                    });
+                        return;
+                    }
+
+                    Tasks.whenAll(allTasks)
+                            .addOnSuccessListener(v -> {
+                            // sort to most recent notif
+                            notificationsList.sort((n1, n2) -> {
+                                Date t1 = n1.getTime();
+                                Date t2 = n2.getTime();
+                                return t2.compareTo(t1);
+                            });
+                        adapter.notifyDataSetChanged();
+                    })
+                            //refresh UI even if a task fails
+                            .addOnFailureListener(e -> {
+                            notificationsList.sort((n1, n2) -> {
+                                Date t1 = n1.getTime();
+                                Date t2 = n2.getTime();
+                                return t2.compareTo(t1);
+                            });
+                            adapter.notifyDataSetChanged();
+                            });
+                })
+                // Handles the case where first notification query fails
+                .addOnFailureListener(e ->{
+                    notificationsList.clear();
+                    adapter.notifyDataSetChanged();
                 });
     }
-    
+
     /**
      * Sets status of registration
      * @param registrationId: registration id of an entrant's registration for an event
      * @param registrationStatus: the status of an entrant to an event (eg. Waitlisted, Pending, etc.)
      */
-    public void setRegistrationStatus(String registrationId, String registrationStatus) {
+    public void setRegistrationStatus(String registrationId, String registrationStatus, Consumer<Boolean> callback) {
         db.collection("registrations")
                 .document(registrationId)
-                .update("status", registrationStatus);
+                .update("status", registrationStatus)
+                .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
+                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+
     }
-    
+
         @Override
     public void deleteEventCascade(String eventId, java.util.function.Consumer<Boolean> callback) {
         // 1) Find all registrations for this event
@@ -970,7 +1087,7 @@ public class Database implements IDatabase {
     }
 
     /**
-     * Deletes the Event Poster of a given event 
+     * Deletes the Event Poster of a given event
      * @param eventID
      * @param callback
      */

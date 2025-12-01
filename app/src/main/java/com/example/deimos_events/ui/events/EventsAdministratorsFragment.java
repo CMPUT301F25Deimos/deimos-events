@@ -17,9 +17,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.EventsApp;
-import com.example.deimos_events.R;
 import com.example.deimos_events.databinding.FragmentAdministratorsEventsBinding;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;

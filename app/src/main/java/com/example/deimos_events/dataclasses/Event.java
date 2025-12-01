@@ -1,4 +1,4 @@
-package com.example.deimos_events;
+package com.example.deimos_events.dataclasses;
 
 /**
  * A class for events. This also contains methods for getting data related to registrations and users.

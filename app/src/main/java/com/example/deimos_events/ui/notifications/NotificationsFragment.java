@@ -9,12 +9,13 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.deimos_events.Actor;
+import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
-import com.example.deimos_events.Notifications;
+import com.example.deimos_events.dataclasses.Notifications;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.databinding.FragmentNotificationsBinding;
+import com.example.deimos_events.managers.NotificationManager;
 import com.example.deimos_events.managers.SessionManager;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class NotificationsFragment extends Fragment {
     
     private FragmentNotificationsBinding binding;
     private SessionManager SM;
+
+    private NotificationManager NM;
     
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -41,12 +44,13 @@ public class NotificationsFragment extends Fragment {
         Session session = SM.getSession();
         IDatabase db = session.getDatabase();
         Actor actor = session.getCurrentActor();
-        
+        NM = SM.getNotificationManager();
+
         ArrayList<Notifications> notificationsList = new ArrayList<>();
         NotificationsArrayAdapter adapter = new NotificationsArrayAdapter(requireContext(), notificationsList, db, actor);
         listView.setAdapter(adapter);
         
-        db.getNotifications(actor, notificationsList, adapter);
+        NM.fetchNotifications(actor, notificationsList, adapter);
         
         return root;
     }

@@ -25,13 +25,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
 import com.example.deimos_events.databinding.FragmentCreateEventBinding;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
-import com.example.deimos_events.ui.createEvent.createViewModel;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -43,10 +42,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
-public class createFragment extends Fragment {
+public class CreateFragment extends Fragment {
     private FragmentCreateEventBinding binding;
 
-    private createViewModel viewModel;
+    private CreateViewModel viewModel;
     private Button upload;
     private ImageView image;
     private EditText title;
@@ -72,6 +71,8 @@ public class createFragment extends Fragment {
      public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_create_event, container,false);
 
+
+
         upload = view.findViewById(R.id.button);
         title = view.findViewById(R.id.title);
         Description = view.findViewById(R.id.editText);
@@ -94,7 +95,7 @@ public class createFragment extends Fragment {
                                 image.setImageURI(uri);
                             }
                         });
-        viewModel = new ViewModelProvider(this).get(createViewModel.class);
+        viewModel = new ViewModelProvider(this).get(CreateViewModel.class);
         upload.setOnClickListener(v ->{
             pickImageLauncher.launch("image/*");
         });
@@ -159,22 +160,31 @@ public class createFragment extends Fragment {
                 throw new RuntimeException(e);
             }
             SessionManager SM = ((EventsApp)requireActivity().getApplicationContext()).getSessionManager();
-            EventManager EM = new EventManager(SM);
+            EventManager EM = SM.getEventManager();
             Event event = EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
 
+            
             EM.insertEvent(event, result -> {
                 if (result.isSuccess()){
                     Log.i("TAG", "Event created successfully");
+
+                    if (!isAdded()){
+                        return;
+                    }
+                    NavController navController = NavHostFragment.findNavController(this);
+                    NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
+                    Bundle arg = new Bundle();
+                    arg.putString("id", uniqueId);
+                    navController.navigate(R.id.navigation_edit, arg, navOptions);
+
+
                 } else {
                     Log.i("TAG", "Event unsuccessfully created");
+                    if (isAdded()){
+                        Toast.makeText(requireContext(), "Failed to create event. Try again", Toast.LENGTH_LONG).show();
+                    }
                 }
             });
-            NavController navController = NavHostFragment.findNavController(this);
-            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
-            Bundle arg = new Bundle();
-            arg.putString("id", uniqueId);
-            SM.getSession().setCurrentEvent(event);
-            navController.navigate(R.id.navigation_edit, arg, navOptions);
         });
 
     return view;

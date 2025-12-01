@@ -1,5 +1,7 @@
 package com.example.deimos_events;
 
+import com.example.deimos_events.dataclasses.Actor;
+import com.example.deimos_events.dataclasses.Result;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 

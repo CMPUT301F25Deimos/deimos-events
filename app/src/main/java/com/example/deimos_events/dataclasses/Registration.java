@@ -1,6 +1,4 @@
-package com.example.deimos_events;
-
-import android.graphics.Bitmap;
+package com.example.deimos_events.dataclasses;
 
 /**
  * Registration class. This represents the registration of an entrant into an event. The status

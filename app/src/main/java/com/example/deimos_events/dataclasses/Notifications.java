@@ -1,4 +1,4 @@
-package com.example.deimos_events;
+package com.example.deimos_events.dataclasses;
 
 import java.util.Date;
 

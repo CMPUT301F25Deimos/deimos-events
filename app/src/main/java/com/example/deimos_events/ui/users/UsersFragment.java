@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.deimos_events.Actor;
+import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
@@ -170,11 +170,12 @@ public class UsersFragment extends Fragment {
                         allActors.remove(actor); // keep allActors in sync
 
                         Session session = SM.getSession();
-                        IDatabase db = session.getDatabase();
-                        db.deleteActor(actor, success -> {
+                        ActorManager AM = SM.getActorManager();
+
+                        AM.deleteActor(actor, result -> {
                             if (getActivity() == null) return;
                             requireActivity().runOnUiThread(() -> {
-                                if (Boolean.TRUE.equals(success)) {
+                                if (result.isSuccess()) {
                                     Toast.makeText(requireContext(),
                                             "User deleted", Toast.LENGTH_SHORT).show();
                                 } else {

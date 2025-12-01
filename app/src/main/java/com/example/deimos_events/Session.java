@@ -2,6 +2,9 @@ package com.example.deimos_events;
 
 import android.app.Activity;
 
+import com.example.deimos_events.dataclasses.Actor;
+import com.example.deimos_events.dataclasses.Event;
+
 /**
  * Used to represent the current application state, acting as a snapshot of the data that is
  * shared between managers and activities
@@ -16,6 +19,8 @@ import android.app.Activity;
  *
  * The {@code Session} does not perform database operations. Any data it holds must be saved,
  * updated, or deleted by the appropriate manager.
+ *
+ * @see com.example.deimos_events.managers.SessionManager
  */
 
 public class Session {

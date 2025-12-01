@@ -1,10 +1,10 @@
 package com.example.deimos_events.managers;
 
-import com.example.deimos_events.Actor;
+import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.Database;
-import com.example.deimos_events.Entrant;
+import com.example.deimos_events.dataclasses.Entrant;
 import com.example.deimos_events.IDatabase;
-import com.example.deimos_events.Result;
+import com.example.deimos_events.dataclasses.Result;
 import com.example.deimos_events.Session;
 
 import java.util.function.Consumer;
@@ -95,7 +95,7 @@ public class ActorManager {
      * <p>
      * Verifies that the current Actor is not present in the Database.
      * <p>
-     * If the Actor is not present in the database it will send an insert request via
+     * If the Actor is not already present in the database it will send an insert request via
      * {@code Database.insertActor()}
      * <p>
      *
@@ -395,4 +395,22 @@ public class ActorManager {
             }
         });
     }
+    public void fetchActorRole(Actor actor, Consumer<Result> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+
+        if (actor == null) {
+            callback.accept(new Result(false, "FETCH_ROLE", "Actor not given"));
+            return;
+        }
+
+        db.getActorRole(actor, role -> {
+            if (role == null) {
+                callback.accept(new Result(false, "FETCH_ROLE", "Failed to fetch role"));
+            } else {
+                callback.accept(new Result(true, "FETCH_ROLE", role)); // store the role in the message
+            }
+        });
+    }
+
 }

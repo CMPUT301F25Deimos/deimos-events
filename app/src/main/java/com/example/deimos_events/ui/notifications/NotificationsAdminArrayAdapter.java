@@ -17,13 +17,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.deimos_events.IDatabase;
-import com.example.deimos_events.Notifications;
+import com.example.deimos_events.dataclasses.Notifications;
 import com.example.deimos_events.R;
-import com.example.deimos_events.Registration;
+import com.example.deimos_events.dataclasses.Registration;
 import com.google.android.material.button.MaterialButton;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationsAdminArrayAdapter extends ArrayAdapter<Notifications> {

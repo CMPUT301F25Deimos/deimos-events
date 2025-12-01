@@ -1,4 +1,4 @@
-package com.example.deimos_events;
+package com.example.deimos_events.dataclasses;
 
 public class Result {
     private Boolean cond;

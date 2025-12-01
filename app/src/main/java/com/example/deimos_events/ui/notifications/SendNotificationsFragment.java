@@ -13,13 +13,14 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.deimos_events.Actor;
-import com.example.deimos_events.Event;
+import com.example.deimos_events.dataclasses.Actor;
+import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.databinding.FragmentSendNotificationsBinding;
+import com.example.deimos_events.managers.NotificationManager;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 import com.google.android.flexbox.FlexboxLayout;
@@ -63,6 +64,7 @@ public class SendNotificationsFragment extends DialogFragment {
         Actor actor = session.getCurrentActor();
         UserInterfaceManager UIM = SM.getUserInterfaceManager();
         Event currentEvent = UIM.getCurrentEvent();
+        NotificationManager NM = SM.getNotificationManager();
         
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         
@@ -193,7 +195,7 @@ public class SendNotificationsFragment extends DialogFragment {
         builder.getContext().setTheme(R.style.Theme_DeimosEvents_Dialog);
         
         // add all people who want to be notified and are part of the event
-        db.getNotificationReceivers(currentEvent.getId(), recipientsOptions, receivers -> {
+        NM.fetchNotificationReceivers(currentEvent.getId(), recipientsOptions, receivers -> {
             for (Map<String, String> receiver : receivers) {
                 String name = receiver.get("name");
                 if (name != null && !recipientsOptions.contains(name)) {
@@ -215,17 +217,22 @@ public class SendNotificationsFragment extends DialogFragment {
                 
                 if (!message.isEmpty() && countChips() > 0) {
                     // finds who receives notifications
-                    db.getNotificationReceivers(currentEvent.getId(), selectedPersons, receivers -> {
+                    NM.fetchNotificationReceivers(currentEvent.getId(), selectedPersons, receivers -> {
                         for (Map<String,String> recipient : receivers) {
                             String deviceId = recipient.get("deviceIdentifier");
                             String registrationId = recipient.get("registrationId");
                             
                             // makes notification
-                            db.setNotifications(actor.getDeviceIdentifier(),
+                            NM.insertNotifications(actor.getDeviceIdentifier(),
                                     deviceId,
                                     message,
                                     currentEvent.getId(),
-                                    registrationId);
+                                    registrationId,
+                                    result ->{
+                                        if (!result.isSuccess() && isAdded()){
+                                            Snackbar.make(v, result.getMessage(), Snackbar.LENGTH_SHORT).show();
+                                        }
+                                    });
                         }
                     });
                     

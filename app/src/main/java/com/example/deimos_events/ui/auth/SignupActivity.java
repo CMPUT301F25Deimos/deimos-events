@@ -10,16 +10,16 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.example.deimos_events.Actor;
+import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.managers.ActorManager;
-import com.example.deimos_events.Administrator;
-import com.example.deimos_events.Entrant;
+import com.example.deimos_events.dataclasses.Administrator;
+import com.example.deimos_events.dataclasses.Entrant;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.FoundationActivity;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.MainActivity;
 import com.example.deimos_events.managers.NavigationManager;
-import com.example.deimos_events.Organizer;
+import com.example.deimos_events.dataclasses.Organizer;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Roles;
 import com.example.deimos_events.managers.SessionManager;
@@ -38,10 +38,14 @@ import java.util.Set;
  * within the Deimos Events application. It collects and validates basic user information such as
  * name, email, phone number, and role (Entrant, Organizer, or Admin).
  * <p>
+ * On launch this activity checks {@link android.content.SharedPreferences} to see if the user already exists.
+ * If such a user exists we recreate the corresponding {@link Actor}, set it as the current actor via the {@link UserInterfaceManager}
+ * and the user is then automatically moved to the {@link MainActivity} bypassing the sign-up form.
+ * <p>
  * Once the information is validated, it creates an {@link Actor} (or its subclass such as
  * {@link Entrant}, {@link Organizer}, or {@link Administrator}) and stores it in the
  * Firebase database through the {@link ActorManager}. It also caches the profile locally using
- * {@link android.content.SharedPreferences} so that returning users can skip sign-up.
+ * so that returning users can skip sign-up.
  * </p>
  * <p>
  * Key responsibilities:
@@ -49,6 +53,7 @@ import java.util.Set;
  *     <li>Validate input fields for correctness and allowed email domains.</li>
  *     <li>Create and insert {@link Actor} instances into the database.</li>
  *     <li>Persist user session and navigate to {@link MainActivity} after successful signup.</li>
+ *     <li>Skips the sign-up screen if we have already have a user's profile stored</li>
  * </ul>
  * </p>
  *
@@ -58,31 +63,34 @@ import java.util.Set;
  */
 public class SignupActivity extends FoundationActivity {
 
-    private TextInputLayout      tilName, tilEmail, tilPhone, tilDeviceId, tilRole;
-    private TextInputEditText    etDeviceId, etName, etEmail, etPhone;
+    private TextInputLayout tilName, tilEmail, tilPhone, tilDeviceId, tilRole;
+    private TextInputEditText etDeviceId, etName, etEmail, etPhone;
     private AutoCompleteTextView etRole;
-    private MaterialButton       btnSignup, btnMore;
+    private MaterialButton btnSignup, btnMore;
 
-    private IDatabase db;
 
-    private SessionManager       SM;
+    private SessionManager SM;
     private UserInterfaceManager UIM;
-    private NavigationManager    NM;
+    private NavigationManager NM;
 
     private ActorManager AM;
 
-    /** Allowed email domains for validation. */
+    /**
+     * Allowed email domains for validation.
+     */
     private static final Set<String> ALLOWED_DOMAINS = new HashSet<>(
             Arrays.asList("gmail.com", "outlook.com", "hotmail.com", "yahoo.com", "yahoo.ca")
     );
 
     /**
-     * Called when the signup screen is created.
+     * Called when the sign-up screen is created.
      * <p>
      * Initializes UI elements, session managers, and preloads stored user information if
      * the user has previously signed up. If a stored profile exists, the user is redirected
-     * to {@link MainActivity}.
+     * to {@link MainActivity} and the sign-up form is skipped.
      * </p>
+     * If a user doesn't exist, this method will setup the sign-up layout, wire text fields, set up the role selection
+     * dropdown, and automatically fill the device ID using {@link android.provider.Settings.Secure#ANDROID_ID}.
      *
      * @param savedInstanceState saved instance state bundle, if available.
      */
@@ -91,11 +99,10 @@ public class SignupActivity extends FoundationActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        SM  = ((EventsApp) getApplicationContext()).getSessionManager();
+        SM = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
-        NM  = SM.getNavigationManager();
-        AM  = SM.getActorManager();
-        db  = SM.getSession().getDatabase();
+        NM = SM.getNavigationManager();
+        AM = SM.getActorManager();
 
         //The following part Idea is taken from: https://stackoverflow.com/questions/5082846/how-to-implement-stay-logged-in-when-user-login-in-to-the-web-application
         //Authored By: Thang Pham
@@ -121,31 +128,34 @@ public class SignupActivity extends FoundationActivity {
 
         // Initialize form fields
         tilDeviceId = findViewById(R.id.til_device_id);
-        tilName     = findViewById(R.id.til_name);
-        tilEmail    = findViewById(R.id.til_email);
-        tilPhone    = findViewById(R.id.til_phone);
-        tilRole     = findViewById(R.id.til_role);
+        tilName = findViewById(R.id.til_name);
+        tilEmail = findViewById(R.id.til_email);
+        tilPhone = findViewById(R.id.til_phone);
+        tilRole = findViewById(R.id.til_role);
 
-        etDeviceId  = findViewById(R.id.et_device_id);
-        etName      = findViewById(R.id.et_name);
-        etEmail     = findViewById(R.id.et_email);
-        etPhone     = findViewById(R.id.et_phone);
-        etRole      = findViewById(R.id.et_role);
-        btnSignup   = findViewById(R.id.btn_signup);
-        btnMore     = findViewById(R.id.btn_more);
+        etDeviceId = findViewById(R.id.et_device_id);
+        etName = findViewById(R.id.et_name);
+        etEmail = findViewById(R.id.et_email);
+        etPhone = findViewById(R.id.et_phone);
+        etRole = findViewById(R.id.et_role);
+        btnSignup = findViewById(R.id.btn_signup);
+        btnMore = findViewById(R.id.btn_more);
 
         // Role selection dropdown
         String[] roles = new String[]{Roles.ENTRANT, Roles.ORGANIZER, Roles.ADMIN};
         etRole.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, roles));
         etRole.setText(Roles.ENTRANT, false);
         etRole.setOnClickListener(v -> etRole.showDropDown());
-        etRole.setOnFocusChangeListener((v, hasFocus) -> { if (hasFocus) etRole.showDropDown(); });
+        etRole.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) etRole.showDropDown();
+        });
 
         // Automatically fill device ID
         try {
             String id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             if (!TextUtils.isEmpty(id)) etDeviceId.setText(id);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         // Set up button listeners
         btnSignup.setOnClickListener(v -> submit());
@@ -157,8 +167,14 @@ public class SignupActivity extends FoundationActivity {
      * <p>
      * If input validation passes, it creates an {@link Actor} and inserts it into the database
      * using {@link ActorManager#insertActor(Actor, java.util.function.Consumer)}.
-     * On success, it saves user data locally and navigates to {@link MainActivity}.
-     * </p>
+     * <p>
+     * While we are submitting data, the sign-up button is disabled.
+     * Database operations are asynchronous. When completed this method will:
+     * <ul>
+     *     <li>Displays an error message to the user on failure and then keeps them on the sign-up screen</li>
+     *     <li>If submission succeeds, it saves the users data locally in {@link android.content.SharedPreferences}, then
+     *     indicates that the user has completed the sign-up, and moves the user to the @{@link MainActivity}</li>
+     * </ul>
      */
     private void submit() {
         clearErrors();
@@ -171,20 +187,34 @@ public class SignupActivity extends FoundationActivity {
         Boolean notificationsPreference = true;
 
         boolean ok = true;
-        if (deviceId.isEmpty()) { tilDeviceId.setError("Device ID required"); ok = false; }
-        if (name.isEmpty())     { tilName.setError("Name required"); ok = false; }
+        if (deviceId.isEmpty()) {
+            tilDeviceId.setError("Device ID required");
+            ok = false;
+        }
+        if (name.isEmpty()) {
+            tilName.setError("Name required");
+            ok = false;
+        }
 
         if (email.isEmpty()) {
-            tilEmail.setError("Email required"); ok = false;
+            tilEmail.setError("Email required");
+            ok = false;
         } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError("Invalid email"); ok = false;
+            tilEmail.setError("Invalid email");
+            ok = false;
         } else if (!hasAllowedDomain(email)) {
             tilEmail.setError("Use a valid email address");
             ok = false;
         }
 
-        if (!phone.isEmpty() && phone.length() < 7) { tilPhone.setError("Invalid phone"); ok = false; }
-        if (role.isEmpty())     { tilRole.setError("Choose a role"); ok = false; }
+        if (!phone.isEmpty() && phone.length() < 7) {
+            tilPhone.setError("Invalid phone");
+            ok = false;
+        }
+        if (role.isEmpty()) {
+            tilRole.setError("Choose a role");
+            ok = false;
+        }
         if (!ok) return;
 
         btnSignup.setEnabled(false);
@@ -195,16 +225,16 @@ public class SignupActivity extends FoundationActivity {
             btnSignup.setEnabled(true);
             String UIErrorMessage = "";
             if (!res.isSuccess()) {
-                if (res.getMessage() == "Database Failed to Read") {
+                if (res.getMessage().equals("Database Failed to Read")) {
                     UIErrorMessage = "Network Error. Try Again";
                 }
-                if (res.getMessage() == "Actor already exists") {
+                if (res.getMessage().equals("Actor already exists")) {
                     UIErrorMessage = "User already exists with this email";
                 }
                 Toast.makeText(this, UIErrorMessage, Toast.LENGTH_SHORT).show();
                 UIM.clearCurrentActor();
-                return;
             } else {
+                // update the shared preference so we don't need to sign in again
                 getSharedPreferences("entrant_profile", MODE_PRIVATE)
                         .edit()
                         .putString("userId", deviceId)
@@ -229,11 +259,11 @@ public class SignupActivity extends FoundationActivity {
     /**
      * Creates a subclass of {@link Actor} based on the given role.
      *
-     * @param id unique device identifier for the user.
-     * @param name user's full name.
+     * @param id    unique device identifier for the user.
+     * @param name  user's full name.
      * @param email user's email address.
      * @param phone user's phone number.
-     * @param role role selection (Entrant, Organizer, Admin).
+     * @param role  role selection (Entrant, Organizer, Admin).
      * @return a new {@link Actor} instance matching the selected role.
      */
     private Actor createActorByRole(String id, String name, String email, String phone, String role, Boolean notificationsPreference) {
@@ -242,7 +272,9 @@ public class SignupActivity extends FoundationActivity {
         return new Entrant(id, name, email, phone, true);
     }
 
-    /** Clears all validation error messages from input fields. */
+    /**
+     * Clears all validation error messages from input fields.
+     */
     private void clearErrors() {
         tilDeviceId.setError(null);
         tilName.setError(null);
