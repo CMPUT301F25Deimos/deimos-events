@@ -1,10 +1,13 @@
 package com.example.deimos_events;
 
+import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
 import android.content.Context;
 
 import com.google.firebase.firestore.ListenerRegistration;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -50,12 +53,20 @@ public interface IDatabase {
     
     public ListenerRegistration listenToRegisteredEvents(Actor actor, Consumer<Set<String>> callback);
     
-    public void getNotificationEventInfo(Actor actor, Consumer<List<Registration>> callback);
-    
     public void answerEvent(String documentId, String answer);
     
     public void getActorRole(Actor actor, Consumer<String> callback);
-
+    
+    public void getNotificationsPreference(Actor actor, Consumer<Boolean> callback);
+    
+    public void setNotificationsPreference(Actor actor, Boolean notificationsPreference);
+    
+    public void getNotificationReceivers(String eventId, List<String> recipients, Consumer<List<Map<String, String>>> callback);
+    
+    public void setNotifications(String sender, String recipient, String message, String eventId, String registrationId);
+    
+    public void getNotifications(Actor actor, ArrayList<Notifications> notificationsList, NotificationsArrayAdapter adapter);
+    public void setRegistrationStatus(String registrationId, String registrationStatus);
     void deleteEventCascade(String eventId, java.util.function.Consumer<Boolean> callback);
     void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback);
     void deleteEventImage(String eventID, Consumer<Boolean> callback);
