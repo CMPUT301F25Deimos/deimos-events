@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
-import com.example.deimos_events.Notifications;
+import com.example.deimos_events.dataclasses.Notifications;
 import com.example.deimos_events.R;
 import com.example.deimos_events.databinding.FragmentAdministratorsNotificationBinding;
 import com.example.deimos_events.databinding.FragmentNotificationsBinding;
