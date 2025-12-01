@@ -42,7 +42,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+/**
+ * Fragment that displays and manages the organizer's event list with rich filtering options.
+ * <p>Features include:</p>
+ * <ul>
+ *     <li>Viewing all events relevant to the current organizer or entrant</li>
+ *     <li>Filtering by join status (all, joined, not joined, etc.)</li>
+ *     <li>Filtering by availability (weekdays / weekends)</li>
+ *     <li>Filtering by interest categories using chips</li>
+ *     <li>Navigating to create-event and edit-event screens</li>
+ *     <li>Listening to live updates of joined events via Firestore</li>
+ * </ul>
+ */
 public class EventsOrganizersFragment extends Fragment {
     private FragmentOrganizersEventsBinding binding;
     private EventArrayAdapter adapter;

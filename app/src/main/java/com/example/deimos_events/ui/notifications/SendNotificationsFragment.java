@@ -32,6 +32,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+/**
+ * A dialog fragment that allows organizers to send notifications to selected
+ * recipients of an event. Recipients can be chosen by status (e.g., Accepted,
+ * Waitlisted, Declined) or by individual name. Multiple selections are displayed
+ * as removable chips, and messages are sent via the {@link NotificationManager}.
+ */
 
 public class SendNotificationsFragment extends DialogFragment {
     private FragmentSendNotificationsBinding binding;

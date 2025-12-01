@@ -13,7 +13,6 @@ public class CreateViewModel extends ViewModel {
 
     /** LiveData holding the current message for the create-event UI. */
     private final MutableLiveData<String> message = new MutableLiveData<>();
-
     /**
      * Returns observable message data for the UI.
      * @return a {@link LiveData} representing the current message

@@ -19,8 +19,22 @@ import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 
 /**
- * Shows the event information for an event
- * Activity allows signing up for the event
+ * Activity that displays detailed information about a selected {@link Event}.
+ *
+ * <p>This screen is shown to Entrants and Organizers when they tap an event
+ * in the event list. It shows:</p>
+ *
+ * <ul>
+ *     <li>Event title and description</li>
+ *     <li>Guidelines and participation criteria</li>
+ *     <li>Date, time, and location information</li>
+ *     <li>Poster image</li>
+ *     <li>Waiting list count for the event</li>
+ * </ul>
+ *
+ * <p>Entrants may also join the event waitlist using the “Join” button.
+ * The activity retrieves the current event from the shared {@link SessionManager}
+ * through the {@link UserInterfaceManager}.</p>
  */
 
 public class EventInformationActivity  extends AppCompatActivity {
@@ -40,9 +54,23 @@ public class EventInformationActivity  extends AppCompatActivity {
     private SessionManager SM;
     private UserInterfaceManager UIM;
     private EventManager EM;
-
-
-
+    /**
+     * Initializes the event information screen and populates all UI elements
+     * with data from the currently selected event.
+     *
+     * <p>This method performs the following tasks:</p>
+     * <ul>
+     *     <li>Retrieves the current {@link Event} from the session</li>
+     *     <li>Binds all UI components (text, buttons, image)</li>
+     *     <li>Displays event title, description, guidelines, and criteria</li>
+     *     <li>Loads the poster image from Base64 if available</li>
+     *     <li>Displays event location, date, and time</li>
+     *     <li>Queries and displays the waiting list count</li>
+     *     <li>Handles user actions such as returning or joining the waitlist</li>
+     * </ul>
+     *
+     * @param savedInstanceState previously saved state (unused)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,12 +90,10 @@ public class EventInformationActivity  extends AppCompatActivity {
         eventTime = findViewById(R.id.EventTime);
         eventPoster = findViewById(R.id.imgEvent);
 
-
         //Grabbing all the needed managers
         SM = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
         EM = SM.getEventManager();
-
         Event currentEvent = UIM.getCurrentEvent();
         //Setting all the elements of the UI
         EventTitle.setText(currentEvent.getTitle());
