@@ -28,7 +28,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="15dp">
 
             <TextView
                 android:id="@+id/signup_title"
@@ -49,6 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Device ID"
+                android:visibility="gone"
                 app:boxCornerRadiusTopStart="12dp"
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
@@ -148,43 +150,27 @@
                     android:inputType="none"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_signup"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:text="Signup"
+                android:textAllCaps="false"
+                android:layout_marginTop="5dp"
+                android:layout_gravity="center"
+                android:padding="10dp"
+                android:icon="@android:drawable/ic_secure"
+                app:iconPadding="8dp"
+                android:insetTop="8dp"
+                android:insetBottom="8dp"
+                app:cornerRadius="24dp"
+                app:iconGravity="textStart"
+                app:rippleColor="@android:color/white"
+                android:backgroundTint="#3A2F45"
+                android:textColor="@android:color/white"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_signup"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Signup"
-                    android:textAllCaps="false"
-                    android:icon="@android:drawable/ic_secure"
-                    app:iconPadding="8dp"
-                    android:insetTop="8dp"
-                    android:insetBottom="8dp"
-                    app:cornerRadius="24dp"
-                    app:iconGravity="textStart"
-                    app:rippleColor="@android:color/white"
-                    android:backgroundTint="#3A2F45"
-                    android:textColor="@android:color/white"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_more"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="48dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:text="▾"
-                    android:textSize="18sp"
-                    app:cornerRadius="20dp"/>
-            </LinearLayout>
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

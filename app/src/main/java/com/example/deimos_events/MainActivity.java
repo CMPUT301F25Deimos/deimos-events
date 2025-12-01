@@ -1,19 +1,21 @@
 package com.example.deimos_events;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
-import com.example.deimos_events.managers.NavigationManager;
-import com.example.deimos_events.managers.SessionManager;
-import com.example.deimos_events.managers.UserInterfaceManager;
-import com.example.deimos_events.ui.auth.SignupActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.deimos_events.databinding.ActivityMainBinding;
+import com.example.deimos_events.managers.NavigationManager;
+import com.example.deimos_events.managers.SessionManager;
+import com.example.deimos_events.managers.UserInterfaceManager;
+import com.example.deimos_events.ui.auth.SignupActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends FoundationActivity {
     private SessionManager SM;
@@ -95,6 +97,15 @@ public class MainActivity extends FoundationActivity {
             }
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
             NavigationUI.setupWithNavController(binding.navView, navController);
+            
+            // makes back button a lighter colour
+            navController.addOnDestinationChangedListener((controller, destination, args) -> {
+                if (getSupportActionBar() != null) {
+                    Drawable backButton = getResources().getDrawable(R.drawable.outline_arrow_back_24, getTheme());
+                    DrawableCompat.setTint(backButton, ContextCompat.getColor(this, R.color.text_colour));
+                    getSupportActionBar().setHomeAsUpIndicator(backButton);
+                }
+            });
         });
     }
 

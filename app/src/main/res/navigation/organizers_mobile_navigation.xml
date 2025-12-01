@@ -27,6 +27,9 @@
         <action
             android:id="@+id/action_navigation_organizers_events_to_navigation_event_info"
             app:destination="@id/navigation_event_info" />
+        <action
+            android:id="@+id/action_navigation_organizers_events_to_navigation_owner_event_info"
+            app:destination="@id/navigation_owner_event_info" />
     </fragment>
 
     <fragment
@@ -52,6 +55,12 @@
         android:name="com.example.deimos_events.ui.events.EventInformationActivity"
         android:label="Event Information"
         tools:layout="@layout/user_event_info" />
+
+    <activity
+        android:id="@+id/navigation_owner_event_info"
+        android:name="com.example.deimos_events.ui.events.EventInformationActivity"
+        android:label="Event Information"
+        tools:layout="@layout/user_owner_event_info" />
 
     <fragment
         android:id="@+id/navigation_picker"

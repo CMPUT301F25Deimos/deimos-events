@@ -23,6 +23,7 @@ import com.example.deimos_events.Event;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
+import com.example.deimos_events.Registration;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.databinding.FragmentOrganizersEventsBinding;
 import com.example.deimos_events.managers.SessionManager;
@@ -49,13 +50,14 @@ public class EventsOrganizersFragment extends Fragment {
     private SessionManager SM;
     private UserInterfaceManager UIM;
     private ListView listView;
+    private boolean historyMode = false;
     private final List<com.example.deimos_events.Event> allEventsLive = new ArrayList<>();
     private Set<String> joinedEventIdsLive = new HashSet<>();
 
     private final Map<Event, String> dayTypeByEvent = new HashMap<>();
     private final Map<com.example.deimos_events.Event, String> categoryByEvent = new HashMap<>();
     private final Map<com.example.deimos_events.Event, Long> timeByEvent = new HashMap<>();
-
+    private final Map<String, String> registrationStatusByEventId = new HashMap<>();
     /**
      * Filterable status options for the event list.
      */
@@ -104,6 +106,7 @@ public class EventsOrganizersFragment extends Fragment {
             ListView lv = binding.eventsList;
             Session sess = (SM != null) ? SM.getSession() : null;
             Actor current = (sess != null) ? sess.getCurrentActor() : null;
+            historyMode = false;
             renderWithFilters(lv, current);
             Toast.makeText(getContext(), "Filters cleared", Toast.LENGTH_SHORT).show();
         });
@@ -119,23 +122,53 @@ public class EventsOrganizersFragment extends Fragment {
         Session session = SM.getSession();
         IDatabase db = session.getDatabase();
         Actor actor = session.getCurrentActor();
-
+        
+        MaterialButton historyBtn = root.findViewById(R.id.btn_history);
+        if (historyBtn != null) {
+            historyBtn.setOnClickListener(v -> {
+                historyMode = true;
+                binding.toggleStatus.check(R.id.toggle_status_joined);
+                currentStatus = EventsOrganizersFragment.Status.JOINED;
+                renderWithFilters(listView, actor);
+                Toast.makeText(getContext(),
+                        "Showing your event history", Toast.LENGTH_SHORT).show();
+            });
+        }
+        
         db.getEvents(events -> {
             allEventsLive.clear();
             if (events != null) allEventsLive.addAll(events);
             assignSidecarTagsForRealEvents(allEventsLive);
-
+            
             db.getEntrantRegisteredEvents(actor, joinedEventIds -> {
                 joinedEventIdsLive = (joinedEventIds == null)
                         ? new HashSet<>()
                         : new HashSet<>(joinedEventIds);
-                renderWithFilters(listView, actor);
-
+                
+                registrationStatusByEventId.clear();
+                db.getNotificationEventInfo(actor, registrations -> {
+                    for (Registration r : registrations) {
+                        if (r.getEventId() != null && r.getStatus() != null) {
+                            registrationStatusByEventId.put(r.getEventId(), r.getStatus());
+                        }
+                    }
+                    renderWithFilters(listView, actor);
+                });
+                
                 registrationListener = db.listenToRegisteredEvents(actor, (updatedJoinedIds) -> {
                     joinedEventIdsLive = (updatedJoinedIds == null)
                             ? new HashSet<>()
                             : new HashSet<>(updatedJoinedIds);
-                    renderWithFilters(listView, actor);
+                    
+                    registrationStatusByEventId.clear();
+                    db.getNotificationEventInfo(actor, registrations -> {
+                        for (Registration r : registrations) {
+                            if (r.getEventId() != null && r.getStatus() != null) {
+                                registrationStatusByEventId.put(r.getEventId(), r.getStatus());
+                            }
+                        }
+                        renderWithFilters(listView, actor);
+                    });
                 });
             });
         });
@@ -182,16 +215,6 @@ public class EventsOrganizersFragment extends Fragment {
             }
             renderWithFilters(listView, actor);
         });
-
-        MaterialButton historyBtn = root.findViewById(R.id.btn_history);
-        if (historyBtn != null) {
-            historyBtn.setOnClickListener(v -> {
-                binding.toggleStatus.check(R.id.toggle_status_joined);
-                currentStatus = Status.JOINED;
-                renderWithFilters(listView, actor);
-                Toast.makeText(getContext(), "Showing joined events", Toast.LENGTH_SHORT).show();
-            });
-        }
 
         return root;
     }
@@ -286,11 +309,13 @@ public class EventsOrganizersFragment extends Fragment {
         }
 
         NavController navController = NavHostFragment.findNavController(this);
-
+        
         adapter = new EventArrayAdapter(
                 requireContext(),
                 filtered,
                 joinedEventIdsLive,
+                registrationStatusByEventId,
+                historyMode,
                 SM,
                 actor,
                 navController

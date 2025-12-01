@@ -132,7 +132,6 @@ public class SignupActivity extends FoundationActivity {
         etPhone     = findViewById(R.id.et_phone);
         etRole      = findViewById(R.id.et_role);
         btnSignup   = findViewById(R.id.btn_signup);
-        btnMore     = findViewById(R.id.btn_more);
 
         // Role selection dropdown
         String[] roles = new String[]{Roles.ENTRANT, Roles.ORGANIZER, Roles.ADMIN};
@@ -149,7 +148,6 @@ public class SignupActivity extends FoundationActivity {
 
         // Set up button listeners
         btnSignup.setOnClickListener(v -> submit());
-        btnMore.setOnClickListener(v -> Toast.makeText(this, "Go to Login screen", Toast.LENGTH_SHORT).show());
     }
 
     /**
