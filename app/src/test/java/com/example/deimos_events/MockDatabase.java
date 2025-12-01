@@ -197,7 +197,7 @@ public class MockDatabase implements IDatabase {
 
 
     @Override
-    public void joinEvent(Context context, String eventId, Actor actor) {
+    public void joinEvent(Context context, String eventId, Actor actor, Consumer<Boolean> callback) {
         throw new UnsupportedOperationException("Not Implemented yet");
     }
 

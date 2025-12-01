@@ -395,4 +395,22 @@ public class ActorManager {
             }
         });
     }
+    public void fetchActorRole(Actor actor, Consumer<Result> callback) {
+        Session session = sessionManager.getSession();
+        IDatabase db = session.getDatabase();
+
+        if (actor == null) {
+            callback.accept(new Result(false, "FETCH_ROLE", "Actor not given"));
+            return;
+        }
+
+        db.getActorRole(actor, role -> {
+            if (role == null) {
+                callback.accept(new Result(false, "FETCH_ROLE", "Failed to fetch role"));
+            } else {
+                callback.accept(new Result(true, "FETCH_ROLE", role)); // store the role in the message
+            }
+        });
+    }
+
 }

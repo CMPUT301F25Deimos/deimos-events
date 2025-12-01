@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +27,7 @@ import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.managers.NavigationManager;
 import com.example.deimos_events.R;
 import com.example.deimos_events.Session;
+import com.example.deimos_events.managers.NotificationManager;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 import com.example.deimos_events.databinding.FragmentProfileBinding;
@@ -75,6 +75,8 @@ public class ProfileFragment extends Fragment {
     private SessionManager SM;
     private UserInterfaceManager UIM;
     private NavigationManager NaM;
+
+    private NotificationManager NM;
     private IDatabase db;
     private Session session;
 
@@ -94,6 +96,7 @@ public class ProfileFragment extends Fragment {
         SM = ((EventsApp) requireActivity().getApplication()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
         NaM = SM.getNavigationManager();
+        NM = SM.getNotificationManager();
         AM = SM.getActorManager();
         session = SM.getSession();
         db = session.getDatabase();
@@ -142,7 +145,7 @@ public class ProfileFragment extends Fragment {
         }
 
         // shows whether the switch is turned on or turned off (AKA its state)
-        db.getNotificationsPreference(session.getCurrentActor(), notificationPref -> {
+        NM.fetchNotificationsPreference(session.getCurrentActor(), notificationPref -> {
             if (notificationPref != null)
                 binding.notifySwitch.setChecked(notificationPref);
             else
@@ -153,7 +156,13 @@ public class ProfileFragment extends Fragment {
         binding.notifySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
-                db.setNotificationsPreference(session.getCurrentActor(), isChecked);
+                NM.insertNotificationsPreference(session.getCurrentActor(), isChecked, result -> {
+                    if (!result.isSuccess() && isAdded()) {
+                        Toast.makeText(requireContext(),
+                                result.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 

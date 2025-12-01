@@ -42,7 +42,7 @@ import com.example.deimos_events.dataclasses.Registration;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.ui.notifications.SendNotificationsFragment;
-import com.example.deimos_events.ui.createEvent.createViewModel;
+import com.example.deimos_events.ui.createEvent.CreateViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;

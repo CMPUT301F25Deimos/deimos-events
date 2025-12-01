@@ -21,11 +21,12 @@ import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
-import com.example.deimos_events.Registration;
+import com.example.deimos_events.dataclasses.Registration;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.databinding.FragmentEntrantsEventsBinding;
 import com.example.deimos_events.dataclasses.Event;
 import com.example.deimos_events.dataclasses.Registration;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 import com.google.android.material.button.MaterialButton;
@@ -60,6 +61,7 @@ public class EventsEntrantsFragment extends Fragment {
     private EventArrayAdapter adapter;
     private ListenerRegistration registrationListener;
     private SessionManager SM;
+    private EventManager EM;
     private UserInterfaceManager UIM;
     private ListView listView;
 
@@ -177,6 +179,7 @@ public class EventsEntrantsFragment extends Fragment {
         EventsApp app = (EventsApp) requireActivity().getApplicationContext();
         SM = app.getSessionManager();
         Session session = SM.getSession();
+        EM = SM.getEventManager();
         IDatabase db = session.getDatabase();
         Actor actor = session.getCurrentActor();
 
@@ -192,18 +195,16 @@ public class EventsEntrantsFragment extends Fragment {
             });
         }
 
-        db.getEvents(events -> {
+        EM.fetchEvents(events -> {
             allEventsLive.clear();
-            if (events != null) allEventsLive.addAll(events);
+            allEventsLive.addAll(events);
             assignSidecarTagsForRealEvents(allEventsLive);
 
-            db.getEntrantRegisteredEvents(actor, joinedEventIds -> {
-                joinedEventIdsLive = (joinedEventIds == null)
-                        ? new HashSet<>()
-                        : new HashSet<>(joinedEventIds);
+            EM.fetchEntrantRegisteredEvents(actor, joinedEventIds -> {
+                joinedEventIdsLive = new HashSet<>(joinedEventIds);
 
                 registrationStatusByEventId.clear();
-                db.getNotificationEventInfo(actor, registrations -> {
+                EM.fetchNotificationEventInfo(actor, registrations -> {
                     for (Registration r : registrations) {
                         if (r.getEventId() != null && r.getStatus() != null) {
                             registrationStatusByEventId.put(r.getEventId(), r.getStatus());
@@ -212,13 +213,11 @@ public class EventsEntrantsFragment extends Fragment {
                     renderWithFilters(listView, actor);
                 });
 
-                registrationListener = db.listenToRegisteredEvents(actor, (updatedJoinedIds) -> {
-                    joinedEventIdsLive = (updatedJoinedIds == null)
-                            ? new HashSet<>()
-                            : new HashSet<>(updatedJoinedIds);
+                registrationListener = EM.listenToRegisteredEvents(actor, (updatedJoinedIds) -> {
+                    joinedEventIdsLive = new HashSet<>(updatedJoinedIds);
 
                     registrationStatusByEventId.clear();
-                    db.getNotificationEventInfo(actor, registrations -> {
+                    EM.fetchNotificationEventInfo(actor, registrations -> {
                         for (Registration r : registrations) {
                             if (r.getEventId() != null && r.getStatus() != null) {
                                 registrationStatusByEventId.put(r.getEventId(), r.getStatus());

@@ -1,5 +1,6 @@
 package com.example.deimos_events;
 
+import com.example.deimos_events.dataclasses.Notifications;
 import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
 import android.content.Context;
 
@@ -47,9 +48,9 @@ public interface IDatabase {
 
     public void fetchEventById(String eventId, Consumer<Event> callback);
     
-    public void joinEvent(Context context, String eventId, Actor actor);
+    public void joinEvent(Context context, String eventId, Actor actor, Consumer<Boolean> callback);
     
-    public void leaveEvent(String eventId, Actor actor);
+    public void leaveEvent(String eventId, Actor actor, Consumer<Boolean> callback);
     
     public void getEvents(Consumer<List<Event>> callback);
     
@@ -57,25 +58,29 @@ public interface IDatabase {
     
     public ListenerRegistration listenToRegisteredEvents(Actor actor, Consumer<Set<String>> callback);
     
-    public void answerEvent(String documentId, String answer);
-    
+    public void answerEvent(String documentId, String answer, Consumer<Boolean> callback);
+
     public void getActorRole(Actor actor, Consumer<String> callback);
     
     public void getNotificationsPreference(Actor actor, Consumer<Boolean> callback);
     
-    public void setNotificationsPreference(Actor actor, Boolean notificationsPreference);
-    
+    public void setNotificationsPreference(Actor actor, Boolean notificationsPreference, Consumer<Boolean> callback);
+
     public void getNotificationReceivers(String eventId, List<String> recipients, Consumer<List<Map<String, String>>> callback);
     
-    public void setNotifications(String sender, String recipient, String message, String eventId, String registrationId);
-    
+    public void setNotifications(String sender, String recipient, String message, String eventId, String registrationId, Consumer<Boolean> callback);
+
     public void getNotifications(Actor actor, ArrayList<Notifications> notificationsList, NotificationsArrayAdapter adapter);
-    public void setRegistrationStatus(String registrationId, String registrationStatus);
+
+    public void setRegistrationStatus(String registrationId, String registrationStatus, Consumer<Boolean> callback);
+    //public void setRegistrationStatus(String registrationId, String registrationStatus);
     void deleteEventCascade(String eventId, java.util.function.Consumer<Boolean> callback);
     void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback);
     void deleteEventImage(String eventID, Consumer<Boolean> callback);
 
     public void getNotificationAdmin( Consumer<List<Notifications>> callback);
+
+
 
 
     void getNotificationEventInfo(Actor actor, Consumer<List<Registration>> callback);

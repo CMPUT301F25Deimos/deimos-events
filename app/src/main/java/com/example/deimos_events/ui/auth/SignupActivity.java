@@ -233,7 +233,6 @@ public class SignupActivity extends FoundationActivity {
                 }
                 Toast.makeText(this, UIErrorMessage, Toast.LENGTH_SHORT).show();
                 UIM.clearCurrentActor();
-                return;
             } else {
                 // update the shared preference so we don't need to sign in again
                 getSharedPreferences("entrant_profile", MODE_PRIVATE)

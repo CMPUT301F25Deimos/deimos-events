@@ -28,6 +28,7 @@ import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
 import com.example.deimos_events.dataclasses.Registration;
 import com.example.deimos_events.managers.EventManager;
+import com.example.deimos_events.managers.NotificationManager;
 import com.example.deimos_events.managers.SessionManager;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public class PickerFragment extends Fragment {
 
     private Event event;
     private EventManager EM;
+    private NotificationManager NM;
 
     @SuppressLint("SetTextI18n")
     @Nullable
@@ -81,6 +83,7 @@ public class PickerFragment extends Fragment {
         SessionManager SM = ((EventsApp) getActivity().getApplication()).getSessionManager();
         EM = SM.getEventManager();
         event = SM.getSession().getCurrentEvent();
+        NM = SM.getNotificationManager();
         Actor actor = SM.getSession().getCurrentActor();
         IDatabase db = SM.getSession().getDatabase();
 
@@ -138,9 +141,16 @@ public class PickerFragment extends Fragment {
             List<Registration> selected = waitingList.subList(0, count);
 
             for (Registration registration : selected) {
-                EM.setNotifications(actor.getDeviceIdentifier(), registration.getEntrantId(), "You have won the lottery!", event.getId(), registration.getId());
+                NM.insertNotifications(actor.getDeviceIdentifier(), registration.getEntrantId(), "You have won the lottery!", event.getId(), registration.getId(), result -> {
+                    if (!result.isSuccess() && isAdded()) {
+                        Toast.makeText(requireContext(), result.getMessage(), Toast.LENGTH_SHORT).show();
+                }});
                 Toast.makeText(getContext(), "Sampled user with id " + registration.getEntrantId(), Toast.LENGTH_SHORT).show();
-                db.setRegistrationStatus(registration.getId(), "Pending");
+                EM.setRegistrationStatus(registration.getId(), "Pending", result->{
+                    if (!result.isSuccess() && isAdded()){
+                        Toast.makeText(requireContext(), result.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
                 loadList("Waiting");
             }
         });

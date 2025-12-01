@@ -17,17 +17,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.dataclasses.Actor;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.dataclasses.Notifications;
 import com.example.deimos_events.R;
 import com.example.deimos_events.dataclasses.Registration;
+import com.example.deimos_events.managers.EventManager;
+import com.example.deimos_events.managers.SessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 
 /**
@@ -37,10 +41,16 @@ import java.util.ArrayList;
 public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
     private IDatabase db;
     private Actor actor;
+    private SessionManager SM;
+    private EventManager EM;
+
     public NotificationsArrayAdapter(Context context, ArrayList<Notifications> events, IDatabase db, Actor actor) {
         super(context, 0, events);
         this.db = db;
         this.actor = actor;
+        EventsApp app = (EventsApp) context.getApplicationContext();
+        SM = app.getSessionManager();
+        EM = SM.getEventManager();
     }
     
     @SuppressLint("SetTextI18n")
@@ -48,7 +58,7 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view;
-        
+
         Notifications notification = getItem(position);
         
         String status = notification.getStatus();
@@ -130,8 +140,17 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                     Snackbar snackbar;
                     if (button.getText().equals("Cancel")) {
                         // (changed it from leaveEvent so that it's still part of user's joined events history)
-                        db.answerEvent(notification.getEventId(), "Rejected Waitlist");
-                        db.setRegistrationStatus(notification.getRegistrationId(), "Rejected Waitlist");
+                        EM.answerEvent(notification.getId(), "Rejected Waitlist", result ->{
+                            if (!result.isSuccess()){
+                                Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+                        });
+                        EM.setRegistrationStatus(notification.getRegistrationId(), "Rejected Waitlist", result ->{
+                            if (!result.isSuccess()){
+                                Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+                        });
+
 
                         // OPtion to join the event once again after leaving
                         changed_icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.join_sticker_24dp);
@@ -142,8 +161,17 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                     }
                     else {
                         // join waiting list once again
-                        db.answerEvent(notification.getEventId(), "Waitlisted");
-                        db.setRegistrationStatus(notification.getRegistrationId(), "Waitlisted");
+                        EM.answerEvent(notification.getId(), "Waitlisted", result ->{
+                            if (!result.isSuccess()){
+                                Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+                        });
+                        EM.setRegistrationStatus(notification.getRegistrationId(), "Waitlisted", result ->{
+                            if (!result.isSuccess()){
+                                Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+                        });
+
 
                         // Reverts it back to its prevoius state
                         changed_icon_button = ContextCompat.getDrawable(this.getContext(), R.drawable.cancel_24dp);
@@ -235,9 +263,17 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                                 decline_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
                                 decline_button.setShapeAppearanceModel(original_decline);
                                 
-                                db.answerEvent(notification.getId(), "Accepted");
+                                EM.answerEvent(notification.getId(), "Accepted", result ->{
+                                    if (!result.isSuccess()){
+                                        Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                });
                                 // saves their answer as "accept"
-                                db.setRegistrationStatus(notification.getRegistrationId(), "Accepted");
+                                EM.setRegistrationStatus(notification.getRegistrationId(), "Accepted", result ->{
+                                    if (!result.isSuccess()){
+                                        Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                });
                             } else if (i == R.id.decline_button) { // declined button was clicked
                                 snackbar = Snackbar.make(view, "You have declined your offer.", Snackbar.LENGTH_SHORT);
                                 choice = decline_button;
@@ -247,9 +283,18 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                                 accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
                                 accept_button.setShapeAppearanceModel(original_accept);
                                 
-                                db.answerEvent(notification.getId(), "Cancelled");
+                                EM.answerEvent(notification.getId(), "Cancelled",  result ->{
+                                    if (!result.isSuccess()){
+                                        Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                });
+
                                 // saves their answer as "decline"
-                                db.setRegistrationStatus(notification.getRegistrationId(), "Declined");
+                                EM.setRegistrationStatus(notification.getRegistrationId(), "Declined", result ->{
+                                    if (!result.isSuccess()){
+                                        Snackbar.make(view, result.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                             
                             // makes chosen button into a circle, and colours it
