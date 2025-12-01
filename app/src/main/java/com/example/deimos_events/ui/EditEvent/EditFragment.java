@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
@@ -38,8 +37,9 @@ import com.example.deimos_events.managers.ActorManager;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
-import com.example.deimos_events.Registration;
+import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
+import com.example.deimos_events.ui.notifications.SendNotificationsFragment;
 import com.example.deimos_events.ui.createEvent.createViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -57,6 +57,7 @@ public class EditFragment extends Fragment {
     private String eventId;
     private EventManager EM;
     private EditViewModel viewModel;
+    private Button notify;
     private Button map;
 
     @Nullable
@@ -188,6 +189,25 @@ public class EditFragment extends Fragment {
         byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);
         Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
         image.setImageBitmap(bmp);
+
+        EM.fetchAllRegistrations(event.getId(), regList ->{
+            if (regList != null && !regList.isEmpty()){
+                Log.d("TAG", "This is a debug message");
+                    Log.d("TAG", "This is a debug message2");
+                    EventAdapter adapter = new EventAdapter(getContext(), regList);
+                    entrants.setAdapter(adapter);
+                }
+
+        });
+        
+        // clicking on the notification button button
+        notify = view.findViewById(R.id.notify);
+        notify.setOnClickListener(v -> {
+            SM.getSession().setCurrentEvent(event);
+            
+            SendNotificationsFragment dialog = new SendNotificationsFragment();
+            dialog.show(getParentFragmentManager(), "MessageDialog");
+        });
 
         return view;
     }

@@ -27,7 +27,7 @@ public class ProfileViewModel extends ViewModel {
     /** Initializes default UI state (title and a placeholder actor). */
     public ProfileViewModel() {
         mText.setValue("Profile");
-        actor.setValue(new Actor("tempUserId", "Alex Entrant", "alex.entrant@example.com", "780-555-1212", Roles.ENTRANT));
+        actor.setValue(new Actor("tempUserId", "Alex Entrant", "alex.entrant@example.com", "780-555-1212", Roles.ENTRANT, true));
     }
 
     /** @return live title text for the Profile screen */
@@ -52,10 +52,10 @@ public class ProfileViewModel extends ViewModel {
      * @param email new email address
      * @param phone new phone number (may be empty)
      */
-    public void updateActor(String name, String email, String phone) {
+    public void updateActor(String name, String email, String phone, Boolean notificationsPreference) {
         Actor cur = actor.getValue();
         String uid = (cur == null) ? "tempUserId" : cur.getDeviceIdentifier();
         String role = (cur == null) ? Roles.ENTRANT : cur.getRole();
-        actor.setValue(new Actor(uid, name, email, phone, role));
+        actor.setValue(new Actor(uid, name, email, phone, role, notificationsPreference));
     }
 }

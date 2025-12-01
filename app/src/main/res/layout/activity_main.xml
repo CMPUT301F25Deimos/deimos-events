@@ -18,7 +18,9 @@
         app:itemIconTint="@color/text_colour"
         app:itemTextColor="@color/text_colour"
         app:itemBackground="@drawable/selected_navigation_bar"
-        app:labelVisibilityMode="labeled"/>
+        app:labelVisibilityMode="labeled"
+        app:itemPaddingTop="15dp"
+        app:itemActiveIndicatorStyle="@null"/>
 
     <fragment
         android:id="@+id/nav_host_fragment_activity_main"
