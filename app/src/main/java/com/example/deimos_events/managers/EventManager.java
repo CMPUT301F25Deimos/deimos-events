@@ -239,13 +239,13 @@ public class EventManager {
     public void getWaitingListCount(String eventID, Consumer<Integer> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
-        db.getPendingRegistrationsForEvent(eventID, callback);
+        db.getWaitingRegistrationsForEvent(eventID, callback);
     }
 
     public void getActorById(String actorId, Consumer<Actor> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
-        db.getActorById(actorId, callback);
+        db.fetchActorByID(actorId, callback);
     }
 
     /**

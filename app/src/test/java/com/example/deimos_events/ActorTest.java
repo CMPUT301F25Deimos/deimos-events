@@ -11,7 +11,7 @@ public class ActorTest {
     private Actor testActor;
     @BeforeEach
     void init(){
-       testActor = new Actor("Zero", "John", "johnsemail@gmail.com", "778-112-9821");
+       testActor = new Actor("Zero", "John", "johnsemail@gmail.com", "778-112-9821", false);
     }
 
     @Test

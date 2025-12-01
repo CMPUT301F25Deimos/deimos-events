@@ -52,14 +52,14 @@ public class EventManagerTest {
 
     @Test
     void testDeleteRegistration(){
-        Registration registration = new Registration("9ADMC", "3981", "9851", "Pending");
+        Registration registration = new Registration("9ADMC", "3981", "9851", "Pending","38.8951", "77.0364");
         mdb.insertRegistration(registration, r->{}); //
         EM.deleteRegistration(registration.getId(), resultCapturer);
         assertTrue(resultCapturer.get().isSuccess(), "Delete should succeed on deleting existent registrations");
     }
     @Test
     void testDeleteMissingRegistration(){
-        Registration registration = new Registration("9ADMC", "3981", "9851", "Pending");
+        Registration registration = new Registration("9ADMC", "3981", "9851", "Pending","38.8951", "77.0364");
         EM.deleteRegistration(registration.getId(), resultCapturer);
         assertFalse(resultCapturer.get().isSuccess(), "Delete should fail if the registration isn't in the database");
     }
@@ -98,15 +98,18 @@ public class EventManagerTest {
     //
 
     @Test
-    void testWaitingListCount(){
-        Registration r_a = new Registration("9ADMD", "person2", "9851", "Declined");
-        Registration r_b = new Registration("9ADMC", "person1", "9851", "Pending");
-        Registration r_c = new Registration("9ADMC", "person3", "9851", "accpeted");
-        mdb.insertRegistration(r_a, r->{});
-        mdb.insertRegistration(r_b, r->{});
-        mdb.insertRegistration(r_c, r->{});
-        // Now what?????
+    void testWaitingListCount() {
+        Registration r_a = new Registration("9ADMD", "person2", "9851", "Declined", "38.8951", "77.0364");
+        Registration r_b = new Registration("9ADMC", "person1", "9851", "Waiting", "12.8951", "65.0364");
+        Registration r_c = new Registration("9ADME", "person3", "9851", "Accepted", "55.8951", "77.0364");
+        mdb.insertRegistration(r_a, r -> {});
+        mdb.insertRegistration(r_b, r -> {});
+        mdb.insertRegistration(r_c, r -> {});
+        EM.getWaitingListCount("9851", resultCapturer->{
+            assertEquals(1, resultCapturer);
+        });
     }
+
 
     @Test
     void testAddNoneActorToWaitingList(){
@@ -117,17 +120,19 @@ public class EventManagerTest {
 
     @Test
     void testAddActorToWaitingList(){
-        Actor actor = new Actor("99XAO", "bichael", "binance@gmail.com", "1239812415");
+        Actor actor = new Actor("99XAO", "bichael", "binance@gmail.com", "1239812415", Boolean.TRUE);
         testSession.setCurrentActor(actor);
         EM.addUserToWaitList("F11", val -> assertTrue(val));
     }
     @Test
     void testAddActorToDoubleWaitingList(){
-        Actor actor = new Actor("99XAO", "bichael", "binance@gmail.com", "1239812415");
+        Actor actor = new Actor("99XAO", "bichael", "binance@gmail.com", "1239812415", Boolean.TRUE);
         testSession.setCurrentActor(actor);
         mdb.addUserToWaitList("F11", actor, r->{}); // insert into database
         EM.addUserToWaitList("F11", val -> assertFalse(val));
     }
+
+
 
 
 
