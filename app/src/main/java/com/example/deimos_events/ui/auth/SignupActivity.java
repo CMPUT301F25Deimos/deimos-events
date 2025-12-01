@@ -126,18 +126,17 @@ public class SignupActivity extends FoundationActivity {
 
         // Initialize form fields
         tilDeviceId = findViewById(R.id.til_device_id);
-        tilName = findViewById(R.id.til_name);
-        tilEmail = findViewById(R.id.til_email);
-        tilPhone = findViewById(R.id.til_phone);
-        tilRole = findViewById(R.id.til_role);
+        tilName     = findViewById(R.id.til_name);
+        tilEmail    = findViewById(R.id.til_email);
+        tilPhone    = findViewById(R.id.til_phone);
+        tilRole     = findViewById(R.id.til_role);
 
-        etDeviceId = findViewById(R.id.et_device_id);
-        etName = findViewById(R.id.et_name);
-        etEmail = findViewById(R.id.et_email);
-        etPhone = findViewById(R.id.et_phone);
-        etRole = findViewById(R.id.et_role);
-        btnSignup = findViewById(R.id.btn_signup);
-        btnMore = findViewById(R.id.btn_more);
+        etDeviceId  = findViewById(R.id.et_device_id);
+        etName      = findViewById(R.id.et_name);
+        etEmail     = findViewById(R.id.et_email);
+        etPhone     = findViewById(R.id.et_phone);
+        etRole      = findViewById(R.id.et_role);
+        btnSignup   = findViewById(R.id.btn_signup);
 
         // Role selection dropdown
         String[] roles = new String[]{Roles.ENTRANT, Roles.ORGANIZER, Roles.ADMIN};
@@ -157,7 +156,6 @@ public class SignupActivity extends FoundationActivity {
 
         // Set up button listeners
         btnSignup.setOnClickListener(v -> submit());
-        btnMore.setOnClickListener(v -> Toast.makeText(this, "Go to Login screen", Toast.LENGTH_SHORT).show());
     }
 
     /**

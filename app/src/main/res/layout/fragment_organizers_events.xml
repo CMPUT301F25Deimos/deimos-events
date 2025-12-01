@@ -162,14 +162,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="175dp"
         android:clickable="true"
         app:backgroundTint="@color/title_colour"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/filter_event"
         app:layout_constraintEnd_toEndOf="parent"
         app:shapeAppearanceOverlay="@style/fab_shape"
         app:srcCompat="@android:drawable/ic_input_add"
-        app:tint="@color/text_colour"/>
+        app:tint="@color/text_colour" />
 
     <!--    &lt;!&ndash; Filter FAB (bottom-right) &ndash;&gt;-->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -177,22 +177,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="115dp"
         android:clickable="true"
         app:backgroundTint="@color/title_colour"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_history"
         app:layout_constraintEnd_toEndOf="parent"
         app:shapeAppearanceOverlay="@style/fab_shape"
         app:srcCompat="@drawable/filter_24dp"
-        app:tint="@color/text_colour"/>
+        app:tint="@color/text_colour" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_history"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:text="My history"
-        app:layout_constraintTop_toBottomOf="@id/filters_quick_bar"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginBottom="115dp"
+        android:layout_marginRight="10dp"
+        android:text="My History"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

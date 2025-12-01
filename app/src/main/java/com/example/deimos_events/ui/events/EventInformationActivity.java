@@ -38,7 +38,7 @@ import com.example.deimos_events.managers.UserInterfaceManager;
  */
 
 public class EventInformationActivity  extends AppCompatActivity {
-
+    
     private TextView EventTitle;
     private TextView description;
     private TextView Guidelines;
@@ -46,7 +46,7 @@ public class EventInformationActivity  extends AppCompatActivity {
     private TextView Location;
     private TextView eventDate;
     private TextView eventTime;
-
+    
     private TextView waitlisted;
     private Button returnButton;
     private Button signUpButton;
@@ -74,12 +74,25 @@ public class EventInformationActivity  extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.user_event_info);
-
+        
+        //Grabbing all the needed managers
+        SM = ((EventsApp) getApplicationContext()).getSessionManager();
+        UIM = SM.getUserInterfaceManager();
+        EM = SM.getEventManager();
+        
+        Event currentEvent = UIM.getCurrentEvent();
+        
+        // checks if owner to see whether to put "Join" Button or not
+        if (currentEvent.getOwnerId().equals(SM.getSession().getCurrentActor().getDeviceIdentifier())) {
+            setContentView(R.layout.user_owner_event_info);
+        } else {
+            setContentView(R.layout.user_event_info);
+            signUpButton = findViewById(R.id.btnJoin);
+        }
+        
         //Initializing all buttons and textViews
         returnButton = findViewById(R.id.btnReturn);
-        signUpButton = findViewById(R.id.btnJoin);
-
+        
         EventTitle = findViewById(R.id.EventTitle);
         description = findViewById(R.id.DescriptionBody);
         Guidelines = findViewById(R.id.GuidelinesDescription);
@@ -89,21 +102,16 @@ public class EventInformationActivity  extends AppCompatActivity {
         eventDate = findViewById(R.id.EventDate);
         eventTime = findViewById(R.id.EventTime);
         eventPoster = findViewById(R.id.imgEvent);
-
-        //Grabbing all the needed managers
-        SM = ((EventsApp) getApplicationContext()).getSessionManager();
-        UIM = SM.getUserInterfaceManager();
-        EM = SM.getEventManager();
-        Event currentEvent = UIM.getCurrentEvent();
+        
         //Setting all the elements of the UI
         EventTitle.setText(currentEvent.getTitle());
         description.setText(currentEvent.getDescription());
-
+        
         Guidelines.setText(currentEvent.getGuidelines());
         Criteria.setText(currentEvent.getCriteria());
-
+        
         String Image  = currentEvent.getPosterId();
-
+        
         if (currentEvent.getLocation() != null){
             Location.setText("Location: " + currentEvent.getLocation());}
         else{
@@ -123,28 +131,30 @@ public class EventInformationActivity  extends AppCompatActivity {
         EM.getWaitingListCount(currentEvent.getId(), count->{
             runOnUiThread(()->waitlisted.setText("Waiting List Count: " + count));
         });
-
+        
         if (Image != null && !Image.isEmpty()) {
             byte[] decodedBytes = android.util.Base64.decode(Image, android.util.Base64.DEFAULT);
             Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
             eventPoster.setImageBitmap(decodedBitmap);
         }
-
+        
         returnButton.setOnClickListener(v-> finish());
-
+        
         //Sign up entrant if they are not on the waiting list
         //If they are, then error message appears
-        signUpButton.setOnClickListener(v->{
-            EM.addUserToWaitList(currentEvent.getId(), success->{
-                runOnUiThread(()->{
-                    if(success){
-                        Toast.makeText(this, "Added to waitlist!", Toast.LENGTH_SHORT).show();
-                    }else{
-                        Toast.makeText(this,"Already on waitlist or failed.", Toast.LENGTH_SHORT).show();
-                    }
+        if (!currentEvent.getOwnerId().equals(SM.getSession().getCurrentActor().getDeviceIdentifier())) {
+            signUpButton.setOnClickListener(v -> {
+                EM.addUserToWaitList(currentEvent.getId(), success -> {
+                    runOnUiThread(() -> {
+                        if (success) {
+                            Toast.makeText(this, "Added to waitlist!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Already on waitlist or failed.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    
                 });
-
             });
-        });
+        }
     }
 }
