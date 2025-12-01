@@ -1,10 +1,12 @@
 package com.example.deimos_events.ui.notifications;
 
+import static android.content.ContentValues.TAG;
 import static android.view.View.GONE;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,24 +31,19 @@ public class NotificationsAdminArrayAdapter extends ArrayAdapter<Notifications> 
     }
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view;
-
+        Log.d(TAG,"test here");
         Notifications notification = getItem(position);
         if (convertView == null) {
                 view = LayoutInflater.from(getContext()).inflate(R.layout.listview_content_and_button, parent, false);
         } else {
             view = convertView;
         }
-        MaterialButton accept_button = view.findViewById(R.id.accept_button);
-        MaterialButton decline_button = view.findViewById(R.id.decline_button);
-        accept_button.setVisibility(GONE);
-        decline_button.setVisibility(GONE);
-
+        
         if (notification != null) {
             TextView textView = view.findViewById(R.id.event_text);
             textView.setText(notification.message);
 
             ImageView imageView = view.findViewById(R.id.event_image);
-
             String base64Image = notification.image;
 
             if (base64Image == null || base64Image.trim().isEmpty() || base64Image.equals("null")) {

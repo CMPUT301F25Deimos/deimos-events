@@ -7,6 +7,7 @@ import com.example.deimos_events.dataclasses.Notifications;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.dataclasses.Result;
 import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
+import com.example.deimos_events.ui.notifications.NotificationsAdminArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;

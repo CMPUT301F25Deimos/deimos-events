@@ -1,5 +1,6 @@
 package com.example.deimos_events;
 
+import com.example.deimos_events.ui.notifications.NotificationsAdminArrayAdapter;
 import com.example.deimos_events.dataclasses.Notifications;
 import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
 import android.content.Context;
@@ -78,7 +79,7 @@ public interface IDatabase {
     void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback);
     void deleteEventImage(String eventID, Consumer<Boolean> callback);
 
-    public void getNotificationAdmin( Consumer<List<Notifications>> callback);
+    public void getNotificationAdmin(NotificationsAdminArrayAdapter adapter, ArrayList<Notifications> notificationsList);
 
 
 
