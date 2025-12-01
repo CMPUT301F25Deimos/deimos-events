@@ -37,7 +37,7 @@ public class Event {
     String date;
     /** The ID of the owner or organizer of this event. */
     String ownerId;
-    /**
+  /**
      * Constructs a new Event with the given parameters.
      *
      * @param id the unique event identifier
@@ -49,8 +49,13 @@ public class Event {
      * @param recordLocation whether the event requires recording location
      * @param qrCodeId the QR code associated with the event
      * @param ownerId the ID of the event owner
+     * @param guidelines for the event 
+     * @param criteria participation criteria
      */
-    public Event(String id, String title, String posterId, String description, String registrationDeadline, Integer participantCap, Boolean recordLocation, String qrCodeId, String ownerId) {
+  
+
+    public Event(String id, String title, String posterId, String description, String registrationDeadline, Integer participantCap, Boolean recordLocation, String qrCodeId, String ownerId, String guidelines, String criteria) {
+    
         this.id = id;
         this.title = title;
         this.posterId = posterId;

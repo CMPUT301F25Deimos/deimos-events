@@ -53,9 +53,10 @@ public class EventManager {
      * @param participantCap
      * @param recordLocation
      * @param qrCodeId
+     * @param
      * @return Brand new {@link Event} Object
      */
-    public Event createEvent(String id, String title, Bitmap posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, BitMatrix qrCodeId) {
+    public Event createEvent(String id, String title, Bitmap posterId, String description, Date registrationDeadline, Number participantCap, Boolean recordLocation, BitMatrix qrCodeId,String critria, String guidlines) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         posterId.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] imageBytes = baos.toByteArray();
@@ -74,7 +75,7 @@ public class EventManager {
         byte[] qrBytes = out.toByteArray();
         String qrArray = Base64.encodeToString(qrBytes, Base64.DEFAULT);
         Actor actor = sessionManager.getSession().getCurrentActor();
-        return new Event(id, title, posterIdArray, description, registrationDeadline.toString(), participantCap.intValue(), recordLocation, qrArray, actor.getDeviceIdentifier().toString());
+        return new Event(id, title, posterIdArray, description, registrationDeadline.toString(), participantCap.intValue(), recordLocation, qrArray, actor.getDeviceIdentifier().toString(), critria, guidlines);
     }
 
 
