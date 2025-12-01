@@ -190,7 +190,6 @@ public class CreateFragment extends Fragment {
                 Toast.makeText(getContext(), "Please upload a valid image", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyyy", Locale.getDefault());
             String dateString = d +" "+ m+" "+ y;
             Date date;

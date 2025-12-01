@@ -139,7 +139,6 @@ public class AdministratorsEventsAdapter
      * <p>Holds references to UI components for fast binding.</p>
      */
     static class AdminEventViewHolder extends RecyclerView.ViewHolder {
-
         final ImageView image;
         final TextView title;
         final TextView desc;

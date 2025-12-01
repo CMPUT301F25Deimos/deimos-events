@@ -44,7 +44,6 @@ import java.util.Map;
 import java.util.Set;
 /**
  * Fragment that displays and manages the organizer's event list with rich filtering options.
- *
  * <p>Features include:</p>
  * <ul>
  *     <li>Viewing all events relevant to the current organizer or entrant</li>

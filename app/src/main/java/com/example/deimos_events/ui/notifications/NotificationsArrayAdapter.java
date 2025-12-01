@@ -43,6 +43,24 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
     private Actor actor;
     private SessionManager SM;
     private EventManager EM;
+    /**
+     * Creates a new {@link NotificationsArrayAdapter} for displaying entrant-facing
+     * notifications related to waitlists and lottery results.
+     *
+     * <p>This adapter:
+     * <ul>
+     *     <li>Displays notification messages and associated images</li>
+     *     <li>Shows different layouts depending on notification status
+     *         (pure info, waitlisted/rejected, or accepted/declined)</li>
+     *     <li>Allows users to accept/decline offers or rejoin/leave a waitlist</li>
+     *     <li>Uses {@link EventManager} to update event and registration status in the backend</li>
+     * </ul>
+     *
+     * @param context the context used to inflate views and access the application
+     * @param events  the list of {@link Notifications} to display
+     * @param db      database interface used to support notification-related operations
+     * @param actor   the current logged-in {@link Actor} receiving these notifications
+     */
 
     public NotificationsArrayAdapter(Context context, ArrayList<Notifications> events, IDatabase db, Actor actor) {
         super(context, 0, events);
@@ -52,7 +70,35 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
         SM = app.getSessionManager();
         EM = SM.getEventManager();
     }
-    
+    /**
+     * Returns a fully bound view representing a single notification row.
+     *
+     * <p>Behavior:</p>
+     * <ul>
+     *     <li>Inflates different layouts based on the notification status:
+     *         <ul>
+     *             <li>{@code "Waiting"} → informational only (no actions)</li>
+     *             <li>{@code "Waitlisted"} / {@code "Rejected Waitlist"} → single action button
+     *                 (join/cancel waitlist)</li>
+     *             <li>Other statuses (e.g., accepted offer) → split accept/decline button group</li>
+     *         </ul>
+     *     </li>
+     *     <li>Binds the notification message and image (Base64-decoded or fallback icon)</li>
+     *     <li>Configures click listeners for:
+     *         <ul>
+     *             <li>Joining/leaving the waitlist for waitlist-related notifications</li>
+     *             <li>Accepting or declining an event offer for lottery results</li>
+     *         </ul>
+     *     </li>
+     *     <li>Updates event/registration status through {@link EventManager}</li>
+     *     <li>Shows feedback via {@link Snackbar}</li>
+     * </ul>
+     *
+     * @param position    the position of the item in the data set
+     * @param convertView a recycled view to reuse, or {@code null} to inflate a new one
+     * @param parent      the parent that this view will eventually be attached to
+     * @return a view representing the notification at the given position
+     */
     @SuppressLint("SetTextI18n")
     @NonNull
     @Override

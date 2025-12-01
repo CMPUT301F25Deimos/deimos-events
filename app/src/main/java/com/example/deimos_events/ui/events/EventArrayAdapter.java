@@ -266,7 +266,6 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
     private void changeButtonLook(MaterialButton button, Event event) {
         Drawable icon_button;
         ColorStateList button_colour;
-
         int colour, icon;
 
         boolean ownsEvent = actor.getDeviceIdentifier().equals(event.getOwnerId());

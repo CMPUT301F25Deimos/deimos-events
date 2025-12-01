@@ -90,12 +90,10 @@ public class EventInformationActivity  extends AppCompatActivity {
         eventTime = findViewById(R.id.EventTime);
         eventPoster = findViewById(R.id.imgEvent);
 
-
         //Grabbing all the needed managers
         SM = ((EventsApp) getApplicationContext()).getSessionManager();
         UIM = SM.getUserInterfaceManager();
         EM = SM.getEventManager();
-
         Event currentEvent = UIM.getCurrentEvent();
         //Setting all the elements of the UI
         EventTitle.setText(currentEvent.getTitle());
