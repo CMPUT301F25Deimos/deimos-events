@@ -529,7 +529,7 @@ public class Database implements IDatabase {
                         callback.accept(Boolean.TRUE);
                         return;
                     }
-                    Tasks.whenAllComplete(deleteTask) // all the taks have been completed
+                    Tasks.whenAllComplete(deleteTask) // all the task have been completed
                             .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
                             .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
                 })
@@ -751,7 +751,7 @@ public class Database implements IDatabase {
      * @param callback
      */
     public void getNotificationReceivers(String eventId, List<String> recipients, Consumer<List<Map<String, String>>> callback) {
-        // FInal people list (b/c given list could have "Accepted", "Waitlisted", etc, and this expands on that
+        // Final people list (b/c given list could have "Accepted", "Waitlisted", etc, and this expands on that
         // and also looks for people part of those groups)
         List<Map<String, String>> fullRecipients = new ArrayList<>();
         Set<String> found = new HashSet<>(); // to avoid duplicates
