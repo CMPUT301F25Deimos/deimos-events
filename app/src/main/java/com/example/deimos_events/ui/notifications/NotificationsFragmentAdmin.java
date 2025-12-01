@@ -19,6 +19,7 @@ import com.example.deimos_events.dataclasses.Notifications;
 import com.example.deimos_events.R;
 import com.example.deimos_events.databinding.FragmentAdministratorsNotificationBinding;
 import com.example.deimos_events.databinding.FragmentNotificationsBinding;
+import com.example.deimos_events.dataclasses.Notifications;
 import com.example.deimos_events.managers.NotificationManager;
 import com.example.deimos_events.managers.SessionManager;
 
