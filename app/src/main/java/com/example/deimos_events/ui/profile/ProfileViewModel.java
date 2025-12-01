@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.deimos_events.Actor;
 import com.example.deimos_events.Roles;
-
 /**
  * ViewModel for the Profile screen.
  * <p>

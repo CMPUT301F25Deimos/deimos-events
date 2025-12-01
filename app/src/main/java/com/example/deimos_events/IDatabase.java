@@ -1,6 +1,8 @@
 package com.example.deimos_events;
 
 import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
+import android.content.Context;
+
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
@@ -28,21 +30,20 @@ public interface IDatabase {
 
     void updateImage(String eventId, String posterIdArray,Consumer<Boolean> callback);
 
-    void deleteRegistor(String id, Consumer<Boolean> callback);
-
-
     public void fetchALLRegistrations(String eventId, Consumer<List<Registration>> callback);
 
     public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback);
+    public void getRegistrationsByStatus(String eventId, String status, Consumer<List<Registration>> callback);
 
     public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback);
 
-    public void registrationExists(String Id, Consumer<Boolean> callback);
+    public void getActorById(String deviceIdentifier, Consumer<Actor> callback);
+    public void deleteRegistration(String registrationId, Consumer<Boolean> callback);
     public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback);
 
     public void fetchEventById(String eventId, Consumer<Event> callback);
     
-    public void joinEvent(String eventId, Actor actor);
+    public void joinEvent(Context context, String eventId, Actor actor);
     
     public void leaveEvent(String eventId, Actor actor);
     
@@ -67,5 +68,8 @@ public interface IDatabase {
     public void getNotifications(Actor actor, ArrayList<Notifications> notificationsList, NotificationsArrayAdapter adapter);
     public void setRegistrationStatus(String registrationId, String registrationStatus);
     void deleteEventCascade(String eventId, java.util.function.Consumer<Boolean> callback);
+    void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback);
+    void deleteEventImage(String eventID, Consumer<Boolean> callback);
 
+    void inviteEntrant(String registrationId, Consumer<Boolean> callback);
 }

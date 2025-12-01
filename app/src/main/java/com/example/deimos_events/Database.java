@@ -3,6 +3,18 @@ package com.example.deimos_events;
 import android.util.Log;
 
 import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.util.Base64;
+import android.util.Log;
+
+import androidx.core.app.ActivityCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
@@ -129,20 +141,11 @@ public class Database implements IDatabase {
 
 
     @Override
-    public void deleteRegistor(String id, Consumer<Boolean> callback) {
+    public void deleteRegistration(String registrationId, Consumer<Boolean> callback) {
         db.collection("registrations")
-                .whereEqualTo("Id", id)
-                .get()
+                .document(registrationId)
+                .delete()
                 .addOnSuccessListener(querySnapshot -> {
-                    if (querySnapshot.isEmpty()) {
-                        callback.accept(Boolean.FALSE);
-                        return;
-                    }
-                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        doc.getReference().delete();
-                        // technically there should only be one document
-                        // but couldn't figure out how to make it work
-                    }
                     callback.accept(Boolean.TRUE);
                 })
                 .addOnFailureListener(e -> {
@@ -170,9 +173,28 @@ public class Database implements IDatabase {
     }
 
     @Override
+    public void getActorById(String deviceIdentifier, Consumer<Actor> callback) {
+        db.collection("actors")
+                .document(deviceIdentifier)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Actor actor = doc.toObject(Actor.class);
+                        callback.accept(actor);
+                    } else {
+                        callback.accept(null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    callback.accept(null);
+                });
+    }
+
+    @Override
     public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
+                .whereEqualTo("status", "Accepted")
                 .get()
                 .addOnSuccessListener(registrationSnapshot -> {
                     if (registrationSnapshot.isEmpty()) {
@@ -190,7 +212,7 @@ public class Database implements IDatabase {
                         callback.accept(Collections.emptyList());
                         return;
                     }
-                    db.collection("entrants")
+                    db.collection("actors")
                             .whereIn(FieldPath.documentId(), entrantIds)
                             .get()
                             .addOnSuccessListener(entrantSnapshot -> {
@@ -212,21 +234,30 @@ public class Database implements IDatabase {
                 });
     }
 
-
     @Override
-    public void registrationExists(String id, Consumer<Boolean> callback) {
+    public void getRegistrationsByStatus(String eventId, String status, Consumer<List<Registration>> callback) {
         db.collection("registrations")
-                .document(id)
+                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("status", status)
                 .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        callback.accept(Boolean.TRUE);
-                    } else {
-                        callback.accept(Boolean.FALSE);
+                .addOnSuccessListener(registrationSnapshot -> {
+                    if (registrationSnapshot.isEmpty()) {
+                        callback.accept(Collections.emptyList());
+                        return;
                     }
+                    List<Registration> registrations = new ArrayList<>();
+                    for (DocumentSnapshot doc : registrationSnapshot.getDocuments()) {
+                        Registration registration = doc.toObject(Registration.class);
+                        if (registration != null) {
+                            registration.setId(doc.getId());
+                            registrations.add(registration);
+                        }
+                    }
+                    callback.accept(registrations);
                 })
                 .addOnFailureListener(e -> {
-                    callback.accept(null);
+                    System.err.println("Error getting registrations: " + e.getMessage());
+                    callback.accept(Collections.emptyList());
                 });
     }
 
@@ -389,6 +420,10 @@ public class Database implements IDatabase {
                 .addOnFailureListener(e -> callback.accept(false));
     }
 
+    public void inviteEntrant(String registrationId, Consumer<Boolean> callback) {
+        callback.accept(true);
+    }
+
     public void fetchEventById(String eventId, Consumer<Event> callback) {
         db.collection("events")
                 .document(eventId)
@@ -426,14 +461,35 @@ public class Database implements IDatabase {
      * @param eventId
      * @param actor
      */
-    public void joinEvent(String eventId, Actor actor) {
-        db.collection("registrations")
-                .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Waiting"))
-                .addOnSuccessListener(documentReference -> {
-                    String documentId = documentReference.getId();
-                    // id is the its documentId
-                    documentReference.update("id", documentId);
-                });
+
+    public void joinEvent(Context context, String eventId, Actor actor) {
+        fetchEventById(eventId, callback -> {
+            if (callback.getRecordLocation()) {
+                FusedLocationProviderClient loc;
+                loc = LocationServices.getFusedLocationProviderClient(context);
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    loc.getLastLocation().addOnSuccessListener(location -> {
+                        db.collection("registrations")
+                                .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending", Double.toString(location.getLatitude()), Double.toString(location.getLongitude())))
+                                .addOnSuccessListener(documentReference -> {
+                                    String documentId = documentReference.getId();
+                                    // id is the its documentId
+                                    documentReference.update("id", documentId);
+                                });
+                    });
+                } else {
+                    ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
+                }
+            } else {
+                db.collection("registrations")
+                        .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending", null, null))
+                        .addOnSuccessListener(documentReference -> {
+                            String documentId = documentReference.getId();
+                            // id is the its documentId
+                            documentReference.update("id", documentId);
+                        });
+            }
+        });
     }
 
     /**
@@ -513,6 +569,46 @@ public class Database implements IDatabase {
                         }
                     }
                     callback.accept(registeredEventIds);
+                });
+    }
+
+    /**
+     * used so that event image and description can be taken from the events collection and displayed
+     *
+     * @param actor
+     * @param callback
+     */
+    public void getNotificationEventInfo(Actor actor, Consumer<List<Registration>> callback) {
+        db.collection("registrations")
+                .whereEqualTo("entrantId", actor.getDeviceIdentifier())
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Registration> registrations = new ArrayList<>();
+                    List<Task<DocumentSnapshot>> eventTasks = new ArrayList<>();
+                    for (DocumentSnapshot registrationDoc : snapshot.getDocuments()) {
+                        Registration registration = registrationDoc.toObject(Registration.class);
+
+                        if (registration != null) {
+                            registration.setStatus(registrationDoc.getString("status"));
+                            registration.setId(registrationDoc.getId());
+                            registrations.add(registration);
+
+                            // to be able to display image + description in notification
+                            String eventId = registration.getEventId();
+                            eventTasks.add(db.collection("events").document(eventId).get()
+                                    .addOnSuccessListener(eventDoc -> {
+                                        if (eventDoc.exists()) {
+                                            Event event = eventDoc.toObject(Event.class);
+                                            if (event != null) {
+                                                registration.setDescription(event.getTitle());
+                                                registration.setImage(event.getPosterId());
+                                            }
+                                        }
+                                    }));
+                        }
+                    }
+                    Tasks.whenAllComplete(eventTasks)
+                            .addOnSuccessListener(done -> callback.accept(registrations));
                 });
     }
 
@@ -843,6 +939,58 @@ public class Database implements IDatabase {
                 .addOnFailureListener(e -> {
                     callback.accept(Boolean.FALSE);
                 });
+    }
+
+    /**
+     * Gets all the actors that are currently signed up
+     * @param callback
+     */
+
+    @Override
+    public void getAllActors(java.util.function.Consumer<java.util.List<Actor>> callback) {
+        db.collection("actors")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    java.util.List<Actor> actors = new java.util.ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        Actor a = doc.toObject(Actor.class);
+                        if (a != null) {
+                            actors.add(a);
+                        }
+                    }
+                    callback.accept(actors);
+                })
+                .addOnFailureListener(e -> {
+                    // On error, just return empty list so UI doesn't crash
+                    callback.accept(java.util.Collections.emptyList());
+                });
+    }
+
+    /**
+     * Deletes the Event Poster of a given event 
+     * @param eventID
+     * @param callback
+     */
+    @Override
+    public void deleteEventImage(String eventID, Consumer<Boolean> callback) {
+        db.collection("events")
+                .whereEqualTo("id", eventID)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        callback.accept(false);
+                        return;
+                    }
+                    DocumentSnapshot doc = snapshot.getDocuments().get(0);
+
+                    doc.getReference()
+                            .update("posterId", null)
+                            .addOnSuccessListener(unused -> callback.accept(true))
+                            .addOnFailureListener(e -> callback.accept(false));
+
+
+                })
+                .addOnFailureListener(e -> callback.accept(false));
     }
 
 }
