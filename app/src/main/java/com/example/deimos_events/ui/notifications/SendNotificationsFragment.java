@@ -24,17 +24,20 @@ import com.example.deimos_events.managers.SessionManager;
 import com.example.deimos_events.managers.UserInterfaceManager;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class SendNotificationsFragment extends DialogFragment {
     private FragmentSendNotificationsBinding binding;
     private FlexboxLayout flexboxLayout;
     private AutoCompleteTextView autoCompleteTextView;
-    private ArrayList<String> recipientsOptions = new ArrayList<>(Arrays.asList("Everyone", "Waitlisted", "Pending Answers", "Accepted Offer", "Declined Offer"));
+    private List<String> statuses = Arrays.asList("Everyone", "Waiting", "Waitlisted", "Pending", "Accepted", "Declined", "Rejected Waitlist");
+    private ArrayList<String> recipientsOptions = new ArrayList<>(statuses);
     private ArrayList<String> selectedPersons = new ArrayList<>();
     private SendNotificationsAdapter adapter;
     private TextInputLayout messageLayout;
@@ -72,6 +75,7 @@ public class SendNotificationsFragment extends DialogFragment {
         // dropdown adapter (aka. suggestions of who to pick)
         adapter = new SendNotificationsAdapter(requireContext(), recipientsOptions);
         autoCompleteTextView.setAdapter(adapter);
+        autoCompleteTextView.setThreshold(0); // show suggestions/dropdown after typing 0 letters
         
         autoCompleteTextView.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus){
@@ -94,24 +98,25 @@ public class SendNotificationsFragment extends DialogFragment {
                 chip.setCloseIconVisible(true);
                 
                 // chip design based off who they represent
-                switch (selected) {
-                    case "Declined Offer":
-                        chip.setChipBackgroundColorResource(R.color.decline_red);
-                        chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-                        chip.setCloseIconTintResource(R.color.white);
-                        break;
-                    
-                    case "Accepted Offer":
-                        chip.setChipBackgroundColorResource(R.color.accept_green);
-                        chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-                        chip.setCloseIconTintResource(R.color.white);
-                        break;
-                    
-                    case "Everyone":
-                        chip.setChipBackgroundColorResource(R.color.black);
-                        chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-                        chip.setCloseIconTintResource(R.color.white);
-                        break;
+                if (selected.equals("Declined") || selected.equals("Rejected Waitlist")) {
+                    chip.setChipBackgroundColorResource(R.color.decline_red);
+                    chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+                    chip.setCloseIconTintResource(R.color.white);
+                }
+                else if (selected.equals("Accepted")) {
+                    chip.setChipBackgroundColorResource(R.color.accept_green);
+                    chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+                    chip.setCloseIconTintResource(R.color.white);
+                }
+                else if (selected.equals("Waiting") || selected.equals("Pending") || selected.equals("Waitlisted")) {
+                    chip.setChipBackgroundColorResource(R.color.title_colour);
+                    chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+                    chip.setCloseIconTintResource(R.color.white);
+                }
+                else if (selected.equals("Everyone")) {
+                    chip.setChipBackgroundColorResource(R.color.black);
+                    chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+                    chip.setCloseIconTintResource(R.color.white);
                 }
                 
                 // remove selected from the dropdown as to avoid duplicates
@@ -139,12 +144,36 @@ public class SendNotificationsFragment extends DialogFragment {
                     selectedPersons.remove(selected);
                     
                     recipientsOptions.add(selected); // add back to dropdown
+                    
+                    // sorts recipientsOptions (aka dropdown) so that the first options are the given statuses (eg. "Everyone", "Waitlisted", etc)
+                    // whereas the names after that are sorted alphabetically
+                    recipientsOptions.sort((a, b) -> {
+                        int elementA = statuses.indexOf(a);
+                        int elementB = statuses.indexOf(b);
+                        
+                        // if both are in statuses
+                        if (elementA != -1 && elementB != -1) {
+                            // finds the elements' indexes in status (AKA. which comes first)
+                            return Integer.compare(elementA, elementB);
+                        }
+                        else if (elementA != -1) {
+                            return -1;
+                        }
+                        else if (elementB != -1) {
+                            return 1;
+                        }
+                        else {
+                            // alphabetical sort if not in statuses
+                            return a.compareTo(b);
+                        }
+                    });
+                    
                     adapter = new SendNotificationsAdapter(requireContext(), recipientsOptions);
                     autoCompleteTextView.setAdapter(adapter);
                     
                     // put hint back if there's no selected people
                     if (countChips() == 0) {
-                        autoCompleteTextView.setHint("Type a recipient");
+                        autoCompleteTextView.setHint("Type a recipient...");
                     }
                 });
                 autoCompleteTextView.setText(""); // clear input
@@ -184,10 +213,9 @@ public class SendNotificationsFragment extends DialogFragment {
                 EditText editText = messageLayout.getEditText();
                 String message = editText.getText().toString();
                 
-                if (!message.isEmpty()) {
+                if (!message.isEmpty() && countChips() > 0) {
                     // finds who receives notifications
                     db.getNotificationReceivers(currentEvent.getId(), selectedPersons, receivers -> {
-                        
                         for (Map<String,String> recipient : receivers) {
                             String deviceId = recipient.get("deviceIdentifier");
                             String registrationId = recipient.get("registrationId");
@@ -201,7 +229,10 @@ public class SendNotificationsFragment extends DialogFragment {
                         }
                     });
                     
-                    //TODO: maybe add a snackbar about sending message?
+                    Snackbar snackbar;
+                    snackbar = Snackbar.make(getParentFragment().getView(), "You have successfully sent a message!", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT);
+                    snackbar.getView().setTranslationY(-260);
+                    snackbar.show();
                     
                     dismiss();
                 }

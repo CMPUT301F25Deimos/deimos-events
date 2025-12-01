@@ -1,18 +1,14 @@
 package com.example.deimos_events;
 
-import android.util.Log;
-
-import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.util.Base64;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
@@ -23,7 +19,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -450,14 +445,13 @@ public class Database implements IDatabase {
                     callback.accept(0); // return 0 on error
                 });
     }
-
+    
     /**
      * finds the events which an actor have joined
      *
-     * @param eventId
-     * @param actor
+     * @param eventId the id of the event
+     * @param actor the actor who is joining the event
      */
-
     public void joinEvent(Context context, String eventId, Actor actor) {
         fetchEventById(eventId, callback -> {
             if (callback.getRecordLocation()) {
@@ -487,12 +481,12 @@ public class Database implements IDatabase {
             }
         });
     }
-
+    
     /**
      * user's data from the registered collection is deleted if they leave the event
      *
-     * @param actor
-     * @param eventId
+     * @param actor: The actor who is leaving the event
+     * @param eventId: the id of the event the actor is leaving
      */
     public void leaveEvent(String eventId, Actor actor) {
         db.collection("registrations")
@@ -505,7 +499,7 @@ public class Database implements IDatabase {
                     }
                 });
     }
-
+    
     /**
      * gets all events info
      *
@@ -527,7 +521,7 @@ public class Database implements IDatabase {
                 })
                 .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
     }
-
+    
     /**
      * finds the events which an actor is registered in
      * (for the buttons in the edit event screen)
@@ -547,9 +541,9 @@ public class Database implements IDatabase {
                     callback.accept(registeredEventIds);
                 });
     }
-
+    
     /**
-     * listener so that screen updates immediately after the database does
+     * listener for events so that screen updates immediately after the database does
      *
      * @param callback
      * @return listener
@@ -567,7 +561,7 @@ public class Database implements IDatabase {
                     callback.accept(registeredEventIds);
                 });
     }
-
+    
     /**
      * used so that event image and description can be taken from the events collection and displayed
      *
@@ -583,12 +577,12 @@ public class Database implements IDatabase {
                     List<Task<DocumentSnapshot>> eventTasks = new ArrayList<>();
                     for (DocumentSnapshot registrationDoc : snapshot.getDocuments()) {
                         Registration registration = registrationDoc.toObject(Registration.class);
-
+                        
                         if (registration != null) {
                             registration.setStatus(registrationDoc.getString("status"));
                             registration.setId(registrationDoc.getId());
                             registrations.add(registration);
-
+                            
                             // to be able to display image + description in notification
                             String eventId = registration.getEventId();
                             eventTasks.add(db.collection("events").document(eventId).get()
@@ -606,7 +600,7 @@ public class Database implements IDatabase {
                             .addOnSuccessListener(done -> callback.accept(registrations));
                 });
     }
-
+    
     /**
      * gives answer to notifications
      *
@@ -618,11 +612,11 @@ public class Database implements IDatabase {
                 .document(documentId)
                 .update("status", answer);
     }
-
+    
     /**
      * gets the role of the actor (ie. organizer, entrant, admin)
      *
-     * @param actor
+     * @param actor the person whose role is being found
      * @param callback
      */
     public void getActorRole(Actor actor, Consumer<String> callback) {
@@ -642,7 +636,7 @@ public class Database implements IDatabase {
     /**
      * Gets the notification preferences of the actor (ie. whether they want to be notified or not)
      *
-     * @param actor
+     * @param actor: actor whose preference for notifications is being found
      * @param callback
      */
     public void getNotificationsPreference(Actor actor, Consumer<Boolean> callback) {
@@ -661,8 +655,8 @@ public class Database implements IDatabase {
     
     /**
      * Changes their notification preference
-     * @param actor
-     * @param notificationsPreference
+     * @param actor: the user whose notification preferences will be changed
+     * @param notificationsPreference: whether the user wants to be able to receive notifications or not
      */
     public void setNotificationsPreference(Actor actor, Boolean notificationsPreference) {
         db.collection("actors")
@@ -671,17 +665,19 @@ public class Database implements IDatabase {
     }
     
     /**
-     * Gets the names of the people that will be messaged by the organizer (ie. rejected, waitinglist, declined, "Jane Doe", etc.) into all names instead of including "Waitinglist", etc.
+     * Gets the names of the people that will be messaged by the organizer
+     * (eg. rejected, waitinglist, declined, "Jane Doe", etc.) into all names instead of including "Waitinglist", etc.
+     * (ie. combines list of names with people who were rejected, in waitinglist, declined, and "Jane Doe")
+     * @param eventId id of the event that user is finding the available notifications receivers of
      * @param recipients: people who have joined the event and have notifs on
      * @param callback
      */
     public void getNotificationReceivers(String eventId, List<String> recipients, Consumer<List<Map<String, String>>> callback) {
-        //TODO: step 1:check whether their notificationsPreference is true
-        // step2: do everything :D
-        // FInal people list (b/c given list could have "Accepted", "Waitlisted", etc, and this expands on that and looks for people part of those groups)
+        // FInal people list (b/c given list could have "Accepted", "Waitlisted", etc, and this expands on that
+        // and also looks for people part of those groups)
         List<Map<String, String>> fullRecipients = new ArrayList<>();
         Set<String> found = new HashSet<>(); // to avoid duplicates
-        List<String> statuses = Arrays.asList("Everyone", "Waitlisted", "Pending Answers", "Accepted Offer", "Declined Offer");
+        List<String> statuses = Arrays.asList("Everyone", "Waitlisted", "Pending", "Accepted", "Cancelled", "Rejected Waitlist");
         
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
@@ -773,6 +769,17 @@ public class Database implements IDatabase {
                         }
                         
                         // combine both result
+                        // add people with given status(es)
+                        for (String actorId : idsFromGroups) {
+                            if (registrationMap.containsKey(actorId) && found.add(actorId)) {
+                                Map<String, String> entry = new HashMap<>();
+                                entry.put("deviceIdentifier", actorId);
+                                entry.put("name", actorMap.get(actorId));
+                                entry.put("registrationId", registrationMap.get(actorId));
+                                fullRecipients.add(entry);
+                            }
+                        }
+                        
                         for (String actorId : actorMap.keySet()) {
                             if (registrationMap.containsKey(actorId) && found.add(actorId)) {
                                 Map<String, String> entry = new HashMap<>();
@@ -789,11 +796,11 @@ public class Database implements IDatabase {
     
     /**
      * Saves notifications in database
-     * @param sender
-     * @param recipientId
-     * @param message
-     * @param eventId
-     * @param registrationId
+     * @param sender: id of the person sending a message
+     * @param recipientId: if of the person receiving a message
+     * @param message: the message which the sender is sending
+     * @param eventId: the id of the event which the sender is notifying a recipient about
+     * @param registrationId: the id of the recipient's registration for the aforementioned event
      */
     public void setNotifications(String sender, String recipientId, String message, String eventId, String registrationId) {
         // TODO: get the notification from the sender
@@ -808,9 +815,9 @@ public class Database implements IDatabase {
     
     /**
      * Gets notifications from database
-     * @param actor
-     * @param notificationsList
-     * @param adapter
+     * @param actor: actor whose notification is being found
+     * @param notificationsList: notifications list
+     * @param adapter: adapter of notification list
      */
     public void getNotifications(Actor actor, ArrayList<Notifications> notificationsList, NotificationsArrayAdapter adapter) {
         db.collection("notifications")
@@ -859,7 +866,7 @@ public class Database implements IDatabase {
                                     if (notificationDoc != null && notificationDoc.exists()) {
                                         String currentStatus = notificationDoc.getString("status");
                                         
-                                        // if "Waiting" is not the current status, be able to change status between notif and regist collection parallel (to answer)
+                                        // if "Waiting" is not the current status, be able to change status between notif and register collection parallelly (to answer)
                                         if (!"Waiting".equals(currentStatus)) {
                                             String registrationId = notify.getRegistrationId();
                                             return db.collection("registrations")
@@ -898,8 +905,8 @@ public class Database implements IDatabase {
     
     /**
      * Sets status of registration
-     * @param registrationId
-     * @param registrationStatus
+     * @param registrationId: registration id of an entrant's registration for an event
+     * @param registrationStatus: the status of an entrant to an event (eg. Waitlisted, Pending, etc.)
      */
     public void setRegistrationStatus(String registrationId, String registrationStatus) {
         db.collection("registrations")
