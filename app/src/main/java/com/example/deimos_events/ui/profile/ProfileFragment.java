@@ -142,7 +142,10 @@ public class ProfileFragment extends Fragment {
         
         // shows whether the switch is turned on or turned off (AKA its state)
         db.getNotificationsPreference(session.getCurrentActor(), notificationPref -> {
-            binding.notifySwitch.setChecked(notificationPref);
+            if (notificationPref != null)
+                binding.notifySwitch.setChecked(notificationPref);
+            else
+                binding.notifySwitch.setChecked(false);
         });
         
         // changes preferences

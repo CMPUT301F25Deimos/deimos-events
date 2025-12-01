@@ -51,13 +51,13 @@ public class EventManagerTest {
     void testDeleteRegistration(){
         Registration registration = new Registration("9ADMC", "3981", "9851", "Pending");
         mdb.insertRegistration(registration, r->{}); //
-        EM.deleteRegistration(registration, resultCapturer);
+        EM.deleteRegistration(registration.getId(), resultCapturer);
         assertTrue(resultCapturer.get().isSuccess(), "Delete should succeed on deleting existent registrations");
     }
     @Test
     void testDeleteMissingRegistration(){
         Registration registration = new Registration("9ADMC", "3981", "9851", "Pending");
-        EM.deleteRegistration(registration, resultCapturer);
+        EM.deleteRegistration(registration.getId(), resultCapturer);
         assertFalse(resultCapturer.get().isSuccess(), "Delete should fail if the registration isn't in the database");
     }
 

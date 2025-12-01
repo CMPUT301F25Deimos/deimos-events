@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/btnPending"
+            android:textSize="12sp"
+            android:layout_width="30dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Pending" />
+
+        <Button
+            android:id="@+id/btnDeclined"
+            android:textSize="12sp"
+            android:layout_width="30dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Declined" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/button2Container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonContainer">
+        <Button
+            android:id="@+id/btnWaiting"
+            android:textSize="12sp"
+            android:layout_width="30dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Waiting" />
+
+        <Button
+            android:id="@+id/btnRejectedWaitlist"
+            android:textSize="12sp"
+            android:layout_width="30dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Rejected Waitlist" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/button3Container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button2Container">
+        <Button
+            android:id="@+id/btnAccepted"
+            android:textSize="12sp"
+            android:layout_width="30dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Accepted" />
+
+        <Button
+            android:id="@+id/btnWaitlist"
+            android:textSize="12sp"
+            android:layout_width="30dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Waitlist" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="141dp"
+        android:layout_height="146dp"
+        android:contentDescription="Selected Image"
+        android:src="@drawable/ic_launcher_foreground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button3Container" />
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="339dp"
+        android:layout_height="136dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/list_info"></ListView>
+
+    <TextView
+        android:id="@+id/pick"
+        android:layout_width="201dp"
+        android:layout_height="36dp"
+        android:gravity="center"
+        android:text="Pick Specified Number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listView" />
+
+    <Button
+        android:id="@+id/select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="48dp"
+        android:text="Select"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/number" />
+
+    <Button
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="back"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/select"
+        app:layout_constraintTop_toBottomOf="@+id/listView"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="297dp"
+        android:layout_height="42dp"
+        android:gravity="center"
+        android:text="Description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <TextView
+        android:id="@+id/placeholder_description"
+        android:layout_width="296dp"
+        android:layout_height="38dp"
+        android:gravity="center"
+        android:text="DescriptionPlaceholder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/description" />
+
+    <TextView
+        android:id="@+id/spots_filled"
+        android:layout_width="296dp"
+        android:layout_height="38dp"
+        android:gravity="center"
+        android:text="SpotsFilledPlaceholder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/placeholder_description" />
+
+    <TextView
+        android:id="@+id/list_info"
+        android:layout_width="296dp"
+        android:layout_height="38dp"
+        android:gravity="center"
+        android:text="WaitingListNumberPlaceholder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spots_filled" />
+
+    <EditText
+        android:id="@+id/number"
+        android:layout_width="162dp"
+        android:layout_height="32dp"
+        android:background="@android:color/darker_gray"
+        android:ems="10"
+        android:inputType="number"
+        android:text=""
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pick" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

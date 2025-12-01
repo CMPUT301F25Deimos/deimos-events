@@ -9,8 +9,10 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.hardware.camera" />
     <uses-permission android:name="android.hardware.camera.autofocus" />
-
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".EventsApp"
         android:allowBackup="true"
@@ -21,6 +23,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DeimosEvents">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCle5hjdvl4MO_u6V3GGy_bfGVZS0DATGI" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <activity
             android:name="com.example.deimos_events.ui.auth.SignupActivity"
@@ -31,7 +39,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.example.deimos_events.MainActivity" android:exported="true" />
+        <activity
+            android:name="com.example.deimos_events.MainActivity"
+            android:exported="true" />
         <activity android:name="com.example.deimos_events.DeleteActivity" />
         <activity android:name="com.example.deimos_events.DisplayDataActivity" />
         <activity android:name="com.example.deimos_events.SignInActivity" />
@@ -48,7 +58,9 @@
         </provider>
 
     </application>
-
+    <queries>
+        <package android:name="com.google.android.gms" />
+    </queries>
 
 
 </manifest>

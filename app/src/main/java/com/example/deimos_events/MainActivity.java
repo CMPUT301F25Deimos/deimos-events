@@ -32,6 +32,7 @@ public class MainActivity extends FoundationActivity {
             return;
         }
 
+
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -64,7 +65,8 @@ public class MainActivity extends FoundationActivity {
                         R.id.navigation_administrators_events,
                         R.id.navigation_images,
                         R.id.navigation_users,
-                        R.id.navigation_profile
+                        R.id.navigation_profile,
+                        R.id.navigation_notifications
                 ).build();
 
             } else if (role.equals("Organizer")) {
@@ -105,4 +107,5 @@ public class MainActivity extends FoundationActivity {
         NavController navController = navHostFragment.getNavController();
         return navController.navigateUp() || super.onSupportNavigateUp();
     }
+
 }

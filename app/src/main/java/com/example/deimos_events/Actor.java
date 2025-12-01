@@ -20,6 +20,7 @@ public  class Actor {
         this.role = role;
         this.notificationsPreference = notificationsPreference;
     }
+    public Actor(){}
 
     public Actor (String deviceIdentifier, String name, String email, String phoneNumber, Boolean notificationsPreference) {
        this(deviceIdentifier, name, email, phoneNumber, null, true);

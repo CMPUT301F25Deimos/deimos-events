@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    tools:context=".ui.events.EventInformationActivity">
+    tools:context=".ui.events.EventInformationActivity"
+    android:layout_marginTop="35dp"
+    android:fitsSystemWindows="true">
 
     <TextView
         android:id="@+id/EventTitle"
