@@ -10,6 +10,18 @@
         android:label="@string/title_events"
         tools:layout="@layout/fragment_administrators_events" >
     </fragment>
+    <fragment
+        android:name="com.example.deimos_events.ui.notifications.NotificationsFragmentAdmin"
+        android:id="@+id/navigation_notifications"
+        android:label="insert name"
+        tools:layout="@layout/fragment_notifications">
+    <argument
+        android:name="actorName"
+        app:argType="string" />
+    <argument
+        android:name="orgId"
+        app:argType="string" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_images"
