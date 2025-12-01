@@ -74,11 +74,11 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
         
         if (notification != null) {
             TextView textView = view.findViewById(R.id.event_text);
-
+            
             ImageView imageView = view.findViewById(R.id.event_image);
-
+            
             String base64Image = notification.image;
-
+            
             if (base64Image == null || base64Image.trim().isEmpty() || base64Image.equals("null")) {
                 imageView.setImageResource(R.drawable.ic_events_black_24dp);
             } else {
@@ -229,7 +229,7 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                                 snackbar = Snackbar.make(view, "You have accepted your offer.", Snackbar.LENGTH_SHORT);
                                 choice = accept_button;
                                 button_colour = ContextCompat.getColorStateList(getContext(), R.color.accept_green);
-
+                                
                                 // if person had previously answered, then only keeps the most recently clicked button (accept)
                                 decline_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
                                 decline_button.setShapeAppearanceModel(original_decline);
@@ -241,12 +241,12 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
                                 snackbar = Snackbar.make(view, "You have declined your offer.", Snackbar.LENGTH_SHORT);
                                 choice = decline_button;
                                 button_colour = ContextCompat.getColorStateList(getContext(), R.color.decline_red);
-
-                                    // if person had previously answered, then only keeps the most recently clicked button (decline)
+                                
+                                // if person had previously answered, then only keeps the most recently clicked button (decline)
                                 accept_button.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.title_colour));
                                 accept_button.setShapeAppearanceModel(original_accept);
                                 
-                                db.answerEvent(notification.getId(), "Cancelled");
+                                db.answerEvent(notification.getId(), "Declined");
                                 // saves their answer as "decline"
                                 db.setRegistrationStatus(notification.getRegistrationId(), "Declined");
                             }
@@ -274,5 +274,5 @@ public class NotificationsArrayAdapter extends ArrayAdapter<Notifications>{
         }
         return view;
     }
-        
+    
 }

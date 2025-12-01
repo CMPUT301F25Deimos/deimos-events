@@ -1,18 +1,14 @@
 package com.example.deimos_events;
 
-import android.util.Log;
-
-import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.util.Base64;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
@@ -23,7 +19,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -450,14 +445,13 @@ public class Database implements IDatabase {
                     callback.accept(0); // return 0 on error
                 });
     }
-
+    
     /**
      * finds the events which an actor have joined
      *
      * @param eventId the id of the event
      * @param actor the actor who is joining the event
      */
-
     public void joinEvent(Context context, String eventId, Actor actor) {
         fetchEventById(eventId, callback -> {
             if (callback.getRecordLocation()) {
@@ -487,7 +481,7 @@ public class Database implements IDatabase {
             }
         });
     }
-
+    
     /**
      * user's data from the registered collection is deleted if they leave the event
      *
@@ -505,7 +499,7 @@ public class Database implements IDatabase {
                     }
                 });
     }
-
+    
     /**
      * gets all events info
      *
@@ -527,7 +521,7 @@ public class Database implements IDatabase {
                 })
                 .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
     }
-
+    
     /**
      * finds the events which an actor is registered in
      * (for the buttons in the edit event screen)
@@ -547,7 +541,7 @@ public class Database implements IDatabase {
                     callback.accept(registeredEventIds);
                 });
     }
-
+    
     /**
      * listener for events so that screen updates immediately after the database does
      *
@@ -567,7 +561,7 @@ public class Database implements IDatabase {
                     callback.accept(registeredEventIds);
                 });
     }
-
+    
     /**
      * used so that event image and description can be taken from the events collection and displayed
      *
@@ -583,12 +577,12 @@ public class Database implements IDatabase {
                     List<Task<DocumentSnapshot>> eventTasks = new ArrayList<>();
                     for (DocumentSnapshot registrationDoc : snapshot.getDocuments()) {
                         Registration registration = registrationDoc.toObject(Registration.class);
-
+                        
                         if (registration != null) {
                             registration.setStatus(registrationDoc.getString("status"));
                             registration.setId(registrationDoc.getId());
                             registrations.add(registration);
-
+                            
                             // to be able to display image + description in notification
                             String eventId = registration.getEventId();
                             eventTasks.add(db.collection("events").document(eventId).get()
@@ -606,7 +600,7 @@ public class Database implements IDatabase {
                             .addOnSuccessListener(done -> callback.accept(registrations));
                 });
     }
-
+    
     /**
      * gives answer to notifications
      *
@@ -618,7 +612,7 @@ public class Database implements IDatabase {
                 .document(documentId)
                 .update("status", answer);
     }
-
+    
     /**
      * gets the role of the actor (ie. organizer, entrant, admin)
      *
@@ -821,9 +815,9 @@ public class Database implements IDatabase {
     
     /**
      * Gets notifications from database
-     * @param actor
-     * @param notificationsList
-     * @param adapter
+     * @param actor: actor whose notification is being found
+     * @param notificationsList: notifications list
+     * @param adapter: adapter of notification list
      */
     public void getNotifications(Actor actor, ArrayList<Notifications> notificationsList, NotificationsArrayAdapter adapter) {
         db.collection("notifications")
