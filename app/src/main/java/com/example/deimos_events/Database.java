@@ -600,7 +600,6 @@ public class Database implements IDatabase {
                                         if (eventDoc.exists()) {
                                             Event event = eventDoc.toObject(Event.class);
                                             if (event != null) {
-                                                registration.setDescription(event.getTitle());
                                                 registration.setImage(event.getPosterId());
                                             }
                                         }
@@ -995,46 +994,14 @@ public class Database implements IDatabase {
     /**
      * used so that event image and description can be taken from the events collection and displayed
      *
-     * @param orgId
      * @param callback
      */
-    public void getNotificationOrgId(String orgId, Consumer<List<Registration>> callback) {
-        db.collection("events")
-                .whereEqualTo("ownerId",orgId)
+    public void getNotificationAdmin( Consumer<List<Notifications>> callback) {
+        db.collection("notifications")
                 .get()
                 .addOnSuccessListener(snapshot ->{
                     DocumentReference doc = (DocumentReference) snapshot.getDocuments();
-                    db.collection("registrations")
-                            .whereEqualTo("id", doc.getId())
-                            .get()
-                            .addOnSuccessListener(snap -> {
-                                List<Registration> registrations = new ArrayList<>();
-                                List<Task<DocumentSnapshot>> eventTasks = new ArrayList<>();
-                                for (DocumentSnapshot registrationDoc : snap.getDocuments()) {
-                                    Registration registration = registrationDoc.toObject(Registration.class);
-
-                                    if (registration != null) {
-                                        registration.setStatus(registrationDoc.getString("status"));
-                                        registration.setId(registrationDoc.getId());
-                                        registrations.add(registration);
-
-                                        // to be able to display image + description in notification
-                                        String eventId = registration.getEventId();
-                                        eventTasks.add(db.collection("events").document(eventId).get()
-                                                .addOnSuccessListener(eventDoc -> {
-                                                    if (eventDoc.exists()) {
-                                                        Event event = eventDoc.toObject(Event.class);
-                                                        if (event != null) {
-                                                            registration.setDescription(event.getTitle());
-                                                            registration.setImage(event.getPosterId());
-                                                        }
-                                                    }
-                                                }));
-                                    }
-                                }
-                                Tasks.whenAllComplete(eventTasks)
-                                        .addOnSuccessListener(done -> callback.accept(registrations));
-                            });
+                    callback.accept((List<Notifications>) doc.get());
                 });
 
     }

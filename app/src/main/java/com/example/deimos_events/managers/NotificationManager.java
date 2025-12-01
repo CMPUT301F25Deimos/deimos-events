@@ -1,8 +1,13 @@
 package com.example.deimos_events.managers;
 
 
+import static android.content.ContentValues.TAG;
+
+import android.util.Log;
+
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.Notification;
+import com.example.deimos_events.Notifications;
 import com.example.deimos_events.Registration;
 import com.example.deimos_events.Session;
 
@@ -27,16 +32,22 @@ public class NotificationManager {
     public NotificationManager(SessionManager sessionManager){
         this.sessionManager = sessionManager;
     }
-    public void getNotification(String orgId, Consumer<List<String>> Descritption){
+    public void getNotification( Consumer<List<Notifications>> Descritption){
        IDatabase db =  sessionManager.getSession().getDatabase();
-       db.getNotificationOrgId(orgId ,callback->{
-           Set<String> uniqueSet = new HashSet<>();
-           for (Registration r: callback){
-               uniqueSet.add(r.description);
+       db.getNotificationAdmin(callback->{
+           if(callback!=null){
+           Set<Notifications> uniqueSet = new HashSet<>();
+           for (Notifications n: callback){
+               uniqueSet.add(n);
            }
-           List<String> uniqueList = new ArrayList<>(uniqueSet);
+           List<Notifications> uniqueList = new ArrayList<>(uniqueSet);
            Descritption.accept(uniqueList);
+       }else{
+               Log.d(TAG,"Notifications is null");
+               Descritption.accept(null);
+           }
        });
+
         }
     }
 

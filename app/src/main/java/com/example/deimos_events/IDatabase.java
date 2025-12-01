@@ -72,5 +72,8 @@ public interface IDatabase {
     void deleteEventImage(String eventID, Consumer<Boolean> callback);
 
     void inviteEntrant(String registrationId, Consumer<Boolean> callback);
-    public void getNotificationOrgId(String orgId, Consumer<List<Registration>> callback);
+    public void getNotificationAdmin( Consumer<List<Notifications>> callback);
+
+
+    void getNotificationEventInfo(Actor actor, Consumer<List<Registration>> callback);
 }

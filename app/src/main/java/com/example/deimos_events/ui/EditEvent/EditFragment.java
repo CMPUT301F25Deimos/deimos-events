@@ -33,6 +33,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.deimos_events.Event;
 import com.example.deimos_events.MainActivity;
+import com.example.deimos_events.Registration;
 import com.example.deimos_events.managers.ActorManager;
 import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.EventsApp;
@@ -190,16 +191,6 @@ public class EditFragment extends Fragment {
         Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
         image.setImageBitmap(bmp);
 
-        EM.fetchAllRegistrations(event.getId(), regList ->{
-            if (regList != null && !regList.isEmpty()){
-                Log.d("TAG", "This is a debug message");
-                    Log.d("TAG", "This is a debug message2");
-                    EventAdapter adapter = new EventAdapter(getContext(), regList);
-                    entrants.setAdapter(adapter);
-                }
-
-        });
-        
         // clicking on the notification button button
         notify = view.findViewById(R.id.notify);
         notify.setOnClickListener(v -> {

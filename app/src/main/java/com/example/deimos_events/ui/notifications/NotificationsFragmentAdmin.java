@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.R;
+import com.example.deimos_events.databinding.FragmentAdministratorsNotificationBinding;
 import com.example.deimos_events.databinding.FragmentNotificationsBinding;
 import com.example.deimos_events.managers.NotificationManager;
 import com.example.deimos_events.managers.SessionManager;
@@ -22,18 +23,26 @@ import com.example.deimos_events.managers.SessionManager;
 public class NotificationsFragmentAdmin extends Fragment {
 
     private SessionManager SM;
-    private String orgId;
+    private FragmentAdministratorsNotificationBinding binding;
+
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
-        Log.d(TAG,"test5");
-        requireActivity().setTitle(savedInstanceState.get("actorName").toString());
-        View view = inflater.inflate(R.layout.fragment_notifications, container,false);
+        Log.d(TAG,"");
+        binding = FragmentAdministratorsNotificationBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
+
         SM =  ((EventsApp) requireActivity().getApplicationContext()).getSessionManager();
         NotificationManager NM = SM.getNotificationManager();
-        ListView listView = view.findViewById(R.id.notifications_list);
-        NM.getNotification(savedInstanceState.get("orgId").toString(), callback->{
-            NotificationsAdminArrayAdapter adapter = new NotificationsAdminArrayAdapter(inflater.getContext(), callback);
-            listView.setAdapter(adapter);
-        });
-    return view;
+
+        ListView listView = binding.adminNotification;
+//
+//        NM.getNotification( callback->{
+//            if(callback!=null){
+//            NotificationsAdminArrayAdapter adapter = new NotificationsAdminArrayAdapter(inflater.getContext(), callback);
+//            listView.setAdapter(adapter);
+//        }else{
+//            Log.d(TAG,"Notifications is null");
+//        }
+//        });
+    return root;
     }
 }

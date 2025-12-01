@@ -17,8 +17,8 @@
         android:title="@string/title_users" />
     <item
         android:id="@+id/navigation_notifications"
-        android:icon="@drawable/outline_groups_24"
-        android:title="Notifications" />
+        android:icon="@drawable/ic_events_black_24dp"
+        android:title="@string/notifications" />
 
     <item
         android:id="@+id/navigation_profile"

@@ -9,5 +9,6 @@
     <string name="go_back">Go Back</string>
     <string name="facility_name_label">Name:</string>
     <string name="facility_phone_number_label">Phone:</string>
+    <string name="notifications">Notifications</string>
 
 </resources>

@@ -65,7 +65,8 @@ public class MainActivity extends FoundationActivity {
                         R.id.navigation_administrators_events,
                         R.id.navigation_images,
                         R.id.navigation_users,
-                        R.id.navigation_profile
+                        R.id.navigation_profile,
+                        R.id.navigation_notifications
                 ).build();
 
             } else if (role.equals("Organizer")) {
