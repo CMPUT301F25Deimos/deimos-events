@@ -1,5 +1,6 @@
 package com.example.deimos_events.ui.createEvent;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -62,17 +63,20 @@ public class CreateFragment extends Fragment {
     private Button create;
     private EditText year;
 
+    private EditText guide;
+    private EditText criteria;
 
 
 
-
+    @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
      public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_create_event, container,false);
 
 
-
+        guide = view.findViewById(R.id.Guidelines);
+        criteria = view.findViewById(R.id.editText2);
         upload = view.findViewById(R.id.button);
         title = view.findViewById(R.id.title);
         Description = view.findViewById(R.id.editText);
@@ -88,6 +92,7 @@ public class CreateFragment extends Fragment {
         year = view.findViewById(R.id.year);
         create = view.findViewById(R.id.create);
         image = view.findViewById(R.id.imageView);
+
         final ActivityResultLauncher<String> pickImageLauncher =
                 registerForActivityResult(new ActivityResultContracts.GetContent(),
                         uri -> {
@@ -101,6 +106,16 @@ public class CreateFragment extends Fragment {
         });
 
         create.setOnClickListener(v->{
+            String guidelines = guide.getText().toString();
+            if(guidelines.isEmpty()){
+                guide.setError("Guide cannot be empty");
+                return;
+            }
+            String participation = criteria.getText().toString();
+            if(participation.isEmpty()){
+                criteria.setError("Participation criteria cannot be empty");
+                return;
+            }
             String name = title.getText().toString();
             if(name.isEmpty()){
                 title.setError("Title cannot be empty");
@@ -161,7 +176,7 @@ public class CreateFragment extends Fragment {
             }
             SessionManager SM = ((EventsApp)requireActivity().getApplicationContext()).getSessionManager();
             EventManager EM = SM.getEventManager();
-            Event event = EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
+            Event event = EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr,criteria.getText().toString(), guide.getText().toString());
 
             
             EM.insertEvent(event, result -> {

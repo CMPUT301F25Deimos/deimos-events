@@ -19,7 +19,7 @@ public class Event {
     String date;
     String ownerId;
 
-    public Event(String id, String title, String posterId, String description, String registrationDeadline, Integer participantCap, Boolean recordLocation, String qrCodeId, String ownerId) {
+    public Event(String id, String title, String posterId, String description, String registrationDeadline, Integer participantCap, Boolean recordLocation, String qrCodeId, String ownerId, String guidelines, String criteria) {
         this.id = id;
         this.title = title;
         this.posterId = posterId;
