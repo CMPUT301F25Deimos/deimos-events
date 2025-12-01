@@ -40,7 +40,6 @@ public class EventManager {
         this.sessionManager = sessionManager;
     }
 
-
     /**
      * Makes a {@link Event} by encoding a poster {@link Bitmap} and a QR {@link BitMatrix}
      * into a form that can be stored in the Database, specifically Base64 strings
@@ -78,7 +77,6 @@ public class EventManager {
         return new Event(id, title, posterIdArray, description, registrationDeadline.toString(), participantCap.intValue(), recordLocation, qrArray, actor.getDeviceIdentifier().toString(), critria, guidlines);
     }
 
-
     /**
      * This method will attempt to insert the current {@link Event} into the Database.
      * <p>
@@ -113,15 +111,10 @@ public class EventManager {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
 
-        // grab session, database, and what you need, in this case the actor
-
-        // Validate what you are trying to do, before querying the database
         if (event == null) {
             callback.accept(new Result(Boolean.FALSE, "INSERT_EVENT", "No EVENT found"));
             return;
         }
-        // Validate the query
-        // should be eventExists
         db.eventExists(event, exists -> {
             if (exists == null) {
                 callback.accept(new Result(Boolean.FALSE, "INSERT_EVENT", "Database Failed to Read"));
@@ -242,7 +235,12 @@ public class EventManager {
         IDatabase db = session.getDatabase();
         db.getWaitingRegistrationsForEvent(eventID, callback);
     }
-
+    /**
+     * Fetches a single {@link Actor} by id from the database.
+     * This method is asynchronous and returns the result via the callback.
+     * @param actorId the id of the actor to fetch
+     * @param callback receives the {@link Actor}, or null if not found or on failure
+     */
     public void getActorById(String actorId, Consumer<Actor> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
@@ -264,9 +262,13 @@ public class EventManager {
         Actor actor = session.getCurrentActor();
         db.addUserToWaitList(eventID, actor, callback);
     }
-
-
-
+    /**
+     * Updates the stored image for a given event.
+     * Encodes the provided {@link Bitmap} as Base64 and writes it to the database.
+     * @param eventId the ID of the event whose image is being updated
+     * @param imageBit the new bitmap to store
+     * @param callback receives true on success, false on failure or invalid input
+     */
     public void updateImage(String eventId, Bitmap imageBit, Consumer<Boolean> callback) {
         if (eventId == null || imageBit == null) {
             Log.e("EventManager", "updateImage failed: eventId was null or empty.");
@@ -287,9 +289,12 @@ public class EventManager {
                 callback.accept(false);
             }
         });
-
     }
-
+    /**
+     * Fetches all events from the database.
+     * This method is asynchronous and returns the list via the callback.
+     * @param callback receives a list of {@link Event} objects, or an empty list if none or on failure
+     */
     public void getAllEvents(Consumer<List<Event>> callback) {
         // 🔧 FIX: get db from session (db was not defined before)
         Session session = sessionManager.getSession();
@@ -303,7 +308,6 @@ public class EventManager {
             }
         });
     }
-
     /**
      * Admin-only delete: removes an event and all of its registrations.
      * Satisfies US 03.01.01 (admin removes events).
@@ -331,7 +335,12 @@ public class EventManager {
             }
         });
     }
-
+    /**
+     * Exports all entrants enrolled in the given event as a CSV string.
+     * The CSV has the header: {@code Name,Email,PhoneNo}.
+     * @param eventId the id of the event whose entrants should be exported
+     * @param callback receives the CSV string, or null if the query fails
+     */
     public void exportEntrantsCsv(String eventId, Consumer<String> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
@@ -352,14 +361,18 @@ public class EventManager {
             }
         });
     }
-
+    /**
+     * Retrieves all {@link Registration} objects for a given event that match a specific status.
+     * @param eventId the id of the event
+     * @param status the registration status to filter by
+     * @param callback receives the list of registrations matching the status, or {@code null} on failure
+     */
     public void getRegistrationsByStatus(String eventId, String status, Consumer<List<Registration>> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
 
         db.getRegistrationsByStatus(eventId, status, callback::accept);
     }
-
     /**
      *Deletes the event image from the database
      * @param eventId The ID of the event image that needs to be deleted
@@ -378,6 +391,13 @@ public class EventManager {
 
         });
     }
+    /**
+     * Updates the status of a {@link Registration} in the database.
+     * Validates that both registration id and status are non-empty before updating.
+     * @param registrationId the id of the registration to update
+     * @param registrationStatus the new status value
+     * @param callback receives a {@link Result} describing the outcome
+     */
     public void setRegistrationStatus(String registrationId, String registrationStatus, Consumer<Result> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
@@ -400,7 +420,13 @@ public class EventManager {
             }
         });
     }
-
+    /**
+     * Stores an answer for an event-related registration.
+     * Validates the registration id and the answer before sending the update.
+     * @param registrationId the id of the registration being answered
+     * @param answer the answer to store (e.g., "Accepted", "Declined")
+     * @param callback receives a {@link Result} describing the outcome
+     */
     public void answerEvent(String registrationId, String answer, Consumer<Result> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
@@ -426,8 +452,12 @@ public class EventManager {
             }
         });
     }
-
-
+    /**
+     * Fetches registration information used for notifications for a given actor.
+     * Returns an empty list if the actor is null or the database query fails.
+     * @param actor the actor for whom to fetch notification-related registration info
+     * @param callback receives a list of {@link Registration} objects, or an empty list on failure
+     */
     public void fetchNotificationEventInfo(Actor actor, Consumer<List<Registration>> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
@@ -445,7 +475,13 @@ public class EventManager {
             }
         });
     }
-
+    /**
+     * Listens for changes to the set of events that an actor is registered in.
+     * Returns a Firestore {@link ListenerRegistration} so the caller can remove the listener later.
+     * @param actor the actor whose registered events are being observed
+     * @param callback receives a set of event ids, or an empty set on error
+     * @return a {@link ListenerRegistration} for the underlying Firestore listener, or null if actor is null
+     */
     public ListenerRegistration listenToRegisteredEvents(Actor actor, Consumer<Set<String>> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
@@ -464,7 +500,12 @@ public class EventManager {
             }
         });
     }
-
+    /**
+     * Fetches the set of event ids that an entrant is registered in.
+     * Returns an empty set if the actor is null or the database query fails.
+     * @param actor the entrant actor whose registrations are being queried
+     * @param callback receives a set of event ids or an empty set on failure
+     */
     public void fetchEntrantRegisteredEvents(Actor actor, Consumer<Set<String>> callback) {
 
         Session session = sessionManager.getSession();
@@ -484,7 +525,11 @@ public class EventManager {
             }
         });
     }
-
+    /**
+     * Fetches all events from the database and delivers them via callback.
+     * Returns an empty list if the database query fails.
+     * @param callback receives a list of {@link Event} objects, or an empty list on failure
+     */
     public void fetchEvents(Consumer<List<Event>> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
@@ -497,7 +542,13 @@ public class EventManager {
             }
         });
     }
-
+    /**
+     * Removes an actor from an event they have joined.
+     * Validates the actor and event id before issuing the operation.
+     * @param eventId the id of the event to leave
+     * @param actor the actor who is leaving the event
+     * @param callback receives a {@link Result} describing the outcome
+     */
     public void leaveEvent(String eventId, Actor actor, Consumer<Result> callback) {
         Session session = sessionManager.getSession();
         IDatabase db = session.getDatabase();
@@ -515,7 +566,14 @@ public class EventManager {
             }
         });
     }
-
+    /**
+     * Attempts to have an actor join a given event.
+     * Validates the actor and event id before issuing the join request.
+     * @param context an Android {@link android.content.Context} used by the database layer
+     * @param eventId the id of the event to join
+     * @param actor the actor joining the event
+     * @param callback receives a {@link Result} describing the outcome
+     */
     public void joinEvent(android.content.Context context, String eventId, Actor actor, Consumer<Result> callback) {
 
         Session session = sessionManager.getSession();
@@ -534,10 +592,5 @@ public class EventManager {
             }
         });
     }
-
-
-
-
-
 
 }
