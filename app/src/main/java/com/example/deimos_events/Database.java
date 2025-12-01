@@ -493,7 +493,7 @@ public class Database implements IDatabase {
                 }
             } else {
                 db.collection("registrations")
-                        .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Pending", null, null))
+                        .add(new Registration(null, actor.getDeviceIdentifier(), eventId, "Waiting", null, null))
                         .addOnSuccessListener(documentReference -> {
                             String documentId = documentReference.getId();
                             // id is the its documentId
