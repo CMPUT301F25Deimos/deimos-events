@@ -67,8 +67,6 @@ public class SignupActivity extends FoundationActivity {
     private TextInputEditText etDeviceId, etName, etEmail, etPhone;
     private AutoCompleteTextView etRole;
     private MaterialButton btnSignup, btnMore;
-
-
     private SessionManager SM;
     private UserInterfaceManager UIM;
     private NavigationManager NM;
@@ -262,6 +260,7 @@ public class SignupActivity extends FoundationActivity {
      * @param id    unique device identifier for the user.
      * @param name  user's full name.
      * @param email user's email address.
+     * @param notificationsPreference whether the user has enabled notifications.
      * @param phone user's phone number.
      * @param role  role selection (Entrant, Organizer, Admin).
      * @return a new {@link Actor} instance matching the selected role.
@@ -282,7 +281,6 @@ public class SignupActivity extends FoundationActivity {
         tilPhone.setError(null);
         tilRole.setError(null);
     }
-
     /**
      * Helper to safely extract trimmed text from {@link TextInputEditText}.
      *
@@ -292,7 +290,6 @@ public class SignupActivity extends FoundationActivity {
     private String txt(TextInputEditText et) {
         return et.getText() == null ? "" : et.getText().toString().trim();
     }
-
     /**
      * Checks if the email belongs to an approved domain.
      *

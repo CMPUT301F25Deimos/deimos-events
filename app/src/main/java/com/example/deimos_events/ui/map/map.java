@@ -29,6 +29,21 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class map extends Fragment {
+    /**
+     * Fragment responsible for displaying a map containing markers representing
+     * the locations of all entrants registered for a selected {@link Event}.
+     *
+     * <p>This fragment:
+     * <ul>
+     *     <li>Initializes a Google Map via {@link SupportMapFragment}</li>
+     *     <li>Retrieves the currently selected event from the shared {@link SessionManager}</li>
+     *     <li>Loads all event registrations and places markers for users who have location data</li>
+     *     <li>Looks up the entrant's display name through {@link ActorManager}</li>
+     *     <li>Moves the camera to a default zoom location before drawing markers</li>
+     * </ul>
+     *
+     * <p>The map is rendered read-only: users cannot modify or interact with event data here.
+     */
     FrameLayout maps;
     @Nullable
     @Override

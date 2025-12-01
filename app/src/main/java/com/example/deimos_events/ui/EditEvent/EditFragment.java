@@ -51,7 +51,24 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.File;
 import java.io.FileOutputStream;
-
+/**
+ * Fragment used for editing an existing {@link Event}. It allows organizers to:
+ * <ul>
+ *     <li>Update the event's poster image</li>
+ *     <li>Navigate to a map view if location tracking is enabled</li>
+ *     <li>Export entrant information as a CSV file</li>
+ *     <li>Select additional content through the picker screen</li>
+ *     <li>Open the notification dialog to send messages to entrants</li>
+ * </ul>
+ *
+ * <p>The fragment loads the current event from the shared {@link SessionManager}
+ * and updates the UI accordingly, including loading an existing poster image
+ * if available. Organizers can then modify event details such as the poster,
+ * or perform admin tasks like exporting CSV participant data.</p>
+ *
+ * <p>This fragment is always opened with a valid event stored in the session,
+ * and requires the parent activity to provide an initialized {@link EventManager}.</p>
+ */
 public class EditFragment extends Fragment {
 
     private Button update;
@@ -61,6 +78,24 @@ public class EditFragment extends Fragment {
     private EditViewModel viewModel;
     private Button notify;
     private Button map;
+    /**
+     * Inflates and initializes the edit-event user interface.
+     *
+     * <p>This method performs several tasks:</p>
+     * <ul>
+     *     <li>Loads the current event from the {@link SessionManager}</li>
+     *     <li>Displays the existing event poster image if available</li>
+     *     <li>Sets up the map navigation button (if event uses geolocation)</li>
+     *     <li>Registers an image picker for updating the event poster</li>
+     *     <li>Initializes CSV export functionality for entrant lists</li>
+     *     <li>Initializes “Send Notifications” dialog launching</li>
+     * </ul>
+     *
+     * @param inflater  LayoutInflater used to inflate the layout
+     * @param container Optional parent view
+     * @param savedInstanceState previous saved state (unused)
+     * @return The root view for this fragment
+     */
 
     @Nullable
     @Override
@@ -175,7 +210,6 @@ public class EditFragment extends Fragment {
             image.setImageBitmap(bmp);
         }
 
-        // clicking on the notification button button
         notify = view.findViewById(R.id.notify);
         notify.setOnClickListener(v -> {
             SM.getSession().setCurrentEvent(event);

@@ -21,7 +21,19 @@ import com.example.deimos_events.managers.SessionManager;
 import java.util.ArrayList;
 
 /**
- * Shows the screen for the notifications page
+ * Displays the notifications page for an entrant.
+ *
+ * <p>This fragment retrieves the current user's notifications from
+ * the backend and displays them in a ListView using
+ * {@link NotificationsArrayAdapter}. Notifications include:
+ * <ul>
+ *     <li>General messages sent by organizers</li>
+ *     <li>Waitlist / lottery results</li>
+ *     <li>Accepted / declined offer updates</li>
+ * </ul>
+ *
+ * <p>The fragment fetches data through {@link NotificationManager}
+ * and listens for updates through the shared {@link SessionManager}.</p>
  */
 public class NotificationsFragment extends Fragment {
     
@@ -29,6 +41,23 @@ public class NotificationsFragment extends Fragment {
     private SessionManager SM;
 
     private NotificationManager NM;
+    /**
+     * Inflates the notifications UI, initializes required managers, sets up the
+     * ListView adapter, and fetches notifications for the current user.
+     *
+     * <p>Process:</p>
+     * <ol>
+     *     <li>Inflate the fragment layout and bind UI elements</li>
+     *     <li>Retrieve {@link SessionManager}, {@link Actor}, and {@link IDatabase}</li>
+     *     <li>Attach {@link NotificationsArrayAdapter} to the ListView</li>
+     *     <li>Use {@link NotificationManager} to populate the list asynchronously</li>
+     * </ol>
+     *
+     * @param inflater inflater used to inflate the layout
+     * @param container optional parent view
+     * @param savedInstanceState previously saved state (unused)
+     * @return the root view for this fragment
+     */
     
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -54,7 +83,12 @@ public class NotificationsFragment extends Fragment {
         
         return root;
     }
-    
+    /**
+     * Cleans up fragment references when the view is destroyed.
+     *
+     * <p>This prevents memory leaks since ViewBinding holds references
+     * to the view hierarchy.</p>
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

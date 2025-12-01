@@ -42,10 +42,30 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
+/**
+ * Fragment responsible for allowing organizers to create new events.
+ *
+ * <p>This fragment provides input fields for title, description, date,
+ * capacity, participation criteria, guidelines, location requirement,
+ * and an event image. It validates all user inputs before attempting
+ * to create and insert an {@link Event} into the database via
+ * the {@link EventManager}.</p>
+ *
+ * <p>Upon successful creation, the fragment navigates to the event editing
+ * screen while passing the newly created event's ID.</p>
+ *
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *     <li>Collect and validate event creation input.</li>
+ *     <li>Handle image selection from device storage.</li>
+ *     <li>Generate a unique event ID and corresponding QR code.</li>
+ *     <li>Create an {@link Event} instance and save it using {@link EventManager}.</li>
+ *     <li>Navigate to the event editing screen on success.</li>
+ * </ul>
+ */
 
 public class CreateFragment extends Fragment {
     private FragmentCreateEventBinding binding;
-
     private CreateViewModel viewModel;
     private Button upload;
     private ImageView image;
@@ -62,12 +82,27 @@ public class CreateFragment extends Fragment {
     private Switch location;
     private Button create;
     private EditText year;
-
     private EditText guide;
     private EditText criteria;
-
-
-
+    /**
+     * Inflates the UI for creating an event, initializes all form fields,
+     * configures the image picker, and sets up validation + submission logic.
+     *
+     * <p>The method also builds the event creation workflow including:
+     * <ul>
+     *     <li>Image selection using {@link ActivityResultLauncher}</li>
+     *     <li>Date parsing and validation</li>
+     *     <li>QR code generation for the event</li>
+     *     <li>Submitting the created event to the database</li>
+     *     <li>Navigating to the edit screen after success</li>
+     * </ul>
+     * </p>
+     *
+     * @param inflater LayoutInflater used to inflate the fragment layout
+     * @param container optional parent view
+     * @param savedInstanceState previously saved state, if any
+     * @return the inflated root view for this fragment
+     */
     @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
@@ -155,7 +190,6 @@ public class CreateFragment extends Fragment {
                 Toast.makeText(getContext(), "Please upload a valid image", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyyy", Locale.getDefault());
             String dateString = d +" "+ m+" "+ y;
             Date date;
@@ -178,7 +212,7 @@ public class CreateFragment extends Fragment {
             EventManager EM = SM.getEventManager();
             Event event = EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr,criteria.getText().toString(), guide.getText().toString());
 
-            
+
             EM.insertEvent(event, result -> {
                 if (result.isSuccess()){
                     Log.i("TAG", "Event created successfully");
@@ -201,11 +235,12 @@ public class CreateFragment extends Fragment {
                 }
             });
         });
-
     return view;
-
     }
-
+    /**
+     * Cleans up references to the view binding when the fragment's view is destroyed.
+     * This prevents memory leaks and follows recommended Fragment lifecycle practices.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
