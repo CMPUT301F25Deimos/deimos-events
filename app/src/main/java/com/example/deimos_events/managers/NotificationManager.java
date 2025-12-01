@@ -188,9 +188,5 @@ public class NotificationManager {
         }
         db.getNotificationsPreference(actor, callback);
     }
-
-
-
-
 }
 

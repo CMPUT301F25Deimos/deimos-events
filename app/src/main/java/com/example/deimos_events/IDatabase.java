@@ -41,7 +41,6 @@ public interface IDatabase {
     public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback);
     public void getRegistrationsByStatus(String eventId, String status, Consumer<List<Registration>> callback);
 
-//    public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback);
     public void getWaitingRegistrationsForEvent(String eventId, Consumer<Integer> callback);
 
     public void deleteRegistration(String registrationId, Consumer<Boolean> callback);
