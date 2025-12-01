@@ -83,8 +83,9 @@ public class EditFragment extends Fragment {
         Bundle latLon = new Bundle();
         //if true bring up map
         map.setOnClickListener(v -> {
-
             if (event.getRecordLocation()) {
+                NavController navController = NavHostFragment.findNavController(this);
+                navController.navigate(R.id.action_editFragment_to_mapFragment);
 
                 FrameLayout maps = view.findViewById(R.id.maps);
                 view.findViewById(R.id.mapFragment).setVisibility(view.VISIBLE);
@@ -95,26 +96,7 @@ public class EditFragment extends Fragment {
                 not.setVisibility(view.GONE);
                 pick.setVisibility(view.GONE);
                 back.setVisibility(view.VISIBLE);
-                SupportMapFragment map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
-                map.getMapAsync(googleMap -> {
-                    googleMap.clear();
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(53.5462, 113.4937), 1));
-                    EM.fetchAllRegistrations(event.getId(), regList -> {
-                        if (regList != null && !regList.isEmpty()) {
-                            for (Registration r : regList) {
-                                AM.actorExistsByid(r.getEntrantId(), callback -> {
-                                    LatLng latlng = new LatLng(Double.valueOf(r.getLatitude()), Double.valueOf(r.getLongitude()));
-                                    MarkerOptions marker = new MarkerOptions()
-                                            .position(latlng)
-                                            .title(callback.getName())
-                                            .snippet("Marker Description");
-                                    Marker myMarker = googleMap.addMarker(marker);
-                                });
-                            }
-                        }
 
-                    });
-                });
             } else {
                 Toast.makeText(getContext(), "Location not enabled", Toast.LENGTH_SHORT);
             }
@@ -187,10 +169,11 @@ public class EditFragment extends Fragment {
             NavController navController = NavHostFragment.findNavController(this);
             navController.navigate(R.id.navigation_picker);
         });
-
-        byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);
-        Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-        image.setImageBitmap(bmp);
+        if(event.getPosterId()!= null) {
+            byte[] decodedBytes = Base64.decode(event.getPosterId(), Base64.DEFAULT);
+            Bitmap bmp = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+            image.setImageBitmap(bmp);
+        }
 
         // clicking on the notification button button
         notify = view.findViewById(R.id.notify);

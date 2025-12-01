@@ -18,7 +18,7 @@ public class UserInterfaceManagerTest {
 
     private ResultCapturer resultCapturer;
 
-    private Actor testActor = new Actor("912312","jack", "email@gmail.com", "1231231234", Roles.ENTRANT);
+    private Actor testActor = new Actor("912312","jack", "email@gmail.com", "1231231234", Boolean.TRUE);
 
     private final Consumer<Result> NO_OP = result -> {};
 

@@ -393,7 +393,7 @@ public class EventsEntrantsFragment extends Fragment {
                 return joined;
 
             case WAITLISTED:
-                return "WAITLISTED".equals(norm);
+                return "WAITING".equals(norm);
 
             case SELECTED:
                 return "ACCEPTED".equals(norm) || "SELECTED".equals(norm);

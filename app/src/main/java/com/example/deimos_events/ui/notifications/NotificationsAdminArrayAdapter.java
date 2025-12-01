@@ -38,7 +38,9 @@ public class NotificationsAdminArrayAdapter extends ArrayAdapter<Notifications> 
         } else {
             view = convertView;
         }
-        
+
+        MaterialButton button = view.findViewById(R.id.placeholder_button);
+        button.setVisibility(View.GONE);
         if (notification != null) {
             TextView textView = view.findViewById(R.id.event_text);
             textView.setText(notification.message);

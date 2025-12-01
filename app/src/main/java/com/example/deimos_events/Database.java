@@ -177,20 +177,19 @@ public class Database implements IDatabase {
                 });
     }
 
-    @Override
-    public void getActorById(String deviceIdentifier, Consumer<Actor> callback) {
+    public void fetchActorByID(String id, Consumer<Actor> callback) {
         db.collection("actors")
-                .document(deviceIdentifier)
+                .document(id)
                 .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        Actor actor = doc.toObject(Actor.class);
+                .addOnSuccessListener(docSnapshot -> {
+                    if (docSnapshot.exists()) {
+                        Actor actor = docSnapshot.toObject(Actor.class);
                         callback.accept(actor);
                     } else {
                         callback.accept(null);
                     }
                 })
-                .addOnFailureListener(e -> {
+                .addOnFailureListener(exception -> {
                     callback.accept(null);
                 });
     }
@@ -369,20 +368,7 @@ public class Database implements IDatabase {
                 .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
     }
 
-    public void fetchActorByID(String id, Consumer<Actor> callback) {
-        db.collection("actors").document(id).get()
-                .addOnSuccessListener(docSnapshot -> {
-                    if (docSnapshot.exists()) {
-                        Actor actor = docSnapshot.toObject(Actor.class);
-                        callback.accept(actor);
-                    } else {
-                        callback.accept(null);
-                    }
-                })
-                .addOnFailureListener(exception -> {
-                    callback.accept(null);
-                });
-    }
+
 
     public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback) {
         db.collection("registrations")
@@ -436,10 +422,23 @@ public class Database implements IDatabase {
                 });
     }
 
-    public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback) {
+//    public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback) {
+//        db.collection("registrations")
+//                .whereEqualTo("eventId", eventId)
+//                .whereEqualTo("status", "Pending")
+//                .get()
+//                .addOnSuccessListener(waitinglistSnapshot -> {
+//                    int count = waitinglistSnapshot.size();
+//                    callback.accept(count);
+//                })
+//                .addOnFailureListener(e -> {
+//                    callback.accept(0); // return 0 on error
+//                });
+//    }
+    public void getWaitingRegistrationsForEvent(String eventId, Consumer<Integer> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
-                .whereEqualTo("status", "Pending")
+                .whereEqualTo("status", "Waiting")
                 .get()
                 .addOnSuccessListener(waitinglistSnapshot -> {
                     int count = waitinglistSnapshot.size();
