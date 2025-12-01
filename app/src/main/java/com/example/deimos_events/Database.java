@@ -600,7 +600,6 @@ public class Database implements IDatabase {
                                         if (eventDoc.exists()) {
                                             Event event = eventDoc.toObject(Event.class);
                                             if (event != null) {
-                                                registration.setDescription(event.getTitle());
                                                 registration.setImage(event.getPosterId());
                                             }
                                         }
@@ -992,6 +991,19 @@ public class Database implements IDatabase {
                 })
                 .addOnFailureListener(e -> callback.accept(false));
     }
+    /**
+     * used so that event image and description can be taken from the events collection and displayed
+     *
+     * @param callback
+     */
+    public void getNotificationAdmin( Consumer<List<Notifications>> callback) {
+        db.collection("notifications")
+                .get()
+                .addOnSuccessListener(snapshot ->{
+                    DocumentReference doc = (DocumentReference) snapshot.getDocuments();
+                    callback.accept((List<Notifications>) doc.get());
+                });
 
+    }
 }
 

@@ -21,6 +21,7 @@ import com.example.deimos_events.Actor;
 import com.example.deimos_events.EventsApp;
 import com.example.deimos_events.IDatabase;
 import com.example.deimos_events.R;
+import com.example.deimos_events.Registration;
 import com.example.deimos_events.Session;
 import com.example.deimos_events.databinding.FragmentEntrantsEventsBinding;
 import com.example.deimos_events.managers.SessionManager;
@@ -201,7 +202,7 @@ public class EventsEntrantsFragment extends Fragment {
 
                 registrationStatusByEventId.clear();
                 db.getNotificationEventInfo(actor, registrations -> {
-                    for (com.example.deimos_events.Registration r : registrations) {
+                    for (Registration r : registrations) {
                         if (r.getEventId() != null && r.getStatus() != null) {
                             registrationStatusByEventId.put(r.getEventId(), r.getStatus());
                         }
@@ -216,7 +217,7 @@ public class EventsEntrantsFragment extends Fragment {
 
                     registrationStatusByEventId.clear();
                     db.getNotificationEventInfo(actor, registrations -> {
-                        for (com.example.deimos_events.Registration r : registrations) {
+                        for (Registration r : registrations) {
                             if (r.getEventId() != null && r.getStatus() != null) {
                                 registrationStatusByEventId.put(r.getEventId(), r.getStatus());
                             }

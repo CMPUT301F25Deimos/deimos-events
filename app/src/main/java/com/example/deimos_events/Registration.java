@@ -72,4 +72,6 @@ public class Registration {
     public String getLongitude() {return this.longitude;
     }
     public String getLatitude () {return this.latitude;}
+
+
 }
