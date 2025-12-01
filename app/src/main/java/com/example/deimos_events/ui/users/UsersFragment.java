@@ -36,27 +36,81 @@ import com.example.deimos_events.managers.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Fragment that allows administrators to view, filter, and delete all users (Actors)
+ * registered in the system.
+ *
+ * <p>This screen displays a RecyclerView of all actors loaded from Firestore via
+ * {@link ActorManager}. Administrators may:</p>
+ *
+ * <ul>
+ *     <li>Filter users by role (All, Entrants, Organizers)</li>
+ *     <li>Swipe left on a user to delete them</li>
+ *     <li>See live updates to the list after deleting or reloading users</li>
+ * </ul>
+ *
+ * <p>The fragment maintains an internal list of all actors and applies filters to
+ * present the correct subset. Swipe-to-delete functionality is implemented using
+ * an {@link ItemTouchHelper.SimpleCallback} with a red background and delete icon.</p>
+ */
 public class UsersFragment extends Fragment {
 
+    /**
+     * View binding for the administrators users layout.
+     */
     private FragmentAdministratorsUsersBinding binding;
+
+    /**
+     * Session manager used to access user session and managers.
+     */
     private SessionManager SM;
+
+    /**
+     * Adapter used for displaying user entries in the RecyclerView.
+     */
     private UsersAdapter adapter;
+
+    /**
+     * Manager class responsible for user-related database operations.
+     */
     private ActorManager actorManager;
 
-    // keep ALL actors here
+    /**
+     * Stores all actors loaded from the database.
+     * Filtering is applied to this list rather than reloading from DB.
+     */
     private final List<Actor> allActors = new ArrayList<>();
 
+    /**
+     * Filters available for user roles.
+     */
     private enum UserFilter { ALL, ENTRANTS, ORGANIZERS }
+
+    /**
+     * Tracks the currently selected filter for the UI.
+     */
     private UserFilter currentFilter = UserFilter.ALL;
 
+    /**
+     * Initializes the fragment, retrieving the session manager and actor manager.
+     *
+     * @param savedInstanceState previous saved state, if available
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SM = ((EventsApp) requireActivity().getApplicationContext()).getSessionManager();
         actorManager = SM.getActorManager();
     }
-
+    /**
+     * Inflates the view, initializes UI components, loads all actors,
+     * applies the default filter, and sets up swipe-to-delete behavior.
+     *
+     * @param inflater  LayoutInflater to inflate the fragment layout
+     * @param container Parent container of the fragment
+     * @param savedInstanceState saved state if available
+     * @return the fully constructed root view
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -101,7 +155,10 @@ public class UsersFragment extends Fragment {
 
         return root;
     }
-
+    /**
+     * Filters the list of loaded actors based on the currently selected user filter
+     * and updates the adapter.
+     */
     private void applyCurrentFilter() {
         List<Actor> filtered = new ArrayList<>();
 
@@ -135,7 +192,13 @@ public class UsersFragment extends Fragment {
     }
 
     /**
-     * Same swipe-to-delete behaviour as before – unchanged, just moved into this class.
+     * Attaches swipe-to-delete functionality to a RecyclerView.
+     *
+     * <p>Swiping left causes a delete icon and red background to appear.
+     * When released, the actor is removed locally and deleted from the database.
+     * If deletion fails, the list is reloaded to stay consistent.</p>
+     *
+     * @param recyclerView the RecyclerView to attach delete gestures to
      */
     private void attachSwipeToDelete(RecyclerView recyclerView) {
         ItemTouchHelper.SimpleCallback callback =

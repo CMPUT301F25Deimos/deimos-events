@@ -81,8 +81,5 @@ public interface IDatabase {
 
     public void getNotificationAdmin(NotificationsAdminArrayAdapter adapter, ArrayList<Notifications> notificationsList);
 
-
-
-
     void getNotificationEventInfo(Actor actor, Consumer<List<Registration>> callback);
 }

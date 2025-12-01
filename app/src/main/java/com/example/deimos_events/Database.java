@@ -38,10 +38,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
+/**
+ * Concrete implementation of {@link IDatabase} that handles all Firestore operations
+ * for actors, events, registrations, notifications, and related data.
+ * <p>
+ * All methods in this class are asynchronous and use {@link Consumer} callbacks to
+ * return results back to the caller once Firestore operations complete.
+ * </p>
+ */
 public class Database implements IDatabase {
+    /**
+     * Shared Firestore instance used for all database operations.
+     */
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+    /**
+     * Inserts a new {@link Actor} into the {@code actors} collection.
+     *
+     * @param actor    the actor to insert
+     * @param callback called with {@code true} on success, {@code false} on failure
+     */
     public void insertActor(Actor actor, Consumer<Boolean> callback) {
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
@@ -54,7 +69,13 @@ public class Database implements IDatabase {
                     callback.accept(Boolean.FALSE);
                 });
     }
-
+    /**
+     * Updates an existing {@link Actor} document with the values of {@code updatedActor}.
+     *
+     * @param oldActor      the existing actor whose document ID is used
+     * @param updatedActor  the actor containing the new field values
+     * @param callback      called with {@code true} on success, {@code false} on failure
+     */
     public void updateActor(Actor oldActor, Actor updatedActor, Consumer<Boolean> callback) {
 
         db.collection("actors")
@@ -73,7 +94,12 @@ public class Database implements IDatabase {
                 });
 
     }
-
+    /**
+     * Deletes the given {@link Actor} document from the {@code actors} collection.
+     *
+     * @param actor    the actor to delete
+     * @param callback called with {@code true} on success, {@code false} on failure
+     */
     public void deleteActor(Actor actor, Consumer<Boolean> callback) {
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
@@ -85,18 +111,13 @@ public class Database implements IDatabase {
                     callback.accept(Boolean.FALSE);
                 });
     }
-
-    //    public void insertEvent(Event event, Consumer<Boolean> callback){
-//        db.collection("events")
-//                .document()
-//                .set(event)
-//                .addOnSuccessListener(e ->{
-//                    callback.accept(Boolean.TRUE);
-//                })
-//                .addOnFailureListener(e ->{
-//                    callback.accept(Boolean.FALSE);
-//                });
-//    }
+    /**
+     * Inserts a new {@link Event} into the {@code events} collection.
+     * A new Firestore document is created and its ID is stored in the event via {@link Event#setId(String)}.
+     *
+     * @param event    the event to insert
+     * @param callback called with {@code true} on success, {@code false} on failure
+     */
     public void insertEvent(Event event, Consumer<Boolean> callback) {
         // Create a new Firestore document reference first
         DocumentReference ref = db.collection("events").document();
@@ -113,6 +134,13 @@ public class Database implements IDatabase {
                 });
     }
 
+    /**
+     * Updates the poster image reference of a specific event.
+     *
+     * @param eventId       the ID of the event whose image is being updated
+     * @param posterIdArray the serialized representation of the poster ID(s)
+     * @param callback      called with {@code true} on success, {@code false} on failure
+     */
 
     @Override
     public void updateImage(String eventId, String posterIdArray, Consumer<Boolean> callback) {
@@ -144,7 +172,12 @@ public class Database implements IDatabase {
                 });
     }
 
-
+    /**
+     * Deletes a registration document using its ID.
+     *
+     * @param registrationId the document ID of the registration to delete
+     * @param callback       called with {@code true} on success, {@code null} on error
+     */
     @Override
     public void deleteRegistration(String registrationId, Consumer<Boolean> callback) {
         db.collection("registrations")
@@ -157,7 +190,13 @@ public class Database implements IDatabase {
                     callback.accept(null);
                 });
     }
-
+    /**
+     * Fetches all registrations associated with a given event ID.
+     *
+     * @param eventId  the ID of the event
+     * @param callback called with a list of {@link Registration} objects;
+     *                 empty list on failure
+     */
     @Override
     public void fetchALLRegistrations(String eventId, Consumer<List<Registration>> callback) {
         db.collection("registrations")
@@ -176,7 +215,12 @@ public class Database implements IDatabase {
                     callback.accept(Collections.emptyList());
                 });
     }
-
+    /**
+     * Fetches a single {@link Actor} by its device identifier.
+     *
+     * @param id       the actor's device identifier / document ID
+     * @param callback called with the matching {@link Actor} or {@code null} if not found or on error
+     */
     public void fetchActorByID(String id, Consumer<Actor> callback) {
         db.collection("actors")
                 .document(id)
@@ -193,7 +237,13 @@ public class Database implements IDatabase {
                     callback.accept(null);
                 });
     }
-
+    /**
+     * Fetches all {@link Entrant}s enrolled (status = "Accepted") in a given event.
+     *
+     * @param eventId  the ID of the event
+     * @param callback called with a list of matching {@link Entrant}s,
+     *                 or an empty list if none found or on failure
+     */
     @Override
     public void fetchAllEntrantsEnrolled(String eventId, Consumer<List<Entrant>> callback) {
         db.collection("registrations")
@@ -237,7 +287,14 @@ public class Database implements IDatabase {
                     callback.accept(Collections.emptyList());
                 });
     }
-
+    /**
+     * Retrieves all registrations for a given event with a specified status.
+     *
+     * @param eventId  the ID of the event
+     * @param status   the registration status to filter by (e.g. "Accepted", "Waiting")
+     * @param callback called with a list of matching {@link Registration}s,
+     *                 or an empty list on failure
+     */
     @Override
     public void getRegistrationsByStatus(String eventId, String status, Consumer<List<Registration>> callback) {
         db.collection("registrations")
@@ -264,7 +321,12 @@ public class Database implements IDatabase {
                     callback.accept(Collections.emptyList());
                 });
     }
-
+    /**
+     * Deletes an entrant and all related registrations and waiting list entries in a single batch.
+     *
+     * @param deviceIdentifier the device identifier / document ID of the entrant
+     * @param callback         called with {@code true} on success, {@code false} on failure
+     */
     public void deleteEntrantCascade(String deviceIdentifier, Consumer<Boolean> callback) {
         db.collection("registrations").whereEqualTo("deviceIdentifier", deviceIdentifier).get()
                 .addOnSuccessListener(regSnap -> {
@@ -290,7 +352,13 @@ public class Database implements IDatabase {
                 })
                 .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
     }
-
+    /**
+     * Checks if a given {@link Actor} already exists in the {@code actors} collection.
+     *
+     * @param actor    the actor whose existence is being checked
+     * @param callback called with {@code true} if the actor exists, {@code false} if not,
+     *                 or {@code null} on error
+     */
     public void actorExists(Actor actor, Consumer<Boolean> callback) {
         db.collection("actors")
                 .document(actor.getDeviceIdentifier())
@@ -307,6 +375,14 @@ public class Database implements IDatabase {
                     callback.accept(null);
                 });
     }
+    /**
+     * Checks whether the given {@link Event} exists in the {@code events} collection.
+     * Uses the event's {@link Event#getId()} value as the document ID.
+     *
+     * @param event    the event whose existence is being checked
+     * @param callback called with {@code true} if the event exists, {@code false} if not,
+     *                 or {@code null} on error
+     */
 
     public void eventExists(Event event, Consumer<Boolean> callback) {
         String id = event.getId();
@@ -332,7 +408,13 @@ public class Database implements IDatabase {
                 });
     }
 
-
+    /**
+     * Checks whether an actor exists using their email address.
+     *
+     * @param email    the actor's email address
+     * @param callback called with {@code true} if an actor with this email exists,
+     *                 {@code false} if not, or {@code null} on error
+     */
     public void actorExistsByEmail(String email, Consumer<Boolean> callback) {
         db.collection("actors")
                 .whereEqualTo("email", email)
@@ -342,7 +424,13 @@ public class Database implements IDatabase {
                 .addOnFailureListener(e -> callback.accept(null)); // null = error path
     }
 
-
+    /**
+     * Retrieves all events that the given actor is not yet registered in.
+     *
+     * @param actor    the actor for whom available events are being searched
+     * @param callback called with a list of available {@link Event}s,
+     *                 or an empty list on error
+     */
     public void getAvailableEvents(Actor actor, Consumer<List<Event>> callback) {
         db.collection("registrations")
                 .whereEqualTo("entrantId", actor.getDeviceIdentifier())
@@ -368,7 +456,14 @@ public class Database implements IDatabase {
                 .addOnFailureListener(e -> callback.accept(Collections.emptyList()));
     }
 
-
+    /**
+     * Adds the given {@link Actor} as "Waiting" in the registrations list for an event,
+     * only if they are not already waiting for that event.
+     *
+     * @param eventId  the ID of the event
+     * @param actor    the actor to be added to the waiting list
+     * @param callback called with {@code true} if added, {@code false} otherwise
+     */
 
     public void addUserToWaitList(String eventId, Actor actor, Consumer<Boolean> callback) {
         db.collection("registrations")
@@ -403,8 +498,12 @@ public class Database implements IDatabase {
                 .addOnFailureListener(e -> callback.accept(false));
     }
 
-
-
+    /**
+     * Retrieves a single {@link Event} by its document ID.
+     *
+     * @param eventId  the event's document ID
+     * @param callback called with the {@link Event} if found, or {@code null} on error / not found
+     */
     public void fetchEventById(String eventId, Consumer<Event> callback) {
         db.collection("events")
                 .document(eventId)
@@ -421,20 +520,13 @@ public class Database implements IDatabase {
                     callback.accept(null);
                 });
     }
-
-//    public void getPendingRegistrationsForEvent(String eventId, Consumer<Integer> callback) {
-//        db.collection("registrations")
-//                .whereEqualTo("eventId", eventId)
-//                .whereEqualTo("status", "Pending")
-//                .get()
-//                .addOnSuccessListener(waitinglistSnapshot -> {
-//                    int count = waitinglistSnapshot.size();
-//                    callback.accept(count);
-//                })
-//                .addOnFailureListener(e -> {
-//                    callback.accept(0); // return 0 on error
-//                });
-//    }
+    /**
+     * Counts registrations for an event with status {@code "Waiting"}.
+     *
+     * @param eventId  the ID of the event
+     * @param callback called with the number of waiting registrations,
+     *                 or {@code 0} on error
+     */
     public void getWaitingRegistrationsForEvent(String eventId, Consumer<Integer> callback) {
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)
@@ -1033,6 +1125,7 @@ public class Database implements IDatabase {
 
         @Override
     public void deleteEventCascade(String eventId, java.util.function.Consumer<Boolean> callback) {
+
         // 1) Find all registrations for this event
         db.collection("registrations")
                 .whereEqualTo("eventId", eventId)

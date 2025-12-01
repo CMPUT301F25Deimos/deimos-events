@@ -20,20 +20,64 @@ import com.example.deimos_events.managers.EventManager;
 import com.example.deimos_events.managers.SessionManager;
 
 import java.util.List;
-
+/**
+ * Adapter used to display a list of registrations for a given event.
+ * <p>
+ * Each row shows:
+ * <ul>
+ *     <li>Entrant name</li>
+ *     <li>The entrant's registration status</li>
+ *     <li>An optional delete button (only visible for "Pending" registrations)</li>
+ * </ul>
+ * <p>
+ * When the delete button is pressed (for Pending registrations), the registration
+ * is removed from the database, removed from the adapter list, and a callback is
+ * triggered to allow the parent fragment to refresh related UI.
+ */
 public class RegistrationAdapter extends ArrayAdapter<Registration> {
+    /**
+     * Listener interface used to notify the parent when a registration is deleted.
+     */
 
     public interface OnDeleteListener {
+        /**
+         * Called when a registration is deleted.
+         *
+         * @param status The status of the deleted registration.
+         */
         void onDelete(String status);
     }
-
     private OnDeleteListener listener;
-
+    /**
+     * Constructs the registration adapter.
+     *
+     * @param context       The current context.
+     * @param registrations The list of registrations to display.
+     * @param listener      Optional listener used to notify when a registration is deleted.
+     */
     public RegistrationAdapter(@NonNull Context context, @NonNull List<Registration> registrations, @Nullable OnDeleteListener listener) {
         super(context, 0, registrations);
         this.listener = listener;
     }
-
+    /**
+     * Inflates and binds the view for each registration row.
+     * <p>
+     * Displays the entrant name and registration status.
+     * Shows a delete (X) button only if the status is "Pending".
+     * <p>
+     * When delete is pressed:
+     * <ul>
+     *     <li>The registration is removed from Firestore</li>
+     *     <li>The row is removed from the list</li>
+     *     <li>The adapter refreshes</li>
+     *     <li>The OnDeleteListener callback is invoked (if provided)</li>
+     * </ul>
+     *
+     * @param position    The index of the item within the list.
+     * @param convertView A recycled view to reuse (if available).
+     * @param parent      The parent view group.
+     * @return The fully bound row view.
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {

@@ -33,6 +33,16 @@ public class QRCodeFragment extends Fragment {
     private UserInterfaceManager UIM;
     private NavigationManager NM;
     private EventManager EM;
+    /**
+     * Inflates the QR scanning layout and initializes managers and UI components.
+     * <p>
+     * Sets up the scan button, which launches the QR scanner when pressed.
+     *
+     * @param inflater  The LayoutInflater used to inflate the fragment's view.
+     * @param container The parent view the fragment UI should be attached to.
+     * @param savedInstanceState Previously saved state, or null if none exists.
+     * @return The fully inflated and initialized fragment view.
+     */
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -65,16 +75,21 @@ public class QRCodeFragment extends Fragment {
     }
 
     /**
-     * Handles the resulting information from scanning the QR scanning activity
-     * @param requestCode The integer request code originally supplied to
-     *                    startActivityForResult(), allowing you to identify who this
-     *                    result came from.
-     * @param resultCode The integer result code returned by the child activity
-     *                   through its setResult().
-     * @param data An Intent, which can return result data to the caller
-     *               (various data can be attached to Intent "extras").
+     * Handles the result returned from the QR scanning activity.
+     * <p>
+     * If a valid QR code is scanned:
+     * <ul>
+     *     <li>The scanned event ID is extracted</li>
+     *     <li>The event is fetched from the database</li>
+     *     <li>If found, the user is navigated to the Event Information screen</li>
+     * </ul>
+     * If the scan fails or contains no data, a message is displayed.
      *
+     * @param requestCode Identifier for the activity result.
+     * @param resultCode Status code indicating success or failure.
+     * @param data Intent containing the scanned QR data (if any).
      */
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
         super.onActivityResult(requestCode, resultCode, data);

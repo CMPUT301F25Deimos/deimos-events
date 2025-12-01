@@ -35,7 +35,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
+/**
+ * Fragment that allows organizers to view event registrations by status
+ * (Pending, Waiting, Accepted, etc.) and perform participant sampling.
+ * <p>
+ * The organizer can:
+ * <ul>
+ *     <li>View all registration lists filtered by status</li>
+ *     <li>Randomly select (sample) a number of users from the waiting list</li>
+ *     <li>Update registration statuses (e.g., Pending → Accepted)</li>
+ *     <li>Send notifications to sampled users</li>
+ * </ul>
+ */
 public class PickerFragment extends Fragment {
 
     private ImageView imageView;
@@ -52,6 +63,15 @@ public class PickerFragment extends Fragment {
     private Event event;
     private EventManager EM;
     private NotificationManager NM;
+    /**
+     * Inflates the participant picker UI and initializes all views, data managers,
+     * registration filters, and selection logic.
+     *
+     * @param inflater  The LayoutInflater used to inflate the fragment layout.
+     * @param container The parent view containing this fragment (may be null).
+     * @param savedInstanceState Previously saved state, if any.
+     * @return The inflated and fully initialized fragment view.
+     */
 
     @SuppressLint("SetTextI18n")
     @Nullable
@@ -162,7 +182,12 @@ public class PickerFragment extends Fragment {
 
         return view;
     }
-
+    /**
+     * Loads registrations for the given status, updates the list display,
+     * refreshes waiting list, and updates UI visibility for sampling controls.
+     *
+     * @param status The registration status to filter by (e.g., "Waiting", "Pending").
+     */
     private void loadList(String status) {
         EM.getRegistrationsByStatus(event.getId(), status, registrations -> {
             registrationList.clear();
@@ -188,7 +213,12 @@ public class PickerFragment extends Fragment {
             spotsFilled.setText("");
         }
     }
-
+    /**
+     * Updates the textual information shown above the list
+     * based on the current registration status filter.
+     *
+     * @param status The currently selected registration status.
+     */
     private void updateListInfo(String status) {
         if (Objects.equals(status, "Pending")) {
             listInfo.setText("Pending List: " + waitingList.size());
