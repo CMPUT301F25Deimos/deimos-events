@@ -71,6 +71,8 @@ public class CreateFragment extends Fragment {
      public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_create_event, container,false);
 
+
+
         upload = view.findViewById(R.id.button);
         title = view.findViewById(R.id.title);
         Description = view.findViewById(R.id.editText);
@@ -158,7 +160,7 @@ public class CreateFragment extends Fragment {
                 throw new RuntimeException(e);
             }
             SessionManager SM = ((EventsApp)requireActivity().getApplicationContext()).getSessionManager();
-            EventManager EM = new EventManager(SM);
+            EventManager EM = SM.getEventManager();
             Event event = EM.createEvent(uniqueId,name,imageBit,decs,date,capacity,loc,qr);
 
             
@@ -173,7 +175,6 @@ public class CreateFragment extends Fragment {
                     NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.navigation_organizers_events, false).build();
                     Bundle arg = new Bundle();
                     arg.putString("id", uniqueId);
-                    SM.getSession().setCurrentEvent(event);
                     navController.navigate(R.id.navigation_edit, arg, navOptions);
 
 

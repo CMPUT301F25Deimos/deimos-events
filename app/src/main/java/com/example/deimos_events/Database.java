@@ -78,17 +78,6 @@ public class Database implements IDatabase {
                 });
     }
 
-    //    public void insertEvent(Event event, Consumer<Boolean> callback){
-//        db.collection("events")
-//                .document()
-//                .set(event)
-//                .addOnSuccessListener(e ->{
-//                    callback.accept(Boolean.TRUE);
-//                })
-//                .addOnFailureListener(e ->{
-//                    callback.accept(Boolean.FALSE);
-//                });
-//    }
     public void insertEvent(Event event, Consumer<Boolean> callback) {
         // Create a new Firestore document reference first
         DocumentReference ref = db.collection("events").document();
@@ -97,8 +86,12 @@ public class Database implements IDatabase {
         event.setId(ref.getId());
 
         ref.set(event)
-                .addOnSuccessListener(v -> callback.accept(Boolean.TRUE))
-                .addOnFailureListener(e -> callback.accept(Boolean.FALSE));
+                .addOnSuccessListener(v -> {
+                    callback.accept(Boolean.TRUE);
+                })
+                .addOnFailureListener(e -> {
+                    callback.accept(Boolean.FALSE);
+                });
     }
 
 
