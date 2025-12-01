@@ -8,6 +8,7 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import com.example.deimos_events.ui.notifications.NotificationsAdminArrayAdapter;
 import com.example.deimos_events.ui.notifications.NotificationsArrayAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -997,14 +998,89 @@ public class Database implements IDatabase {
     /**
      * used so that event image and description can be taken from the events collection and displayed
      *
-     * @param callback
+     * @param notificationsList
+     * @param adapter
      */
-    public void getNotificationAdmin( Consumer<List<Notifications>> callback) {
+    public void getNotificationAdmin(NotificationsAdminArrayAdapter adapter, ArrayList<Notifications> notificationsList) {
         db.collection("notifications")
                 .get()
-                .addOnSuccessListener(snapshot ->{
-                    DocumentReference doc = (DocumentReference) snapshot.getDocuments();
-                    callback.accept((List<Notifications>) doc.get());
+                .addOnSuccessListener(snapshot -> {
+                    notificationsList.clear();
+                    List<Task<?>> allTasks = new ArrayList<>();
+
+                    for (DocumentSnapshot notifyDoc : snapshot.getDocuments()) {
+                        Notifications notify = notifyDoc.toObject(Notifications.class);
+                        if (notify == null) {
+                            continue;
+                        }
+
+                        // set registrationId in notifications
+                        notify.setRegistrationId(notifyDoc.getString("registrationId"));
+
+                        // set time of notification
+                        Timestamp time = notifyDoc.getTimestamp("time");
+                        notify.setTime(time != null ? time.toDate() : new Date());
+
+                        notificationsList.add(notify);
+
+                        // gets event image
+                        Task<DocumentSnapshot> eventTask = db.collection("events")
+                                .document(notify.getEventId())
+                                .get()
+                                .addOnSuccessListener(eventDoc -> {
+                                    if (eventDoc.exists()) {
+                                        Event event = eventDoc.toObject(Event.class);
+                                        if (event != null) {
+                                            notify.setTitle(event.getTitle());
+                                            notify.setImage(event.getPosterId());
+                                        }
+                                    }
+                                });
+                        allTasks.add(eventTask);
+
+                        // gets status
+                        Task<Void> statusTask = db.collection("notifications")
+                                .document(notify.getId())
+                                .get()
+                                .continueWithTask(notificationSnapTask -> {
+                                    DocumentSnapshot notificationDoc = notificationSnapTask.getResult();
+                                    if (notificationDoc != null && notificationDoc.exists()) {
+                                        String currentStatus = notificationDoc.getString("status");
+
+                                        // if "Waiting" is not the current status, be able to change status between notif and register collection parallelly (to answer)
+                                        if (!"Waiting".equals(currentStatus)) {
+                                            String registrationId = notify.getRegistrationId();
+                                            return db.collection("registrations")
+                                                    .document(registrationId)
+                                                    .get()
+                                                    .continueWithTask(regSnapTask -> {
+                                                        DocumentSnapshot regDoc = regSnapTask.getResult();
+                                                        if (regDoc != null && regDoc.exists()) {
+                                                            String newStatus = regDoc.getString("status");
+                                                            notify.setStatus(newStatus);
+                                                            return db.collection("notifications")
+                                                                    .document(notify.getId())
+                                                                    .update("status", newStatus)
+                                                                    .continueWithTask(t -> Tasks.forResult(null));
+                                                        }
+                                                        return Tasks.forResult(null);
+                                                    });
+                                        }
+                                    }
+                                    return Tasks.forResult(null);
+                                });
+                        allTasks.add(statusTask);
+                    }
+
+                    Tasks.whenAll(allTasks).addOnSuccessListener(v -> {
+                        // sort to most recent notif
+                        notificationsList.sort((n1, n2) -> {
+                            Date t1 = n1.getTime();
+                            Date t2 = n2.getTime();
+                            return t2.compareTo(t1);
+                        });
+                        adapter.notifyDataSetChanged();
+                    });
                 });
 
     }

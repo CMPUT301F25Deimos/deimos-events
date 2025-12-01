@@ -10,6 +10,7 @@ import com.example.deimos_events.Notification;
 import com.example.deimos_events.Notifications;
 import com.example.deimos_events.Registration;
 import com.example.deimos_events.Session;
+import com.example.deimos_events.ui.notifications.NotificationsAdminArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,22 +33,6 @@ public class NotificationManager {
     public NotificationManager(SessionManager sessionManager){
         this.sessionManager = sessionManager;
     }
-    public void getNotification( Consumer<List<Notifications>> Descritption){
-       IDatabase db =  sessionManager.getSession().getDatabase();
-       db.getNotificationAdmin(callback->{
-           if(callback!=null){
-           Set<Notifications> uniqueSet = new HashSet<>();
-           for (Notifications n: callback){
-               uniqueSet.add(n);
-           }
-           List<Notifications> uniqueList = new ArrayList<>(uniqueSet);
-           Descritption.accept(uniqueList);
-       }else{
-               Log.d(TAG,"Notifications is null");
-               Descritption.accept(null);
-           }
-       });
 
-        }
     }
 
